@@ -8,6 +8,8 @@ import com.fashionify.backend.repository.CartRepository;
 import com.fashionify.backend.repository.OrderRepository;
 import com.fashionify.backend.repository.ProductSizeVariantRepository;
 import com.fashionify.backend.repository.UserRepository;
+import com.fashionify.backend.repository.CouponRepository;
+import com.fashionify.backend.entity.Coupon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,9 @@ public class ShopOrderController {
 
     @Autowired
     private ProductSizeVariantRepository sizeVariantRepository;
+
+    @Autowired
+    private CouponRepository couponRepository;
 
 
     /**
@@ -189,11 +194,25 @@ public class ShopOrderController {
     @PostMapping("/apply-promo")
     public ResponseEntity<?> applyPromoCode(@RequestBody Map<String, String> payload) {
         String code = payload.get("promoCode");
-        if ("WELCOME10".equalsIgnoreCase(code)) {
-            return ResponseEntity.ok(Map.of("success", true, "discountType", "PERCENTAGE", "discountValue", 10, "message", "10% discount applied!"));
-        } else if ("SAVE500".equalsIgnoreCase(code)) {
-            return ResponseEntity.ok(Map.of("success", true, "discountType", "FLAT", "discountValue", 500, "message", "Flat ₹500 discount applied!"));
+        if (code == null) return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Promo code missing"));
+        
+        Optional<Coupon> opt = couponRepository.findByCode(code.toUpperCase());
+        if (opt.isEmpty()) {
+            return ResponseEntity.ok(Map.of("success", false, "message", "Invalid promo code"));
         }
-        return ResponseEntity.ok(Map.of("success", false, "message", "Invalid promo code"));
+        Coupon coupon = opt.get();
+        if (!coupon.getIsActive()) {
+            return ResponseEntity.ok(Map.of("success", false, "message", "Promo code is inactive"));
+        }
+        if (coupon.getExpiryDate() != null && coupon.getExpiryDate().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.ok(Map.of("success", false, "message", "Promo code has expired"));
+        }
+        
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "discountType", "PERCENTAGE",
+            "discountValue", coupon.getDiscountPercentage(),
+            "message", coupon.getDiscountPercentage() + "% discount applied!"
+        ));
     }
 }

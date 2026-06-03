@@ -4,6 +4,8 @@ import {
   LayoutDashboard,
   ShoppingBasket,
   Users,
+  Tag,
+  Shirt
 } from "lucide-react";
 import { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
@@ -33,6 +35,18 @@ const adminSidebarMenuItems = [
     label: "Users",
     path: "/admin/users",
     icon: <Users />,
+  },
+  {
+    id: "coupons",
+    label: "Coupons",
+    path: "/admin/coupons",
+    icon: <Tag />,
+  },
+  {
+    id: "outfits",
+    label: "Outfits",
+    path: "/admin/outfits",
+    icon: <Shirt />,
   },
 ];
 

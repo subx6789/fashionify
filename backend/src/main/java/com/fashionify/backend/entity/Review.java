@@ -42,6 +42,11 @@ public class Review {
     @Column(nullable = false)
     @Builder.Default
     private boolean verifiedPurchase = false;
+    
+    private String fitFeedback;
+    
+    @Column(columnDefinition = "TEXT")
+    private String imageUrl;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

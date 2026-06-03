@@ -126,6 +126,37 @@ export const updatePassword = createAsyncThunk(
   }
 );
 
+export const updateProfile = createAsyncThunk(
+  "/auth/updateProfile",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        "http://localhost:8080/api/auth/update-profile",
+        formData,
+        { withCredentials: true }
+      );
+      return { ...response.data, formData };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: "An error occurred" });
+    }
+  }
+);
+
+export const deleteAccount = createAsyncThunk(
+  "/auth/deleteAccount",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(
+        "http://localhost:8080/api/auth/delete-account",
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: "An error occurred" });
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -201,6 +232,16 @@ const authSlice = createSlice({
         if (state.user && action.payload.success) {
           state.user = { ...state.user, ...action.payload.formData };
         }
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        if (state.user && action.payload.success) {
+          state.user = { ...state.user, ...action.payload.formData };
+        }
+      })
+      .addCase(deleteAccount.fulfilled, (state) => {
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
       });
   },
 });

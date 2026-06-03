@@ -1,8 +1,27 @@
+import { CheckCircle, Package, Truck, Home } from "lucide-react";
 import { useSelector } from "react-redux";
 import { Badge } from "../ui/badge";
 import { DialogContent } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
+
+const STEPS = [
+  { id: "pending", label: "Pending", icon: CheckCircle },
+  { id: "inProcess", label: "Processing", icon: Package },
+  { id: "inShipping", label: "Shipped", icon: Truck },
+  { id: "delivered", label: "Delivered", icon: Home },
+];
+
+function getStepIndex(status) {
+  if (!status) return 0;
+  status = status.toLowerCase();
+  if (status === "pending_payment" || status === "pending") return 0;
+  if (status === "confirmed" || status === "inprocess") return 1;
+  if (status === "inshipping" || status === "shipped") return 2;
+  if (status === "delivered") return 3;
+  if (status === "rejected") return -1;
+  return 0;
+}
 
 function ShoppingOrderDetailsView({ orderDetails }) {
   const { user } = useSelector((state) => state.auth);
@@ -10,8 +29,50 @@ function ShoppingOrderDetailsView({ orderDetails }) {
   return (
     <DialogContent aria-describedby={undefined} className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
       <div className="grid gap-6">
+        
+        {/* Visual Stepper */}
+        {orderDetails?.orderStatus !== "rejected" && (
+          <div className="mt-4 px-4">
+            <div className="relative flex items-center justify-between w-full">
+              {STEPS.map((step, index) => {
+                const currentIndex = getStepIndex(orderDetails?.orderStatus);
+                const isCompleted = index <= currentIndex;
+                const Icon = step.icon;
+                
+                return (
+                  <div key={step.id} className="flex flex-col items-center relative z-10">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
+                      isCompleted 
+                        ? "bg-primary border-primary text-primary-foreground" 
+                        : "bg-background border-muted-foreground/30 text-muted-foreground/50"
+                    }`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className={`text-xs mt-2 font-medium ${isCompleted ? "text-foreground" : "text-muted-foreground"}`}>
+                      {step.label}
+                    </span>
+                  </div>
+                );
+              })}
+              
+              {/* Connecting Lines */}
+              <div className="absolute top-5 left-[10%] right-[10%] h-0.5 bg-muted-foreground/20 -z-10" />
+              <div 
+                className="absolute top-5 left-[10%] h-0.5 bg-primary -z-10 transition-all duration-500" 
+                style={{ width: `${Math.max(0, (getStepIndex(orderDetails?.orderStatus) / (STEPS.length - 1)) * 80)}%` }} 
+              />
+            </div>
+          </div>
+        )}
+
+        {orderDetails?.orderStatus === "rejected" && (
+          <div className="mt-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-center font-semibold">
+            Order Cancelled / Rejected
+          </div>
+        )}
+
         <div className="grid gap-2">
-          <div className="flex mt-6 items-center justify-between">
+          <div className="flex mt-2 items-center justify-between">
             <p className="font-medium">Order ID</p>
             <Label>{orderDetails?.id}</Label>
           </div>

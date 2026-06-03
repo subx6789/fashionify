@@ -337,7 +337,8 @@ createProduct(
             "accessories", "adidas",
             1299.0, null,
             List.of(
-                "https://images.unsplash.com/photo-1624222247344-dc42b6aab5dd?w=800&auto=format&fit=crop"
+                "https://images.unsplash.com/photo-1559564109-583eb7c34d31?w=800&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1627123424574-724758594e93?w=800&auto=format&fit=crop"
             ),
             List.of(
                 variant("S/M", 40, "Fits waist 28–34\""),
@@ -353,7 +354,7 @@ createProduct(
             "men", "adidas",
             2199.0, 1799.0,
             List.of(
-                "https://images.unsplash.com/photo-1552902865-b72c031ac5ea?w=800&auto=format&fit=crop"
+                "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop"
             ),
             List.of(
                 variant("S",  18, "Waist 28–30\""),

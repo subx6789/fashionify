@@ -249,7 +249,7 @@ function AdminDashboard() {
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
               activePreset === p.id
                 ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-muted text-primary-foreground hover:bg-muted/80 hover:text-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
             }`}
           >
             {p.label}
@@ -263,7 +263,7 @@ function AdminDashboard() {
           className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
             activePreset === "custom"
               ? "bg-primary text-primary-foreground shadow-sm"
-              : "bg-muted text-primary-foreground hover:bg-muted/80 hover:text-foreground"
+              : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
           }`}
         >
           Custom range

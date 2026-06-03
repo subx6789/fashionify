@@ -69,6 +69,8 @@ public class ShopReviewController {
         String userName = payload.get("userName");
         String reviewMessage = payload.get("reviewMessage");
         Integer reviewValue = Integer.parseInt(payload.get("reviewValue"));
+        String fitFeedback = payload.get("fitFeedback");
+        String imageUrl = payload.get("imageUrl");
 
         Optional<Product> productOpt = productRepository.findById(productId);
         Optional<User> userOpt = userRepository.findById(userId);
@@ -98,6 +100,8 @@ public class ShopReviewController {
                 .userName(userName)
                 .reviewMessage(reviewMessage)
                 .reviewValue(reviewValue)
+                .fitFeedback(fitFeedback)
+                .imageUrl(imageUrl)
                 .verifiedPurchase(true)
                 .build();
 
@@ -130,6 +134,8 @@ public class ShopReviewController {
         dto.put("userName", review.getUserName());
         dto.put("reviewMessage", review.getReviewMessage());
         dto.put("reviewValue", review.getReviewValue());
+        dto.put("fitFeedback", review.getFitFeedback());
+        dto.put("imageUrl", review.getImageUrl());
         dto.put("verifiedPurchase", review.isVerifiedPurchase());
         dto.put("createdAt", review.getCreatedAt());
         return dto;

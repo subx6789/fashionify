@@ -4,6 +4,8 @@ import com.fashionify.backend.entity.Product;
 import com.fashionify.backend.entity.ProductSizeVariant;
 import com.fashionify.backend.repository.ProductRepository;
 import com.fashionify.backend.repository.ProductSizeVariantRepository;
+import com.fashionify.backend.repository.WaitlistRepository;
+import com.fashionify.backend.entity.Waitlist;
 import com.fashionify.backend.service.CloudinaryService;
 import com.fashionify.backend.service.TagMigrationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class AdminProductController {
 
     @Autowired
     private ProductSizeVariantRepository sizeVariantRepository;
+
+    @Autowired
+    private WaitlistRepository waitlistRepository;
 
     @Autowired
     private CloudinaryService cloudinaryService;
@@ -89,6 +94,26 @@ public class AdminProductController {
         // Replace variants
         sizeVariantRepository.deleteAll(sizeVariantRepository.findByProductId(id));
         saveVariants(saved, payload);
+        
+        // Fulfill Waitlist if any new variants have stock > 0
+        if (payload.containsKey("sizeVariants")) {
+            List<Map<String, Object>> variants = (List<Map<String, Object>>) payload.get("sizeVariants");
+            if (variants != null) {
+                for (Map<String, Object> v : variants) {
+                    int stock = Integer.parseInt(v.get("stock").toString());
+                    if (stock > 0) {
+                        String size = (String) v.get("size");
+                        List<Waitlist> waitlistedUsers = waitlistRepository.findByProductIdAndSizeAndIsNotifiedFalse(id, size);
+                        for (Waitlist wl : waitlistedUsers) {
+                            wl.setIsNotified(true);
+                            waitlistRepository.save(wl);
+                            // In a real app, send an email here!
+                            System.out.println("NOTIFYING " + wl.getEmail() + " THAT " + saved.getTitle() + " SIZE " + size + " IS BACK IN STOCK!");
+                        }
+                    }
+                }
+            }
+        }
 
         // Reload
         Product reloaded = productRepository.findById(saved.getId()).orElse(saved);

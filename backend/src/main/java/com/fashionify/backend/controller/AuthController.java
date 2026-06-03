@@ -8,6 +8,12 @@ import com.fashionify.backend.entity.User;
 import com.fashionify.backend.repository.UserRepository;
 import com.fashionify.backend.security.JwtUtils;
 import com.fashionify.backend.security.UserDetailsImpl;
+import com.fashionify.backend.repository.AddressRepository;
+import com.fashionify.backend.repository.CartRepository;
+import com.fashionify.backend.repository.OrderRepository;
+import com.fashionify.backend.repository.ReviewRepository;
+import com.fashionify.backend.repository.WishlistRepository;
+import org.springframework.transaction.annotation.Transactional;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -38,6 +44,21 @@ public class AuthController {
 
     @Autowired
     JwtUtils jwtUtils;
+
+    @Autowired
+    AddressRepository addressRepository;
+
+    @Autowired
+    CartRepository cartRepository;
+
+    @Autowired
+    OrderRepository orderRepository;
+
+    @Autowired
+    ReviewRepository reviewRepository;
+
+    @Autowired
+    WishlistRepository wishlistRepository;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest signUpRequest) {
@@ -124,6 +145,10 @@ public class AuthController {
             userMap.put("bottomSize", user.getBottomSize());
             userMap.put("shoeSize", user.getShoeSize());
             userMap.put("preferredStyle", user.getPreferredStyle());
+            userMap.put("gender", user.getGender());
+            userMap.put("weight", user.getWeight());
+            userMap.put("age", user.getAge());
+            userMap.put("avatar", user.getAvatar());
         }
 
         return ResponseEntity.ok(new JwtResponse(true, "Logged in successfully", userMap));
@@ -161,6 +186,10 @@ public class AuthController {
             userMap.put("bottomSize", user.getBottomSize());
             userMap.put("shoeSize", user.getShoeSize());
             userMap.put("preferredStyle", user.getPreferredStyle());
+            userMap.put("gender", user.getGender());
+            userMap.put("weight", user.getWeight());
+            userMap.put("age", user.getAge());
+            userMap.put("avatar", user.getAvatar());
         }
 
         return ResponseEntity.ok(new JwtResponse(true, "Authenticated user!", userMap));
@@ -215,10 +244,69 @@ public class AuthController {
                     .body(new MessageResponse(false,
                             "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."));
         }
-
         user.setPassword(encoder.encode(newPassword));
         userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse(true, "Password updated successfully!"));
+    }
+
+    @PutMapping("/update-profile")
+    public ResponseEntity<?> updateProfile(@RequestBody Map<String, String> payload, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(new MessageResponse(false, "Unauthorised user!"));
+        }
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userRepository.findById(userDetails.getId()).orElse(null);
+        if (user == null) {
+            return ResponseEntity.badRequest().body(new MessageResponse(false, "User not found"));
+        }
+
+        String newUserName = payload.get("userName");
+        if (newUserName != null && !newUserName.equals(user.getUserName())) {
+            if (userRepository.existsByUserName(newUserName)) {
+                return ResponseEntity.badRequest().body(new MessageResponse(false, "Error: Username is already taken!"));
+            }
+            user.setUserName(newUserName);
+        }
+
+        if (payload.containsKey("gender")) user.setGender(payload.get("gender"));
+        if (payload.containsKey("weight")) user.setWeight(payload.get("weight"));
+        if (payload.containsKey("age")) user.setAge(payload.get("age"));
+        if (payload.containsKey("avatar")) user.setAvatar(payload.get("avatar"));
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new MessageResponse(true, "Profile updated successfully!"));
+    }
+
+    @Transactional
+    @DeleteMapping("/delete-account")
+    public ResponseEntity<?> deleteAccount(Authentication authentication, HttpServletResponse response) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(new MessageResponse(false, "Unauthorised user!"));
+        }
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+        
+        if (!userRepository.existsById(userId)) {
+            return ResponseEntity.badRequest().body(new MessageResponse(false, "User not found"));
+        }
+
+        addressRepository.deleteByUserId(userId);
+        cartRepository.deleteByUserId(userId);
+        orderRepository.deleteByUserId(userId);
+        reviewRepository.deleteByUserId(userId);
+        wishlistRepository.deleteByUserId(userId);
+
+        userRepository.deleteById(userId);
+
+        Cookie cookie = new Cookie("token", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(new MessageResponse(true, "Account deleted successfully!"));
     }
 }

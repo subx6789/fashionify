@@ -468,7 +468,7 @@ export default function AuthModal() {
                     className={`flex-1 py-2 text-xs font-bold transition-all ${
                       mode === m
                         ? "bg-primary text-primary-foreground"
-                        : "bg-background text-primary-foreground hover:text-foreground hover:bg-muted"
+                        : "bg-background text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
                   >
                     {m === "login" ? "Sign In" : m === "register" ? "Sign Up" : "Admin"}

@@ -29,6 +29,8 @@ function createSearchParamsHelper(filterParams) {
   for (const [key, value] of Object.entries(filterParams)) {
     if (Array.isArray(value) && value.length > 0) {
       queryParams.push(`${key}=${encodeURIComponent(value.join(","))}`);
+    } else if (value !== null && value !== "" && !Array.isArray(value)) {
+      queryParams.push(`${key}=${encodeURIComponent(value)}`);
     }
   }
   return queryParams.join("&");
@@ -58,14 +60,27 @@ function ShoppingListing() {
 
   function handleFilter(getSectionId, getCurrentOption) {
     let cpyFilters = { ...filters };
-    const indexOfCurrentSection = Object.keys(cpyFilters).indexOf(getSectionId);
-
-    if (indexOfCurrentSection === -1) {
-      cpyFilters = { ...cpyFilters, [getSectionId]: [getCurrentOption] };
+    
+    // For non-array filters (price, size)
+    if (getSectionId === "minPrice" || getSectionId === "maxPrice" || getSectionId === "inStockSize") {
+      if (getCurrentOption) {
+        cpyFilters[getSectionId] = getCurrentOption;
+      } else {
+        delete cpyFilters[getSectionId];
+      }
     } else {
-      const indexOfCurrentOption = cpyFilters[getSectionId].indexOf(getCurrentOption);
-      if (indexOfCurrentOption === -1) cpyFilters[getSectionId].push(getCurrentOption);
-      else cpyFilters[getSectionId].splice(indexOfCurrentOption, 1);
+      const indexOfCurrentSection = Object.keys(cpyFilters).indexOf(getSectionId);
+
+      if (indexOfCurrentSection === -1) {
+        cpyFilters = { ...cpyFilters, [getSectionId]: [getCurrentOption] };
+      } else {
+        const indexOfCurrentOption = cpyFilters[getSectionId].indexOf(getCurrentOption);
+        if (indexOfCurrentOption === -1) cpyFilters[getSectionId].push(getCurrentOption);
+        else cpyFilters[getSectionId].splice(indexOfCurrentOption, 1);
+        if (cpyFilters[getSectionId].length === 0) {
+          delete cpyFilters[getSectionId];
+        }
+      }
     }
 
     setFilters(cpyFilters);

@@ -6,6 +6,7 @@ import com.fashionify.backend.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,35 +33,80 @@ public class ShopProductController {
     public ResponseEntity<?> getFilteredProducts(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String brand,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) String inStockSize,
             @RequestParam(required = false, defaultValue = "price-lowtohigh") String sortBy,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "8") int size) {
 
-        Sort sort = buildSort(sortBy);
-        PageRequest pageRequest = PageRequest.of(page, Math.min(size, DEFAULT_PAGE_SIZE), sort);
+        List<Product> products;
 
-        Page<Product> productPage;
-
+        // Base fetch
         if (category != null && !category.isEmpty() && brand != null && !brand.isEmpty()) {
             List<String> categories = Arrays.asList(category.split(","));
             List<String> brands = Arrays.asList(brand.split(","));
-            productPage = productRepository.findByCategoryInAndBrandIn(categories, brands, pageRequest);
+            products = productRepository.findByCategoryInAndBrandIn(categories, brands);
         } else if (category != null && !category.isEmpty()) {
             List<String> categories = Arrays.asList(category.split(","));
-            productPage = productRepository.findByCategoryIn(categories, pageRequest);
+            products = productRepository.findByCategoryIn(categories, Pageable.unpaged()).getContent();
         } else if (brand != null && !brand.isEmpty()) {
             List<String> brands = Arrays.asList(brand.split(","));
-            productPage = productRepository.findByBrandIn(brands, pageRequest);
+            products = productRepository.findByBrandIn(brands, Pageable.unpaged()).getContent();
         } else {
-            productPage = productRepository.findAll(pageRequest);
+            products = productRepository.findAll();
         }
+
+        // Apply advanced filters
+        List<Product> filteredProducts = products.stream()
+            .filter(p -> {
+                double effectivePrice = p.getSalePrice() != null && p.getSalePrice() > 0 ? p.getSalePrice() : p.getPrice();
+                if (minPrice != null && effectivePrice < minPrice) return false;
+                if (maxPrice != null && effectivePrice > maxPrice) return false;
+                if (inStockSize != null && !inStockSize.isEmpty()) {
+                    boolean hasStockInSize = p.getSizeVariants().stream()
+                        .anyMatch(v -> v.getSize().equalsIgnoreCase(inStockSize) && v.getStock() > 0);
+                    if (!hasStockInSize) return false;
+                }
+                return true;
+            })
+            .collect(Collectors.toList());
+
+        // Sort
+        Comparator<Product> comparator;
+        switch (sortBy) {
+            case "price-hightolow":
+                comparator = Comparator.comparing(p -> p.getSalePrice() != null && p.getSalePrice() > 0 ? p.getSalePrice() : p.getPrice(), Comparator.reverseOrder());
+                break;
+            case "title-atoz":
+                comparator = Comparator.comparing(Product::getTitle);
+                break;
+            case "title-ztoa":
+                comparator = Comparator.comparing(Product::getTitle, Comparator.reverseOrder());
+                break;
+            case "price-lowtohigh":
+            default:
+                comparator = Comparator.comparing(p -> p.getSalePrice() != null && p.getSalePrice() > 0 ? p.getSalePrice() : p.getPrice());
+                break;
+        }
+        filteredProducts.sort(comparator);
+
+        // Paginate
+        int totalProducts = filteredProducts.size();
+        int totalPages = (int) Math.ceil((double) totalProducts / size);
+        int startIndex = page * size;
+        int endIndex = Math.min(startIndex + size, totalProducts);
+        
+        List<Product> pagedProducts = (startIndex < totalProducts) 
+            ? filteredProducts.subList(startIndex, endIndex) 
+            : new ArrayList<>();
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("success", true);
-        response.put("products", productPage.getContent().stream().map(this::enrichProduct).collect(Collectors.toList()));
-        response.put("currentPage", productPage.getNumber());
-        response.put("totalPages", productPage.getTotalPages());
-        response.put("totalProducts", productPage.getTotalElements());
+        response.put("products", pagedProducts.stream().map(this::enrichProduct).collect(Collectors.toList()));
+        response.put("currentPage", page);
+        response.put("totalPages", totalPages);
+        response.put("totalProducts", totalProducts);
 
         return ResponseEntity.ok(response);
     }

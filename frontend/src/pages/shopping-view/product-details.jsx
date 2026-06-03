@@ -13,13 +13,18 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { addReview, getReviews, checkRatingEligibility, resetEligibility } from "@/store/shop/review-slice";
 import { useAuthModal } from "@/context/AuthModalContext";
+import SizeGuideModal from "@/components/shopping-view/size-guide-modal";
+import axios from "axios";
 
 function ShoppingProductDetails() {
   const { id } = useParams();
   const [reviewMsg, setReviewMsg] = useState("");
   const [rating, setRating] = useState(0);
+  const [fitFeedback, setFitFeedback] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [selectedSize, setSelectedSize] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isWaitlisting, setIsWaitlisting] = useState(false);
 
   const dispatch = useDispatch();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
@@ -71,6 +76,28 @@ function ShoppingProductDetails() {
   // Low-stock logic
   const isOverallLowStock = totalStock > 0 && totalStock <= 10;
   const isSelectedSizeLowStock = selectedVariant && selectedVariant.stock <= 5 && selectedVariant.stock > 0;
+
+  // Smart Size Predictor Logic
+  function getRecommendedSize() {
+    if (!isAuthenticated || !user || sizeVariants.length === 0) return null;
+    const sizeNames = sizeVariants.map(v => String(v.size).toUpperCase());
+
+    // Clothing Tops
+    if (sizeNames.some(s => ["XS", "S", "M", "L", "XL", "XXL"].includes(s)) && user.topSize) {
+      return sizeNames.includes(user.topSize.toUpperCase()) ? user.topSize : null;
+    }
+    // Bottoms
+    if (sizeNames.some(s => ["28", "30", "32", "34", "36", "38"].includes(s)) && user.bottomSize) {
+      return sizeNames.includes(user.bottomSize) ? user.bottomSize : null;
+    }
+    // Shoes
+    if (sizeNames.some(s => ["6", "7", "8", "9", "10", "11", "12"].includes(s)) && user.shoeSize) {
+      return sizeNames.includes(user.shoeSize) ? user.shoeSize : null;
+    }
+    return null;
+  }
+
+  const recommendedSize = getRecommendedSize();
 
   async function handleShare() {
     const shareData = {
@@ -135,6 +162,38 @@ function ShoppingProductDetails() {
     });
   }
 
+  async function handleNotifyMe() {
+    if (!isAuthenticated) {
+      openAuthModal("login");
+      return;
+    }
+    if (sizeVariants.length > 0 && !selectedSize) {
+      toast({ title: "Please select a size to be notified about", variant: "destructive" });
+      return;
+    }
+
+    setIsWaitlisting(true);
+    try {
+      const response = await axios.post("http://localhost:8080/api/waitlist", {
+        email: user?.email,
+        productId: productDetails?.id,
+        size: selectedSize || "One Size"
+      });
+
+      if (response.data.success) {
+        toast({ title: "You're on the list!", description: response.data.message });
+      }
+    } catch (err) {
+      toast({
+        title: "Couldn't join waitlist",
+        description: err.response?.data?.message || "An error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setIsWaitlisting(false);
+    }
+  }
+
   function handleAddReview() {
     dispatch(
       addReview({
@@ -143,11 +202,15 @@ function ShoppingProductDetails() {
         userName: user?.userName,
         reviewMessage: reviewMsg,
         reviewValue: rating,
+        fitFeedback: fitFeedback,
+        imageUrl: imageUrl,
       })
     ).then((data) => {
       if (data.payload.success) {
         setRating(0);
         setReviewMsg("");
+        setFitFeedback("");
+        setImageUrl("");
         dispatch(getReviews(productDetails?.id));
         toast({ title: "Review added successfully!" });
       }
@@ -246,9 +309,8 @@ function ShoppingProductDetails() {
                       <button
                         key={i}
                         onClick={() => setActiveImageIndex(i)}
-                        className={`w-2 h-2 rounded-full transition-all ${
-                          i === activeImageIndex ? "bg-primary w-4" : "bg-white/60"
-                        }`}
+                        className={`w-2 h-2 rounded-full transition-all ${i === activeImageIndex ? "bg-primary w-4" : "bg-white/60"
+                          }`}
                       />
                     ))}
                   </div>
@@ -263,11 +325,10 @@ function ShoppingProductDetails() {
                   <button
                     key={i}
                     onClick={() => setActiveImageIndex(i)}
-                    className={`flex-none w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
-                      i === activeImageIndex
+                    className={`flex-none w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${i === activeImageIndex
                         ? "border-primary ring-2 ring-primary/30"
                         : "border-border opacity-60 hover:opacity-100"
-                    }`}
+                      }`}
                   >
                     <img src={url} alt={`View ${i + 1}`} onError={(e) => { e.target.src = "https://placehold.co/600x600/png?text=No+Image"; }} className="w-full h-full object-cover" />
                   </button>
@@ -300,9 +361,8 @@ function ShoppingProductDetails() {
 
               {/* Price */}
               <div className="flex items-baseline gap-4">
-                <p className={`text-3xl font-bold text-foreground ${
-                  productDetails?.salePrice > 0 ? "line-through text-muted-foreground/50 text-2xl" : ""
-                }`}>
+                <p className={`text-3xl font-bold text-foreground ${productDetails?.salePrice > 0 ? "line-through text-muted-foreground/50 text-2xl" : ""
+                  }`}>
                   ₹{productDetails?.price}
                 </p>
                 {productDetails?.salePrice > 0 && (
@@ -342,12 +402,15 @@ function ShoppingProductDetails() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="text-base font-semibold">Select Size</Label>
-                  {selectedVariant?.measurements && (
-                    <span className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Ruler className="w-3.5 h-3.5" />
-                      {selectedVariant.measurements}
-                    </span>
-                  )}
+                  <div className="flex items-center gap-3">
+                    {selectedVariant?.measurements && (
+                      <span className="text-xs text-muted-foreground flex items-center gap-1 border-r pr-3 border-border">
+                        <Ruler className="w-3.5 h-3.5" />
+                        {selectedVariant.measurements}
+                      </span>
+                    )}
+                    <SizeGuideModal category={productDetails?.category} />
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
@@ -364,15 +427,15 @@ function ShoppingProductDetails() {
                           isOOS
                             ? `Out of stock`
                             : variant.measurements
-                            ? variant.measurements
-                            : `${variant.stock} in stock`
+                              ? variant.measurements
+                              : `${variant.stock} in stock`
                         }
-                        className={`relative px-4 py-2 rounded-xl border-2 text-sm font-semibold transition-all
+                        className={`relative min-w-[3rem] px-4 py-2.5 rounded-xl border-2 text-sm font-bold transition-all
                           ${isOOS
-                            ? "border-border text-primary-foreground/40 line-through cursor-not-allowed bg-muted/30"
+                            ? "border-border text-muted-foreground/40 line-through cursor-not-allowed bg-muted/20"
                             : isSelected
-                            ? "border-primary-border bg-primary text-primary-foreground shadow-lg shadow-primary/30"
-                            : "border-border hover:border-primary-border hover:text-primary hover:bg-primary/5 dark:hover:bg-primary-dark/20"
+                              ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                              : "border-muted-foreground/30 bg-background text-foreground hover:border-primary hover:text-primary hover:bg-primary/10"
                           }`}
                       >
                         {variant.size}
@@ -391,6 +454,27 @@ function ShoppingProductDetails() {
                     {selectedVariant.stock} units available in size{" "}
                     <strong>{selectedSize}</strong>
                   </p>
+                )}
+
+                {/* Smart Size Predictor Banner */}
+                {recommendedSize && (
+                  <div className="mt-4 p-3 bg-primary/10 border border-primary/20 rounded-xl flex items-start gap-3">
+                    <BadgeCheck className="w-5 h-5 text-primary flex-none mt-0.5" />
+                    <div>
+                      <p className="text-sm font-bold text-foreground">Smart Size Predictor</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Based on your Fashion Preferences, we recommend size <strong>{recommendedSize}</strong>.
+                      </p>
+                      {(!selectedSize || selectedSize !== recommendedSize) && (
+                        <button
+                          onClick={() => setSelectedSize(recommendedSize)}
+                          className="text-xs font-bold text-primary hover:underline mt-1"
+                        >
+                          Select Size {recommendedSize}
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
             )}
@@ -413,11 +497,15 @@ function ShoppingProductDetails() {
               </div>
             ) : null}
 
-            {/* ── Add to Cart + Share Buttons ──────────────────────── */}
+            {/* ── Add to Cart / Notify Me + Share Buttons ──────────────────────── */}
             <div className="pt-2 space-y-3">
               {totalStock === 0 ? (
-                <Button className="w-full h-14 text-lg font-bold bg-muted text-muted-foreground cursor-not-allowed rounded-xl" disabled>
-                  Out of Stock
+                <Button
+                  onClick={handleNotifyMe}
+                  disabled={isWaitlisting}
+                  className="w-full h-14 text-lg font-bold bg-background border-2 border-foreground text-foreground hover:bg-foreground hover:text-background rounded-xl transition-all"
+                >
+                  {isWaitlisting ? "Joining..." : "Notify Me When Available"}
                 </Button>
               ) : (
                 <div className="flex flex-col gap-3">
@@ -426,15 +514,23 @@ function ShoppingProductDetails() {
                       Please select a size to continue
                     </p>
                   )}
-                  <Button
-                    className="w-full h-14 text-lg font-bold bg-gradient-brand text-primary-foreground hover:from-primary hover:to-primary-dark text-primary-foreground rounded-xl shadow-lg shadow-primary/30 transition-all hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
-                    onClick={handleAddToCart}
-                    disabled={addToCartDisabled}
-                  >
-                    {selectedVariant?.outOfStock
-                      ? "Size Out of Stock"
-                      : "Add to Cart"}
-                  </Button>
+                  {selectedVariant?.outOfStock ? (
+                    <Button
+                      onClick={handleNotifyMe}
+                      disabled={isWaitlisting}
+                      className="w-full h-14 text-lg font-bold bg-background border-2 border-foreground text-foreground hover:bg-foreground hover:text-background rounded-xl transition-all"
+                    >
+                      {isWaitlisting ? "Joining..." : `Notify Me (Size ${selectedSize})`}
+                    </Button>
+                  ) : (
+                    <Button
+                      className="w-full h-14 text-lg font-bold bg-gradient-brand text-primary-foreground hover:from-primary hover:to-primary-dark rounded-xl shadow-lg shadow-primary/30 transition-all hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
+                      onClick={handleAddToCart}
+                      disabled={addToCartDisabled}
+                    >
+                      Add to Cart
+                    </Button>
+                  )}
                 </div>
               )}
               {/* Share button */}
@@ -480,9 +576,19 @@ function ShoppingProductDetails() {
                             )}
                           </div>
                           <StarRatingComponent rating={reviewItem?.reviewValue} />
-                          <p className="text-muted-foreground leading-relaxed">
+                          {reviewItem?.fitFeedback && (
+                            <p className="text-xs font-semibold text-muted-foreground/80 mt-1 uppercase tracking-wider">
+                              Fit: {reviewItem.fitFeedback}
+                            </p>
+                          )}
+                          <p className="text-muted-foreground leading-relaxed mt-2">
                             "{reviewItem.reviewMessage}"
                           </p>
+                          {reviewItem?.imageUrl && (
+                            <div className="mt-3 max-w-[120px] rounded-lg overflow-hidden border border-border shadow-sm">
+                              <img src={reviewItem.imageUrl} alt="Customer photo" className="w-full h-auto object-cover hover:scale-105 transition-transform" />
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -509,13 +615,37 @@ function ShoppingProductDetails() {
                         <span className="text-sm font-medium">Your Rating:</span>
                         <StarRatingComponent rating={rating} handleRatingChange={handleRatingChange} />
                       </div>
-                      <div className="flex gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Fit Feedback (Optional)</Label>
+                          <select
+                            value={fitFeedback}
+                            onChange={(e) => setFitFeedback(e.target.value)}
+                            className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                          >
+                            <option value="">Select fit...</option>
+                            <option value="Runs Small">Runs Small</option>
+                            <option value="True to Size">True to Size</option>
+                            <option value="Runs Large">Runs Large</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Photo URL (Optional)</Label>
+                          <Input
+                            value={imageUrl}
+                            onChange={(e) => setImageUrl(e.target.value)}
+                            placeholder="Paste image URL..."
+                            className="h-11 rounded-xl"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex gap-4 pt-2">
                         <Input
                           name="reviewMsg"
                           value={reviewMsg}
                           onChange={(e) => setReviewMsg(e.target.value)}
                           placeholder="Share your thoughts about this product..."
-                          className="h-12 rounded-xl"
+                          className="h-12 rounded-xl flex-1"
                         />
                         <Button
                           onClick={handleAddReview}

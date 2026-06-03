@@ -94,10 +94,10 @@ function ShoppingProductTile({
           {/* Wishlist button */}
           <button
             onClick={handleWishlistToggle}
-            className={`absolute top-2 right-2 p-1.5 border-2 border-border transition-colors z-10 ${
+            className={`absolute top-2 right-2 p-1.5 border-2 transition-colors z-10 rounded-full ${
               isWishlisted
-                ? "bg-primary text-primary-foreground"
-                : "bg-background text-primary-foreground hover:bg-primary hover:text-primary-foreground"
+                ? "bg-red-500 border-red-500 text-white"
+                : "bg-background border-border text-foreground hover:bg-red-50 hover:text-red-500 hover:border-red-500 dark:hover:bg-red-500/20"
             }`}
             style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}
             aria-label="Toggle wishlist"

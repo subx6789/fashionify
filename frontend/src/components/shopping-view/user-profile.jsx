@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { setAvatar, updatePreferences, updatePassword } from "@/store/auth-slice";
+import { setAvatar, updatePreferences } from "@/store/auth-slice";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { RefreshCw, Settings, User, Shirt, Lock, Loader2 } from "lucide-react";
+import { RefreshCw, Settings, User, Shirt, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
-function UserProfile() {
+function UserProfile({ onNavigateToSettings }) {
   const { user, isLoading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -20,13 +20,6 @@ function UserProfile() {
     shoeSize: user?.shoeSize || "10",
     style: user?.preferredStyle || "Streetwear",
   });
-
-  // Password State
-  const [passwordData, setPasswordData] = useState({
-    oldPassword: "",
-    newPassword: ""
-  });
-  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   function handleGenerateNewAvatar() {
     const randomSeed = Math.random().toString(36).substring(7);
@@ -59,27 +52,6 @@ function UserProfile() {
         variant: "destructive"
       });
     }
-  }
-
-  async function handleUpdatePassword(e) {
-    e.preventDefault();
-    setIsUpdatingPassword(true);
-    const result = await dispatch(updatePassword(passwordData));
-    
-    if (result?.payload?.success) {
-      toast({
-        title: "Password Updated",
-        description: "Your password has been changed successfully.",
-      });
-      setPasswordData({ oldPassword: "", newPassword: "" });
-    } else {
-      toast({
-        title: "Update Failed",
-        description: result?.payload?.message || "Failed to update password",
-        variant: "destructive"
-      });
-    }
-    setIsUpdatingPassword(false);
   }
 
   return (
@@ -118,11 +90,12 @@ function UserProfile() {
         </div>
 
         <div className="hidden md:block">
-           <Button variant="outline" className="gap-2 rounded-xl border-primary-border/20 hover:bg-primary/10">
-             <Settings className="w-4 h-4" /> Account Settings
-           </Button>
+          <Button onClick={onNavigateToSettings} variant="outline" className="gap-2 rounded-xl border-border hover:bg-primary/10 hover:text-primary transition-colors">
+            <Settings className="w-4 h-4" /> Account Settings
+          </Button>
         </div>
       </motion.div>
+
 
       {/* Fashion Preferences Section */}
       <motion.div
@@ -138,14 +111,14 @@ function UserProfile() {
               </div>
               <h3 className="text-xl font-bold tracking-tight">My Fashion Preferences</h3>
             </div>
-            
+
             <form onSubmit={handleSavePreferences} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground/80">Top Size</label>
-                  <select 
+                  <select
                     value={preferences.topSize}
-                    onChange={(e) => setPreferences({...preferences, topSize: e.target.value})}
+                    onChange={(e) => setPreferences({ ...preferences, topSize: e.target.value })}
                     className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                   >
                     <option value="XS">XS</option>
@@ -155,12 +128,12 @@ function UserProfile() {
                     <option value="XL">XL</option>
                   </select>
                 </div>
-                
+
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground/80">Bottom Size</label>
-                  <select 
+                  <select
                     value={preferences.bottomSize}
-                    onChange={(e) => setPreferences({...preferences, bottomSize: e.target.value})}
+                    onChange={(e) => setPreferences({ ...preferences, bottomSize: e.target.value })}
                     className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                   >
                     <option value="28">28</option>
@@ -173,9 +146,9 @@ function UserProfile() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground/80">Shoe Size (US)</label>
-                  <select 
+                  <select
                     value={preferences.shoeSize}
-                    onChange={(e) => setPreferences({...preferences, shoeSize: e.target.value})}
+                    onChange={(e) => setPreferences({ ...preferences, shoeSize: e.target.value })}
                     className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                   >
                     <option value="7">7</option>
@@ -188,9 +161,9 @@ function UserProfile() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-foreground/80">Preferred Style</label>
-                  <select 
+                  <select
                     value={preferences.style}
-                    onChange={(e) => setPreferences({...preferences, style: e.target.value})}
+                    onChange={(e) => setPreferences({ ...preferences, style: e.target.value })}
                     className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                   >
                     <option value="Casual">Casual</option>
@@ -205,60 +178,6 @@ function UserProfile() {
               <div className="flex justify-end pt-4 border-t border-border/50">
                 <Button type="submit" disabled={isLoading} className="bg-gradient-premium bg-gradient-premium-hover rounded-xl text-primary-foreground font-bold px-8">
                   Save Preferences
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Security Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <Card className="card-gradient border-t-2 border-t-red-500/30 overflow-hidden">
-          <CardContent className="p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-lg bg-red-500/10 text-red-500">
-                <Lock className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold tracking-tight">Security & Password</h3>
-            </div>
-            
-            <form onSubmit={handleUpdatePassword} className="space-y-6 max-w-xl">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground/80">Current Password</label>
-                  <input 
-                    type="password"
-                    required
-                    value={passwordData.oldPassword}
-                    onChange={(e) => setPasswordData({...passwordData, oldPassword: e.target.value})}
-                    placeholder="Enter current password"
-                    className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 transition-all"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground/80">New Password</label>
-                  <input 
-                    type="password"
-                    required
-                    value={passwordData.newPassword}
-                    onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
-                    placeholder="Enter new password (min 8 chars, 1 uppercase, 1 symbol)"
-                    className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 transition-all"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">Must be at least 8 characters and include uppercase, lowercase, number, and special character.</p>
-                </div>
-              </div>
-
-              <div className="flex justify-start pt-4">
-                <Button type="submit" disabled={isUpdatingPassword} className="bg-red-600 hover:bg-red-700 rounded-xl text-white font-bold px-8 transition-colors">
-                  {isUpdatingPassword ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                  Update Password
                 </Button>
               </div>
             </form>

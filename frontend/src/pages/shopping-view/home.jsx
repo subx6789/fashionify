@@ -31,6 +31,7 @@ import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/components/ui/use-toast";
 import { getFeatureImages } from "@/store/common-slice";
 import { useAuthModal } from "@/context/AuthModalContext";
+import axios from "axios";
 
 const categoriesWithIcon = [
   { id: "men", label: "Men", icon: ShirtIcon },
@@ -41,12 +42,12 @@ const categoriesWithIcon = [
 ];
 
 const brandsWithIcon = [
-  { id: "nike", label: "Nike", icon: ({ className }) => <img src="https://cdn.simpleicons.org/nike/white" className={className} alt="Nike" /> },
-  { id: "adidas", label: "Adidas", icon: ({ className }) => <img src="https://cdn.simpleicons.org/adidas/white" className={className} alt="Adidas" /> },
-  { id: "puma", label: "Puma", icon: ({ className }) => <img src="https://cdn.simpleicons.org/puma/white" className={className} alt="Puma" /> },
-  { id: "levi", label: "Levi's", icon: ({ className }) => <span className="text-white font-black text-xl">L</span> },
-  { id: "zara", label: "Zara", icon: ({ className }) => <span className="text-white font-black text-xl tracking-tighter">ZARA</span> },
-  { id: "h&m", label: "H&M", icon: ({ className }) => <span className="text-white font-black text-xl">H&M</span> },
+  { id: "nike", label: "Nike", icon: ({ className }) => <img src="https://cdn.simpleicons.org/nike/000000" className={className} alt="Nike" /> },
+  { id: "adidas", label: "Adidas", icon: ({ className }) => <img src="https://cdn.simpleicons.org/adidas/000000" className={className} alt="Adidas" /> },
+  { id: "puma", label: "Puma", icon: ({ className }) => <img src="https://cdn.simpleicons.org/puma/000000" className={className} alt="Puma" /> },
+  { id: "levi", label: "Levi's", icon: ({ className }) => <span className="text-primary-foreground font-black text-xl">L</span> },
+  { id: "zara", label: "Zara", icon: ({ className }) => <span className="text-primary-foreground font-black text-xl tracking-tighter">ZARA</span> },
+  { id: "h&m", label: "H&M", icon: ({ className }) => <span className="text-primary-foreground font-black text-xl">H&M</span> },
 ];
 
 const defaultSlides = [
@@ -64,6 +65,22 @@ function ShoppingHome() {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
 
   const [mockProducts, setMockProducts] = useState([]);
+  const [outfits, setOutfits] = useState([]);
+  const [addingToCart, setAddingToCart] = useState(false);
+
+  useEffect(() => {
+    const fetchOutfits = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/api/outfits");
+        if (res.data.success) {
+          setOutfits(res.data.data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchOutfits();
+  }, []);
 
   const activeFeatureImages = useMemo(() => {
     if (!featureImageList || featureImageList.length === 0) return [];
@@ -135,7 +152,34 @@ function ShoppingHome() {
     });
   }
 
+  async function handleAddOutfitToCart(outfit) {
+    if (!isAuthenticated) {
+      openAuthModal("login");
+      return;
+    }
+    if (!outfit.products || outfit.products.length === 0) return;
 
+    setAddingToCart(true);
+    try {
+      // Add each product to cart (requires size selection in a real app, but for demo we just add it with null size or default)
+      for (const product of outfit.products) {
+        await dispatch(
+          addToCart({
+            userId: user?.id,
+            productId: product.id,
+            quantity: 1,
+            selectedSize: product.sizeVariants?.[0]?.size || null,
+          })
+        );
+      }
+      dispatch(fetchCartItems(user?.id));
+      toast({ title: `Added "${outfit.name}" to cart!` });
+    } catch (err) {
+      toast({ title: "Failed to add outfit to cart", variant: "destructive" });
+    } finally {
+      setAddingToCart(false);
+    }
+  }
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -276,6 +320,60 @@ function ShoppingHome() {
           </div>
         </div>
       </section>
+
+      {/* Shop the Look Section */}
+      {outfits.length > 0 && (
+        <section className="py-16 bg-muted/20">
+          <div className="container mx-auto px-4">
+            <h2 className="text-4xl font-extrabold text-center mb-4 uppercase tracking-tight text-foreground">
+              Shop the Look
+            </h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              Curated outfits by our expert stylists. Add entire looks to your cart with a single click.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {outfits.map((outfit) => (
+                <div key={outfit.id} className="bg-card rounded-2xl border shadow-sm overflow-hidden flex flex-col group">
+                  <div className="h-80 relative overflow-hidden bg-muted">
+                    <img 
+                      src={outfit.imageUrl} 
+                      alt={outfit.name} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="p-6 flex flex-col flex-1">
+                    <h3 className="text-2xl font-bold mb-2">{outfit.name}</h3>
+                    <p className="text-muted-foreground text-sm flex-1">{outfit.description}</p>
+                    <div className="mt-4 mb-6">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Included in this look</p>
+                      <div className="flex -space-x-3 overflow-hidden p-1">
+                        {outfit.products?.map((p, i) => (
+                          <img 
+                            key={p.id} 
+                            src={p.image || p.images?.[0]} 
+                            alt={p.title} 
+                            title={p.title}
+                            className={`inline-block h-12 w-12 rounded-full ring-2 ring-background object-cover`} 
+                            style={{ zIndex: 10 - i }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={() => handleAddOutfitToCart(outfit)}
+                      disabled={addingToCart}
+                      className="w-full bg-foreground text-background hover:bg-foreground/90 font-bold h-12 mt-auto rounded-xl shadow-md"
+                    >
+                      {addingToCart ? "Adding..." : "Add All to Cart"}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">

@@ -1,13 +1,12 @@
 package com.fashionify.backend.repository;
 
-import com.fashionify.backend.entity.Cart;
+import com.fashionify.backend.entity.Coupon;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface CartRepository extends JpaRepository<Cart, Long> {
-    Optional<Cart> findByUserId(Long userId);
-    void deleteByUserId(Long userId);
+public interface CouponRepository extends JpaRepository<Coupon, Long> {
+    Optional<Coupon> findByCode(String code);
 }

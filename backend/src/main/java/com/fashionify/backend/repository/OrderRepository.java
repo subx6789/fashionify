@@ -12,6 +12,7 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByUserId(Long userId);
+    void deleteByUserId(Long userId);
 
     // Used by verified-purchase rating check
     @Query("""

@@ -36,6 +36,13 @@ public class User {
     private String shoeSize;
     private String preferredStyle;
 
+    private String gender;
+    private String weight;
+    private String age;
+    
+    @Column(columnDefinition = "TEXT")
+    private String avatar;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
