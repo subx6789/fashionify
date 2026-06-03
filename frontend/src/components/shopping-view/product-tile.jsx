@@ -20,7 +20,7 @@ function ShoppingProductTile({
   const isWishlisted = wishlistItems?.some((item) => item.id === product?.id);
 
   // Prefer first image from images[], fall back to legacy image field
-  const coverImage = product?.images?.[0] || product?.image;
+  const coverImage = product?.images?.[0] || product?.image || "https://placehold.co/600x600/png?text=No+Image";
   const totalStock = product?.totalStock ?? 0;
 
   function handleWishlistToggle(e) {
@@ -50,7 +50,8 @@ function ShoppingProductTile({
           <img
             src={coverImage}
             alt={product?.title}
-            className="w-full h-[260px] object-contain p-4 bg-muted/10 rounded-t-lg"
+            onError={(e) => { e.target.src = "https://placehold.co/600x600/png?text=No+Image"; }}
+            className="w-full h-[300px] object-contain p-4 bg-muted/10 rounded-t-lg"
           />
 
           {/* Stock badges */}

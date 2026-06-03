@@ -208,6 +208,7 @@ function ShoppingProductDetails() {
                   key={activeImageIndex}
                   src={images[activeImageIndex]}
                   alt={productDetails?.title}
+                  onError={(e) => { e.target.src = "https://placehold.co/600x600/png?text=No+Image"; }}
                   className="w-full h-full object-contain p-4 transition-opacity duration-300"
                 />
               ) : (
@@ -267,7 +268,7 @@ function ShoppingProductDetails() {
                         : "border-border opacity-60 hover:opacity-100"
                     }`}
                   >
-                    <img src={url} alt={`View ${i + 1}`} className="w-full h-full object-cover" />
+                    <img src={url} alt={`View ${i + 1}`} onError={(e) => { e.target.src = "https://placehold.co/600x600/png?text=No+Image"; }} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>

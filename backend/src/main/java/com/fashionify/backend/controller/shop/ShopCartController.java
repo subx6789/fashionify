@@ -82,7 +82,7 @@ public class ShopCartController {
         if (cartOpt.isPresent()) {
             return ResponseEntity.ok(Map.of("success", true, "data", cartOpt.get()));
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(Map.of("success", true, "data", Map.of("items", new java.util.ArrayList<>())));
     }
 
     @PutMapping("/update-cart")

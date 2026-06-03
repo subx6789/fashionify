@@ -9,41 +9,53 @@ const initialState = {
 
 export const registerUser = createAsyncThunk(
   "/auth/register",
-
-  async (formData) => {
-    const response = await axios.post(
-      "http://localhost:8080/api/auth/register",
-      formData,
-      {
-        withCredentials: true,
-      }
-    );
-
-    return response.data;
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/auth/register",
+        formData,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: "An error occurred" });
+    }
   }
 );
 
 export const loginUser = createAsyncThunk(
   "/auth/login",
-  async (formData) => {
-    const response = await axios.post(
-      "http://localhost:8080/api/auth/login",
-      formData,
-      { withCredentials: true }
-    );
-    return response.data;
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/auth/login",
+        formData,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: "An error occurred" });
+    }
   }
 );
 
 export const adminLoginUser = createAsyncThunk(
   "/auth/adminLogin",
-  async (formData) => {
-    const response = await axios.post(
-      "http://localhost:8080/api/admin-auth/login",
-      formData,
-      { withCredentials: true }
-    );
-    return response.data;
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/admin-auth/login",
+        formData,
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: "An error occurred" });
+    }
   }
 );
 

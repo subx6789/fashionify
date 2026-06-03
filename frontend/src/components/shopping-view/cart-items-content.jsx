@@ -70,8 +70,9 @@ function UserCartItemsContent({ cartItem }) {
   return (
     <div className="flex items-center space-x-4">
       <img
-        src={cartItem?.product?.images?.[0] || cartItem?.product?.image}
+        src={cartItem?.product?.images?.[0] || cartItem?.product?.image || "https://placehold.co/600x600/png?text=No+Image"}
         alt={cartItem?.product?.title}
+        onError={(e) => { e.target.src = "https://placehold.co/600x600/png?text=No+Image"; }}
         className="w-20 h-20 rounded object-cover"
       />
       <div className="flex-1 min-w-0">

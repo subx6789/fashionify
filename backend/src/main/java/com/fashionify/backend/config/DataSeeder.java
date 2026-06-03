@@ -19,7 +19,8 @@ public class DataSeeder implements CommandLineRunner {
     @Autowired private ProductRepository productRepository;
     @Autowired private ProductSizeVariantRepository sizeVariantRepository;
     @Autowired private FeatureRepository featureRepository;
-
+    @Autowired private ReviewRepository reviewRepository;
+    @Autowired private CartRepository cartRepository;
     @Value("${app.admin.email}")
     private String adminEmail;
 
@@ -37,14 +38,23 @@ public class DataSeeder implements CommandLineRunner {
 
     private void seedAdmin() {
         User admin = userRepository.findByEmail(adminEmail).orElse(null);
-        if (admin == null) {
-            admin = new User(null, "Admin", adminEmail, passwordEncoder.encode(adminPassword), "admin", null, null);
-            userRepository.save(admin);
-            System.out.println("✅ Admin created: " + adminEmail);
-        } else {
+        if (admin != null) {
+            admin.setRole("admin");
             admin.setPassword(passwordEncoder.encode(adminPassword));
             userRepository.save(admin);
-            System.out.println("✅ Admin password synced");
+            System.out.println("✅ Existing user promoted to Admin");
+        } else {
+            admin = userRepository.findByUserName("Admin").orElse(null);
+            if (admin == null) {
+                admin = new User(null, "Admin", adminEmail, passwordEncoder.encode(adminPassword), "admin", null, null);
+                userRepository.save(admin);
+                System.out.println("✅ Admin created: " + adminEmail);
+            } else {
+                admin.setEmail(adminEmail);
+                admin.setPassword(passwordEncoder.encode(adminPassword));
+                userRepository.save(admin);
+                System.out.println("✅ Admin details synced");
+            }
         }
     }
 
@@ -71,6 +81,8 @@ public class DataSeeder implements CommandLineRunner {
 
         // Delete old mock products (no size variants)
         if (!existing.isEmpty()) {
+            cartRepository.deleteAll();
+            reviewRepository.deleteAll();
             sizeVariantRepository.deleteAll();
             productRepository.deleteAll();
             System.out.println("🗑️  Purged " + existing.size() + " old mock products");
