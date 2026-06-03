@@ -62,10 +62,11 @@ function AdminUsersView() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>User ID</TableHead>
-              <TableHead>Username</TableHead>
+              <TableHead>User</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Current Role</TableHead>
+              <TableHead className="text-right">Orders</TableHead>
+              <TableHead className="text-right">Total Spend</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -75,9 +76,22 @@ function AdminUsersView() {
             {userList && userList.length > 0
               ? userList.map((userItem) => (
                   <TableRow key={userItem.id}>
-                    <TableCell>{userItem?.id}</TableCell>
-                    <TableCell className="font-semibold">{userItem?.userName}</TableCell>
-                    <TableCell>{userItem?.email}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center overflow-hidden font-bold">
+                          <img 
+                            src={`https://api.dicebear.com/9.x/micah/svg?seed=${userItem?.avatar || userItem?.userName || "Fashion"}&backgroundColor=transparent`}
+                            alt={userItem?.userName} 
+                            className="w-full h-full object-cover" 
+                          />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-foreground">{userItem?.userName}</p>
+                          <p className="text-xs text-muted-foreground">ID: {userItem?.id}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{userItem?.email}</TableCell>
                     <TableCell>
                       <Badge
                         className={`py-1 px-3 ${
@@ -88,6 +102,12 @@ function AdminUsersView() {
                       >
                         {userItem?.role?.toUpperCase()}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      {userItem?.orderCount || 0}
+                    </TableCell>
+                    <TableCell className="text-right font-medium text-green-600 dark:text-green-400">
+                      ₹{(userItem?.totalSpend || 0).toFixed(2)}
                     </TableCell>
                     <TableCell className="flex gap-2 items-center">
                       <Button

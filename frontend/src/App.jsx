@@ -17,6 +17,7 @@ import ShoppingListing from "./pages/shopping-view/listing";
 import ShoppingCheckout from "./pages/shopping-view/checkout";
 import ShoppingProductDetails from "./pages/shopping-view/product-details";
 import ShoppingAccount from "./pages/shopping-view/account";
+import ShoppingOutfitDetails from "./pages/shopping-view/outfit-details";
 import CheckAuth from "./components/common/check-auth";
 import UnauthPage from "./pages/unauth-page";
 import { useDispatch, useSelector } from "react-redux";
@@ -114,6 +115,7 @@ function App() {
           <Route path="contact"         element={<ShoppingContact />} />
           <Route path="checkout"        element={<ShoppingCheckout />} />
           <Route path="account"         element={<ShoppingAccount />} />
+          <Route path="outfit/:id"      element={<ShoppingOutfitDetails />} />
           <Route path="wishlist"        element={<ShoppingWishlist />} />
           <Route path="paypal-return"   element={<PaypalReturnPage />} />
           <Route path="payment-success" element={<PaymentSuccessPage />} />

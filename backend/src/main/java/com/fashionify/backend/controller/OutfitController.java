@@ -8,6 +8,9 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import com.fashionify.backend.service.CloudinaryService;
+import java.io.IOException;
 
 import java.util.List;
 import java.util.Map;
@@ -22,6 +25,20 @@ public class OutfitController {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
+    @PostMapping("/upload-image")
+    public ResponseEntity<?> handleImageUpload(@RequestParam("my_file") MultipartFile file) {
+        try {
+            String url = cloudinaryService.uploadImage(file, "outfits");
+            return ResponseEntity.ok(Map.of("success", true, "result", Map.of("url", url)));
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("success", false, "message", "Error uploading image"));
+        }
+    }
+
     @GetMapping
     public ResponseEntity<?> getAllOutfits() {
         try {
@@ -29,6 +46,23 @@ public class OutfitController {
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "data", outfits
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getOutfitById(@PathVariable Long id) {
+        try {
+            Outfit outfit = outfitRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Outfit not found"));
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "data", outfit
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of(

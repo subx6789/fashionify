@@ -24,4 +24,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         """)
     boolean existsDeliveredOrderForProduct(@Param("userId") Long userId,
                                            @Param("productId") String productId);
+
+    // Used by verified-buyer check to count total products purchased
+    @Query("""
+        SELECT COALESCE(SUM(oi.quantity), 0) FROM Order o
+        JOIN o.orderItems oi
+        WHERE o.user.id = :userId
+        AND o.orderStatus = 'delivered'
+        """)
+    Long countDeliveredProductsForUser(@Param("userId") Long userId);
 }

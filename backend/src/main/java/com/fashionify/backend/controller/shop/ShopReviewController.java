@@ -127,6 +127,18 @@ public class ShopReviewController {
         return ResponseEntity.ok(Map.of("success", true, "data", reviewDtos));
     }
 
+    @GetMapping("/latest")
+    public ResponseEntity<?> getLatestReviews() {
+        // Fetch top 3 latest reviews. A simple approach is sorting the list, 
+        // but for efficiency it should be a custom query. We'll sort in-memory for this scale.
+        List<Map<String, Object>> reviewDtos = reviewRepository.findAll().stream()
+                .sorted(Comparator.comparing(Review::getCreatedAt).reversed())
+                .limit(3)
+                .map(this::buildReviewDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(Map.of("success", true, "data", reviewDtos));
+    }
+
     private Map<String, Object> buildReviewDto(Review review) {
         Map<String, Object> dto = new LinkedHashMap<>();
         dto.put("id", review.getId());
@@ -135,8 +147,26 @@ public class ShopReviewController {
         dto.put("reviewValue", review.getReviewValue());
         dto.put("fitFeedback", review.getFitFeedback());
         dto.put("imageUrl", review.getImageUrl());
-        dto.put("verifiedPurchase", review.isVerifiedPurchase());
         dto.put("createdAt", review.getCreatedAt());
+
+        // Attach product details
+        if (review.getProduct() != null) {
+            dto.put("productId", review.getProduct().getId());
+            dto.put("productTitle", review.getProduct().getTitle());
+            if (review.getProduct().getImages() != null && !review.getProduct().getImages().isEmpty()) {
+                dto.put("productImage", review.getProduct().getImages().get(0));
+            }
+        }
+
+        // Attach user details and evaluate verified buyer logic
+        if (review.getUser() != null) {
+            dto.put("userAvatar", review.getUser().getAvatar());
+            Long itemsPurchased = orderRepository.countDeliveredProductsForUser(review.getUser().getId());
+            dto.put("verifiedPurchase", itemsPurchased > 2); // Show Verified Buyer only if > 2 items
+        } else {
+            dto.put("verifiedPurchase", false);
+        }
+
         return dto;
     }
 }

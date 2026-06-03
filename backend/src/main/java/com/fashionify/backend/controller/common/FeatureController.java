@@ -40,6 +40,9 @@ public class FeatureController {
         if (featureDetails.getEndDate() != null) {
             feature.setEndDate(featureDetails.getEndDate());
         }
+        if (featureDetails.getLinkUrl() != null) {
+            feature.setLinkUrl(featureDetails.getLinkUrl());
+        }
         Feature updatedFeature = featureRepository.save(feature);
         return ResponseEntity.ok(Map.of("success", true, "data", updatedFeature));
     }

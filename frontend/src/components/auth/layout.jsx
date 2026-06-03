@@ -9,10 +9,10 @@ function AuthLayout() {
         <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] bg-primary/10 rounded-full blur-[150px] pointer-events-none" />
         
         <div className="max-w-md space-y-6 text-center text-white relative z-10">
-          <h1 className="text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-primary to-primary-dark leading-tight">
+          <h1 className="text-5xl font-extrabold tracking-tight text-slate-950 drop-shadow-sm leading-tight">
             Discover the Future of Style
           </h1>
-          <p className="text-primary-soft/70 text-lg">
+          <p className="text-slate-800 font-medium text-lg drop-shadow-sm">
             Immerse yourself in a curated shopping experience tailored perfectly to your lifestyle.
           </p>
         </div>

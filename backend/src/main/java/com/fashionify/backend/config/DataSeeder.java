@@ -21,6 +21,7 @@ public class DataSeeder implements CommandLineRunner {
     @Autowired private FeatureRepository featureRepository;
     @Autowired private ReviewRepository reviewRepository;
     @Autowired private CartRepository cartRepository;
+    @Autowired private OutfitRepository outfitRepository;
     @Value("${app.admin.email}")
     private String adminEmail;
 
@@ -86,6 +87,7 @@ public class DataSeeder implements CommandLineRunner {
         if (!existing.isEmpty()) {
             cartRepository.deleteAll();
             reviewRepository.deleteAll();
+            outfitRepository.deleteAll();
             sizeVariantRepository.deleteAll();
             productRepository.deleteAll();
             System.out.println("🗑️  Purged " + existing.size() + " old mock products");
@@ -198,8 +200,8 @@ createProduct(
             "women", "h&m",
             1799.0, null,
             List.of(
-                "https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=800&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1620799139507-2a76f79a2f4d?w=800&auto=format&fit=crop"
+                "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1509319117193-57bab727e09d?w=800&auto=format&fit=crop"
             ),
             List.of(
                 variant("XS", 14, "Chest 40\", Length 26\""),
@@ -337,8 +339,8 @@ createProduct(
             "accessories", "adidas",
             1299.0, null,
             List.of(
-                "https://images.unsplash.com/photo-1559564109-583eb7c34d31?w=800&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1627123424574-724758594e93?w=800&auto=format&fit=crop"
+                "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=800&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1626497764746-6dc36546b388?w=800&auto=format&fit=crop"
             ),
             List.of(
                 variant("S/M", 40, "Fits waist 28–34\""),

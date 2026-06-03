@@ -17,6 +17,7 @@ import {
   UmbrellaIcon,
   WashingMachine,
   WatchIcon,
+  CheckCircle2,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState, useMemo } from "react";
@@ -67,6 +68,21 @@ function ShoppingHome() {
   const [mockProducts, setMockProducts] = useState([]);
   const [outfits, setOutfits] = useState([]);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [latestReviews, setLatestReviews] = useState([]);
+
+  useEffect(() => {
+    const fetchLatestReviews = async () => {
+      try {
+        const res = await axios.get(import.meta.env.VITE_API_URL + "/api/shop/review/latest");
+        if (res.data.success) {
+          setLatestReviews(res.data.data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchLatestReviews();
+  }, []);
 
   useEffect(() => {
     const fetchOutfits = async () => {
@@ -225,21 +241,30 @@ function ShoppingHome() {
       <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] xl:aspect-[2.5/1] max-h-[600px] overflow-hidden bg-zinc-100 dark:bg-zinc-900">
         <AnimatePresence>
           {slides && slides.length > 0 && (
-            <motion.img
+            <motion.div
               key={currentSlide}
-              src={slides[currentSlide]?.image}
               initial={{ opacity: 0, scale: 1.05 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 1, ease: "easeInOut" }}
-              className="absolute top-0 left-0 w-full h-full object-cover object-top"
-            />
+              className="absolute top-0 left-0 w-full h-full"
+            >
+              <img
+                src={slides[currentSlide]?.image}
+                alt="Banner"
+                className={`w-full h-full object-cover object-top ${slides[currentSlide]?.linkUrl ? 'cursor-pointer' : ''}`}
+                onClick={() => {
+                  if (slides[currentSlide]?.linkUrl) {
+                    navigate(slides[currentSlide].linkUrl);
+                  }
+                }}
+              />
+            </motion.div>
           )}
         </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
         <Button
           variant="outline"
-          size="icon"
           onClick={() =>
             setCurrentSlide(
               (prevSlide) =>
@@ -247,21 +272,20 @@ function ShoppingHome() {
                 slides.length
             )
           }
-          className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-background/80 hover:bg-background/90 z-10 card-gradient rounded-full"
+          className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/30 hover:bg-white/50 dark:bg-black/40 dark:hover:bg-black/60 backdrop-blur-md border border-white/40 dark:border-white/20 text-foreground z-10 rounded-full h-12 w-12 flex items-center justify-center transition-all shadow-lg"
         >
-          <ChevronLeftIcon className="w-5 h-5" />
+          <ChevronLeftIcon className="w-6 h-6" />
         </Button>
         <Button
           variant="outline"
-          size="icon"
           onClick={() =>
             setCurrentSlide(
               (prevSlide) => (prevSlide + 1) % slides.length
             )
           }
-          className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-background/80 hover:bg-background/90 z-10 card-gradient rounded-full"
+          className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/30 hover:bg-white/50 dark:bg-black/40 dark:hover:bg-black/60 backdrop-blur-md border border-white/40 dark:border-white/20 text-foreground z-10 rounded-full h-12 w-12 flex items-center justify-center transition-all shadow-lg"
         >
-          <ChevronRightIcon className="w-5 h-5" />
+          <ChevronRightIcon className="w-6 h-6" />
         </Button>
       </div>
 
@@ -313,7 +337,11 @@ function ShoppingHome() {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {outfits.map((outfit) => (
-                <div key={outfit.id} className="bg-card rounded-2xl border shadow-sm overflow-hidden flex flex-col group">
+                <div 
+                  key={outfit.id} 
+                  onClick={() => navigate(`/shop/outfit/${outfit.id}`)}
+                  className="bg-card rounded-2xl border shadow-sm overflow-hidden flex flex-col group cursor-pointer"
+                >
                   <div className="h-80 relative overflow-hidden bg-muted">
                     <img
                       src={outfit.imageUrl}
@@ -341,7 +369,10 @@ function ShoppingHome() {
                       </div>
                     </div>
                     <Button
-                      onClick={() => handleAddOutfitToCart(outfit)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddOutfitToCart(outfit);
+                      }}
                       disabled={addingToCart}
                       className="w-full bg-foreground text-background hover:bg-foreground/90 font-bold h-12 mt-auto rounded-xl shadow-md"
                     >
@@ -440,32 +471,64 @@ function ShoppingHome() {
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-extrabold text-center mb-16 text-gradient">What Our Customers Say</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { name: "Sarah J.", role: "Verified Buyer", text: "Absolutely love the quality of the clothes! The shipping was incredibly fast and everything fit perfectly." },
-              { name: "Mike T.", role: "Verified Buyer", text: "The modern aesthetic of the brand really stands out. Customer service was also very helpful when I needed to exchange a size." },
-              { name: "Emily R.", role: "Verified Buyer", text: "My go-to store for trendy and comfortable wear. The prices are unbeatable for this level of premium quality." }
-            ].map((review, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Card className="card-gradient card-gradient-hover p-8 text-center space-y-4 border-t-2 border-primary-border">
-                  <div className="flex justify-center space-x-1">
-                    {[...Array(5)].map((_, idx) => (
-                      <svg key={idx} className="w-6 h-6 fill-current text-yellow-500" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                    ))}
-                  </div>
-                  <p className="text-muted-foreground italic text-lg leading-relaxed">"{review.text}"</p>
-                  <div>
-                    <h4 className="font-bold text-lg">{review.name}</h4>
-                    <span className="text-xs text-primary-foreground bg-primary/10 text-primary dark:text-primary px-2 py-0.5 rounded-full font-semibold">{review.role}</span>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
+            {(latestReviews && latestReviews.length > 0 ? latestReviews : [
+              { userName: "Sarah J.", verifiedPurchase: true, reviewMessage: "Absolutely love the quality of the clothes! The shipping was incredibly fast and everything fit perfectly.", reviewValue: 5 },
+              { userName: "Mike T.", verifiedPurchase: true, reviewMessage: "The modern aesthetic of the brand really stands out. Customer service was also very helpful when I needed to exchange a size.", reviewValue: 5 },
+              { userName: "Emily R.", verifiedPurchase: true, reviewMessage: "My go-to store for trendy and comfortable wear. The prices are unbeatable for this level of premium quality.", reviewValue: 5 }
+            ]).map((review, i) => (
+                <motion.div
+                  key={review.id || i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <Card className="card-gradient card-gradient-hover p-8 text-center space-y-4 border-t-2 border-primary-border h-full flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-center space-x-1 mb-4">
+                        {[...Array(5)].map((_, idx) => (
+                          <svg key={idx} className={`w-6 h-6 fill-current ${idx < review.reviewValue ? "text-yellow-500" : "text-gray-600"}`} viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                        ))}
+                      </div>
+                      <p className="text-muted-foreground italic text-lg leading-relaxed mb-6">"{review.reviewMessage}"</p>
+                    </div>
+
+                    <div className="border-t border-border/50 pt-4 mt-auto">
+                      {review.productId && (
+                        <div className="flex items-center gap-3 mb-4 bg-background/50 p-2 rounded-lg cursor-pointer hover:bg-background/80 transition-colors" onClick={() => navigate(`/shop/product/${review.productId}`)}>
+                          {review.productImage ? (
+                            <img src={review.productImage} alt={review.productTitle} className="w-10 h-10 object-cover rounded-md" />
+                          ) : (
+                            <div className="w-10 h-10 bg-muted rounded-md flex items-center justify-center"><ShoppingBasket className="w-5 h-5 text-muted-foreground" /></div>
+                          )}
+                          <div className="text-left flex-1 min-w-0">
+                            <p className="text-xs text-muted-foreground">Reviewing</p>
+                            <p className="text-sm font-semibold truncate text-foreground">{review.productTitle}</p>
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-lg overflow-hidden shrink-0">
+                          <img 
+                            src={`https://api.dicebear.com/9.x/micah/svg?seed=${review.userAvatar || review.userName || "Fashion"}&backgroundColor=transparent`}
+                            alt={review.userName} 
+                            className="w-full h-full object-cover" 
+                          />
+                        </div>
+                        <div className="text-left flex-1">
+                          <h4 className="font-bold text-base text-foreground leading-tight">{review.userName}</h4>
+                          {review.verifiedPurchase && (
+                            <span className="text-[10px] text-green-700 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full font-bold uppercase tracking-wide inline-flex items-center gap-1 mt-1">
+                              <CheckCircle2 className="w-3 h-3" />
+                              Verified Buyer
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                </motion.div>
+              ))}
           </div>
         </div>
       </section>

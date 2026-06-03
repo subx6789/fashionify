@@ -31,6 +31,15 @@ public class CouponController {
     @PostMapping
     public ResponseEntity<?> createCoupon(@RequestBody Coupon coupon) {
         try {
+            if (coupon.getIsActive() == null) {
+                coupon.setIsActive(true);
+            }
+            if (coupon.getTotalRedemptions() == null) {
+                coupon.setTotalRedemptions(0);
+            }
+            if (coupon.getDiscountPercentage() == null) {
+                coupon.setDiscountPercentage(0.0);
+            }
             coupon.setCode(coupon.getCode().toUpperCase());
             Coupon saved = couponRepository.save(coupon);
             return ResponseEntity.ok(Map.of("success", true, "data", saved));
@@ -56,7 +65,8 @@ public class CouponController {
             coupon.setExpiryDate(couponDetails.getExpiryDate());
             coupon.setMaxRedemptions(couponDetails.getMaxRedemptions());
             coupon.setPerUserLimit(couponDetails.getPerUserLimit());
-            coupon.setIsActive(couponDetails.getIsActive());
+            coupon.setIsActive(couponDetails.getIsActive() != null ? couponDetails.getIsActive() : true);
+            coupon.setDiscountPercentage(0.0); // Maintain legacy field
 
             Coupon updated = couponRepository.save(coupon);
             return ResponseEntity.ok(Map.of("success", true, "data", updated));

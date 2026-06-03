@@ -17,14 +17,35 @@ public class AdminUserController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private com.fashionify.backend.repository.OrderRepository orderRepository;
+
     @GetMapping("/get")
     public ResponseEntity<?> getAllUsersForAdmin() {
-        // Exclude passwords from response for security if DTO was used, but since we are returning entity we should ideally map it.
-        // For simplicity, we just return it here as role management is internal.
         List<User> users = userRepository.findAll();
-        // Nullify passwords to be safe
-        users.forEach(user -> user.setPassword(null));
-        return ResponseEntity.ok(Map.of("success", true, "data", users));
+        List<Map<String, Object>> usersWithStats = new java.util.ArrayList<>();
+        
+        for (User user : users) {
+            Map<String, Object> map = new java.util.HashMap<>();
+            map.put("id", user.getId());
+            map.put("userName", user.getUserName());
+            map.put("email", user.getEmail());
+            map.put("role", user.getRole());
+            map.put("avatar", user.getAvatar());
+
+            List<com.fashionify.backend.entity.Order> userOrders = orderRepository.findByUserId(user.getId());
+            int orderCount = userOrders.size();
+            double totalSpend = userOrders.stream()
+                .filter(o -> "delivered".equals(o.getOrderStatus()))
+                .mapToDouble(o -> o.getTotalAmount() != null ? o.getTotalAmount() : 0.0)
+                .sum();
+
+            map.put("orderCount", orderCount);
+            map.put("totalSpend", totalSpend);
+            usersWithStats.add(map);
+        }
+        
+        return ResponseEntity.ok(Map.of("success", true, "data", usersWithStats));
     }
 
     @PutMapping("/update-role/{id}")

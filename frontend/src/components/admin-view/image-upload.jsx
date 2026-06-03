@@ -15,6 +15,7 @@ function ProductImageUpload({
   setImageLoadingState,
   isEditMode,
   isCustomStyling = false,
+  uploadUrl = "/api/admin/products/upload-image"
 }) {
   const inputRef = useRef(null);
 
@@ -22,7 +23,7 @@ function ProductImageUpload({
     const data = new FormData();
     data.append("my_file", file);
     const response = await axios.post(
-      import.meta.env.VITE_API_URL + "/api/admin/products/upload-image",
+      import.meta.env.VITE_API_URL + uploadUrl,
       data,
       { withCredentials: true }
     );

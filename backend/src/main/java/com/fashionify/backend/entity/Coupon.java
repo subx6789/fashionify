@@ -30,6 +30,11 @@ public class Coupon {
     @Column(nullable = false)
     private Double value; // Replaces discountPercentage
 
+    // Kept to satisfy legacy MySQL non-null constraint without needing manual DB migrations
+    @Column(name = "discount_percentage")
+    @Builder.Default
+    private Double discountPercentage = 0.0;
+
     private Double minimumOrderAmount;
 
     private LocalDateTime startDate;

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Trash2, Plus, Shirt, CheckCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import ProductImageUpload from "@/components/admin-view/image-upload";
 
 function AdminOutfits() {
   const [outfits, setOutfits] = useState([]);
@@ -15,6 +16,12 @@ function AdminOutfits() {
   const [imageUrl, setImageUrl] = useState("");
   const [selectedProductIds, setSelectedProductIds] = useState([]);
   const [loading, setLoading] = useState(false);
+  
+  // Image Upload State
+  const [imageFiles, setImageFiles] = useState([]);
+  const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
+  const [imageLoadingState, setImageLoadingState] = useState(false);
+
   const { toast } = useToast();
 
   const fetchOutfits = async () => {
@@ -54,8 +61,10 @@ function AdminOutfits() {
 
   const handleCreateOutfit = async (e) => {
     e.preventDefault();
-    if (!name || !imageUrl || selectedProductIds.length === 0) {
-      toast({ title: "Please fill name, image URL and select at least one product", variant: "destructive" });
+    const finalImageUrl = (uploadedImageUrls && uploadedImageUrls.length > 0) ? uploadedImageUrls[0] : imageUrl;
+
+    if (!name || !finalImageUrl || selectedProductIds.length === 0) {
+      toast({ title: "Please fill name, provide an image (upload or URL), and select at least one product", variant: "destructive" });
       return;
     }
     
@@ -64,7 +73,7 @@ function AdminOutfits() {
       const res = await axios.post(import.meta.env.VITE_API_URL + "/api/outfits", {
         name,
         description,
-        imageUrl,
+        imageUrl: finalImageUrl,
         productIds: selectedProductIds
       });
       if (res.data.success) {
@@ -72,6 +81,8 @@ function AdminOutfits() {
         setName("");
         setDescription("");
         setImageUrl("");
+        setImageFiles([]);
+        setUploadedImageUrls([]);
         setSelectedProductIds([]);
         fetchOutfits();
       }
@@ -103,20 +114,52 @@ function AdminOutfits() {
       <div className="bg-card p-6 rounded-2xl border shadow-sm">
         <h2 className="text-xl font-bold mb-4">Create New Outfit Bundle</h2>
         <form onSubmit={handleCreateOutfit} className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Outfit Name</Label>
-              <Input placeholder="e.g. Summer Vacation Vibes" value={name} onChange={e => setName(e.target.value)} />
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Outfit Name</Label>
+                <Input placeholder="e.g. Summer Vacation Vibes" value={name} onChange={e => setName(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea placeholder="Describe this look..." value={description} onChange={e => setDescription(e.target.value)} rows={4} />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Cover Image URL</Label>
-              <Input placeholder="https://..." value={imageUrl} onChange={e => setImageUrl(e.target.value)} />
+            
+            <div className="space-y-4">
+              <Label>Cover Image</Label>
+              <div className="border rounded-lg p-4 bg-muted/20 space-y-4">
+                <ProductImageUpload
+                  imageFiles={imageFiles}
+                  setImageFiles={setImageFiles}
+                  uploadedImageUrls={uploadedImageUrls}
+                  setUploadedImageUrls={setUploadedImageUrls}
+                  setImageLoadingState={setImageLoadingState}
+                  imageLoadingState={imageLoadingState}
+                  isEditMode={false}
+                  uploadUrl="/api/outfits/upload-image"
+                />
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">OR ENTER URL</span>
+                  </div>
+                </div>
+                <Input 
+                  placeholder="https://..." 
+                  value={imageUrl} 
+                  onChange={e => {
+                    setImageUrl(e.target.value);
+                    if (e.target.value) {
+                      setUploadedImageUrls([]);
+                      setImageFiles([]);
+                    }
+                  }} 
+                />
+              </div>
             </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label>Description</Label>
-            <Textarea placeholder="Describe this look..." value={description} onChange={e => setDescription(e.target.value)} />
           </div>
 
           <div className="space-y-2 pt-2">

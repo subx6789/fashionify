@@ -26,6 +26,8 @@ public class Feature {
 
     private String endDate;
 
+    private String linkUrl;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

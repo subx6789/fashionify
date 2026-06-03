@@ -120,7 +120,7 @@ function AdminDashboard() {
   const [showCustomPicker, setShowCustomPicker] = useState(false);
 
   const [editingSlide, setEditingSlide] = useState(null);
-  const [editDates, setEditDates] = useState({ startDate: "", endDate: "" });
+  const [editDates, setEditDates] = useState({ startDate: "", endDate: "", linkUrl: "" });
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -472,7 +472,8 @@ function AdminDashboard() {
                             setEditingSlide(featureImgItem);
                             setEditDates({
                               startDate: featureImgItem.startDate || "",
-                              endDate: featureImgItem.endDate || ""
+                              endDate: featureImgItem.endDate || "",
+                              linkUrl: featureImgItem.linkUrl || ""
                             });
                           }}
                         >
@@ -521,7 +522,16 @@ function AdminDashboard() {
                 onChange={(e) => setEditDates(prev => ({...prev, endDate: e.target.value}))}
               />
             </div>
-            <p className="text-xs text-muted-foreground">Leave dates empty to make the slide always active.</p>
+            <div className="space-y-2">
+              <Label>Link URL (Optional)</Label>
+              <Input 
+                type="text" 
+                placeholder="/shop/listing?category=men"
+                value={editDates.linkUrl} 
+                onChange={(e) => setEditDates(prev => ({...prev, linkUrl: e.target.value}))}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">Leave dates empty to make the slide always active. Add a link URL to make the slide clickable.</p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditingSlide(null)}>Cancel</Button>
