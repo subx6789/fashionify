@@ -19,7 +19,7 @@ import {
   WatchIcon,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllFilteredProducts,
@@ -65,7 +65,17 @@ function ShoppingHome() {
 
   const [mockProducts, setMockProducts] = useState([]);
 
-  const slides = featureImageList && featureImageList.length > 0 ? featureImageList : defaultSlides;
+  const activeFeatureImages = useMemo(() => {
+    if (!featureImageList || featureImageList.length === 0) return [];
+    const today = new Date().toISOString().split("T")[0];
+    return featureImageList.filter(slide => {
+      if (slide.startDate && today < slide.startDate) return false;
+      if (slide.endDate && today > slide.endDate) return false;
+      return true;
+    });
+  }, [featureImageList]);
+
+  const slides = activeFeatureImages.length > 0 ? activeFeatureImages : defaultSlides;
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -171,7 +181,7 @@ function ShoppingHome() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="relative w-full h-[600px] overflow-hidden bg-zinc-100 dark:bg-zinc-900">
+      <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] xl:aspect-[2.5/1] max-h-[600px] overflow-hidden bg-zinc-100 dark:bg-zinc-900">
         <AnimatePresence>
           {slides && slides.length > 0 && (
             <motion.img
@@ -181,7 +191,7 @@ function ShoppingHome() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 1, ease: "easeInOut" }}
-              className="absolute top-0 left-0 w-full h-full object-cover"
+              className="absolute top-0 left-0 w-full h-full object-cover object-top"
             />
           )}
         </AnimatePresence>
@@ -351,9 +361,9 @@ function ShoppingHome() {
       </section>
 
       {/* Recommendations carousel — only for authenticated users */}
-      {isAuthenticated && user?.id && (
+      {/* {isAuthenticated && user?.id && (
         <RecommendationsCarousel userId={user.id} />
-      )}
+      )} */}
 
       {/* Customer Reviews Section */}
       <section className="py-20 bg-muted/40 relative overflow-hidden">

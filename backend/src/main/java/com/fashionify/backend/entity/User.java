@@ -31,6 +31,11 @@ public class User {
     @Column(nullable = false)
     private String role; // "user" or "admin"
 
+    private String topSize;
+    private String bottomSize;
+    private String shoeSize;
+    private String preferredStyle;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

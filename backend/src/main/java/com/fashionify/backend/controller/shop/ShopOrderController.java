@@ -67,6 +67,12 @@ public class ShopOrderController {
         order.setOrderDate(LocalDateTime.now());
         order.setOrderUpdateDate(LocalDateTime.now());
         order.setAddressInfo(orderDetails.getAddressInfo());
+        
+        order.setShippingMethod(orderDetails.getShippingMethod());
+        order.setShippingCost(orderDetails.getShippingCost());
+        order.setIsGiftWrapped(orderDetails.getIsGiftWrapped());
+        order.setAppliedPromoCode(orderDetails.getAppliedPromoCode());
+        order.setDiscountAmount(orderDetails.getDiscountAmount());
 
         // Save order items
         if (orderDetails.getOrderItems() != null) {
@@ -200,5 +206,16 @@ public class ShopOrderController {
             return ResponseEntity.ok(Map.of("success", true, "data", order.get()));
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/apply-promo")
+    public ResponseEntity<?> applyPromoCode(@RequestBody Map<String, String> payload) {
+        String code = payload.get("promoCode");
+        if ("WELCOME10".equalsIgnoreCase(code)) {
+            return ResponseEntity.ok(Map.of("success", true, "discountType", "PERCENTAGE", "discountValue", 10, "message", "10% discount applied!"));
+        } else if ("SAVE500".equalsIgnoreCase(code)) {
+            return ResponseEntity.ok(Map.of("success", true, "discountType", "FLAT", "discountValue", 500, "message", "Flat ₹500 discount applied!"));
+        }
+        return ResponseEntity.ok(Map.of("success", false, "message", "Invalid promo code"));
     }
 }

@@ -70,15 +70,12 @@ public class AuthController {
         String role = (userCount == 0) ? "admin" : "user";
 
         // Create new user's account
-        User user = new User(
-                null,
-                signUpRequest.getUserName(),
-                signUpRequest.getEmail(),
-                encoder.encode(signUpRequest.getPassword()),
-                role, // Dynamic role: first user gets admin
-                null,
-                null
-        );
+        User user = User.builder()
+                .userName(signUpRequest.getUserName())
+                .email(signUpRequest.getEmail())
+                .password(encoder.encode(signUpRequest.getPassword()))
+                .role(role)
+                .build();
 
         userRepository.save(user);
 
@@ -102,6 +99,8 @@ public class AuthController {
                             "Access denied. Admin accounts must use the Admin Login portal."));
         }
 
+        User user = userRepository.findById(userDetails.getId()).orElse(null);
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
 
@@ -119,6 +118,13 @@ public class AuthController {
         userMap.put("role", role);
         userMap.put("id", userDetails.getId());
         userMap.put("userName", userDetails.getUsername());
+        
+        if (user != null) {
+            userMap.put("topSize", user.getTopSize());
+            userMap.put("bottomSize", user.getBottomSize());
+            userMap.put("shoeSize", user.getShoeSize());
+            userMap.put("preferredStyle", user.getPreferredStyle());
+        }
 
         return ResponseEntity.ok(new JwtResponse(true, "Logged in successfully", userMap));
     }
@@ -142,6 +148,7 @@ public class AuthController {
         }
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userRepository.findById(userDetails.getId()).orElse(null);
 
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("email", userDetails.getEmail());
@@ -149,6 +156,69 @@ public class AuthController {
         userMap.put("id", userDetails.getId());
         userMap.put("userName", userDetails.getUsername());
 
+        if (user != null) {
+            userMap.put("topSize", user.getTopSize());
+            userMap.put("bottomSize", user.getBottomSize());
+            userMap.put("shoeSize", user.getShoeSize());
+            userMap.put("preferredStyle", user.getPreferredStyle());
+        }
+
         return ResponseEntity.ok(new JwtResponse(true, "Authenticated user!", userMap));
+    }
+
+    @PutMapping("/update-preferences")
+    public ResponseEntity<?> updatePreferences(@RequestBody Map<String, String> payload, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(new MessageResponse(false, "Unauthorised user!"));
+        }
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userRepository.findById(userDetails.getId()).orElse(null);
+        if (user == null) {
+            return ResponseEntity.badRequest().body(new MessageResponse(false, "User not found"));
+        }
+
+        if (payload.containsKey("topSize")) user.setTopSize(payload.get("topSize"));
+        if (payload.containsKey("bottomSize")) user.setBottomSize(payload.get("bottomSize"));
+        if (payload.containsKey("shoeSize")) user.setShoeSize(payload.get("shoeSize"));
+        if (payload.containsKey("preferredStyle")) user.setPreferredStyle(payload.get("preferredStyle"));
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new MessageResponse(true, "Preferences updated successfully!"));
+    }
+
+    @PutMapping("/update-password")
+    public ResponseEntity<?> updatePassword(@RequestBody Map<String, String> payload, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(new MessageResponse(false, "Unauthorised user!"));
+        }
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userRepository.findById(userDetails.getId()).orElse(null);
+        if (user == null) {
+            return ResponseEntity.badRequest().body(new MessageResponse(false, "User not found"));
+        }
+
+        String oldPassword = payload.get("oldPassword");
+        String newPassword = payload.get("newPassword");
+
+        if (!encoder.matches(oldPassword, user.getPassword())) {
+            return ResponseEntity.badRequest().body(new MessageResponse(false, "Incorrect old password"));
+        }
+
+        if (newPassword == null || newPassword.length() < 8
+                || !newPassword.matches(".*[A-Z].*")
+                || !newPassword.matches(".*[a-z].*")
+                || !newPassword.matches(".*[0-9].*")
+                || !newPassword.matches(".*[^A-Za-z0-9].*")) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse(false,
+                            "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."));
+        }
+
+        user.setPassword(encoder.encode(newPassword));
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new MessageResponse(true, "Password updated successfully!"));
     }
 }

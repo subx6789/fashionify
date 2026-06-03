@@ -13,7 +13,8 @@ export const createNewOrder = createAsyncThunk(
   async (orderData) => {
     const response = await axios.post(
       "http://localhost:8080/api/shop/order/create",
-      orderData
+      orderData,
+      { withCredentials: true }
     );
     return response.data;
   }
@@ -24,7 +25,8 @@ export const confirmSimulatedOrder = createAsyncThunk(
   async (orderId) => {
     const response = await axios.post(
       "http://localhost:8080/api/shop/order/confirm-simulated",
-      { orderId }
+      { orderId },
+      { withCredentials: true }
     );
     return response.data;
   }
@@ -34,7 +36,8 @@ export const getAllOrdersByUserId = createAsyncThunk(
   "/order/getAllOrdersByUserId",
   async (userId) => {
     const response = await axios.get(
-      `http://localhost:8080/api/shop/order/list/${userId}`
+      `http://localhost:8080/api/shop/order/list/${userId}`,
+      { withCredentials: true }
     );
     return response.data;
   }
@@ -44,7 +47,8 @@ export const getOrderDetails = createAsyncThunk(
   "/order/getOrderDetails",
   async (id) => {
     const response = await axios.get(
-      `http://localhost:8080/api/shop/order/details/${id}`
+      `http://localhost:8080/api/shop/order/details/${id}`,
+      { withCredentials: true }
     );
     return response.data;
   }

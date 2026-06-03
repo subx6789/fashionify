@@ -28,4 +28,30 @@ public class FeatureController {
         List<Feature> features = featureRepository.findAll();
         return ResponseEntity.ok(Map.of("success", true, "data", features));
     }
+
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<?> editFeatureImage(@PathVariable Long id, @RequestBody Feature featureDetails) {
+        Feature feature = featureRepository.findById(id).orElse(null);
+        if (feature == null) {
+            return ResponseEntity.status(404).body(Map.of("success", false, "message", "Feature not found"));
+        }
+        if (featureDetails.getStartDate() != null) {
+            feature.setStartDate(featureDetails.getStartDate());
+        }
+        if (featureDetails.getEndDate() != null) {
+            feature.setEndDate(featureDetails.getEndDate());
+        }
+        Feature updatedFeature = featureRepository.save(feature);
+        return ResponseEntity.ok(Map.of("success", true, "data", updatedFeature));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteFeatureImage(@PathVariable Long id) {
+        Feature feature = featureRepository.findById(id).orElse(null);
+        if (feature == null) {
+            return ResponseEntity.status(404).body(Map.of("success", false, "message", "Feature not found"));
+        }
+        featureRepository.delete(feature);
+        return ResponseEntity.ok(Map.of("success", true, "message", "Feature deleted successfully"));
+    }
 }
