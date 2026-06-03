@@ -82,8 +82,8 @@ function AdminUsersView() {
                       <Badge
                         className={`py-1 px-3 ${
                           userItem?.role === "admin"
-                            ? "bg-purple-500"
-                            : "bg-indigo-500"
+                            ? "bg-primary"
+                            : "bg-primary"
                         }`}
                       >
                         {userItem?.role?.toUpperCase()}
@@ -94,7 +94,7 @@ function AdminUsersView() {
                         onClick={() =>
                           handleToggleRole(userItem?.id, userItem?.role)
                         }
-                        className="bg-background text-foreground border border-purple-500/20 hover:bg-purple-500/10"
+                        className="bg-background text-foreground border border-primary-border/20 hover:bg-primary/10"
                         size="sm"
                       >
                         {userItem?.role === "admin" ? "Demote to User" : "Make Admin"}

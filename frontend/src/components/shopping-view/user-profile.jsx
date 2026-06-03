@@ -91,7 +91,7 @@ function UserProfile() {
         className="flex flex-col md:flex-row gap-8 items-center md:items-start bg-muted/30 p-8 rounded-2xl border border-border/50 shadow-inner"
       >
         <div className="relative group">
-          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-purple-500/30 shadow-xl shadow-purple-500/20 bg-background">
+          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-primary/30 shadow-xl shadow-primary/20 bg-background">
             <img
               src={`https://api.dicebear.com/9.x/micah/svg?seed=${avatarSeed}&backgroundColor=transparent`}
               alt="Avatar"
@@ -100,7 +100,7 @@ function UserProfile() {
           </div>
           <button
             onClick={handleGenerateNewAvatar}
-            className="absolute bottom-0 right-0 p-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full shadow-lg hover:scale-110 transition-transform"
+            className="absolute bottom-0 right-0 p-2 bg-gradient-brand text-primary-foreground text-primary-foreground rounded-full shadow-lg hover:scale-110 transition-transform"
             title="Generate Random Avatar"
           >
             <RefreshCw className="w-4 h-4" />
@@ -112,13 +112,13 @@ function UserProfile() {
           <p className="text-muted-foreground flex items-center justify-center md:justify-start gap-2">
             <User className="w-4 h-4" /> {user?.email}
           </p>
-          <div className="inline-block mt-2 px-3 py-1 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-full text-xs font-bold uppercase tracking-wider">
+          <div className="inline-block mt-2 px-3 py-1 bg-primary/10 text-primary dark:text-primary rounded-full text-xs font-bold uppercase tracking-wider">
             {user?.role} Member
           </div>
         </div>
 
         <div className="hidden md:block">
-           <Button variant="outline" className="gap-2 rounded-xl border-purple-500/20 hover:bg-purple-500/10">
+           <Button variant="outline" className="gap-2 rounded-xl border-primary-border/20 hover:bg-primary/10">
              <Settings className="w-4 h-4" /> Account Settings
            </Button>
         </div>
@@ -130,10 +130,10 @@ function UserProfile() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <Card className="card-gradient border-t-2 border-t-pink-500/30 overflow-hidden">
+        <Card className="card-gradient border-t-2 border-primary-border overflow-hidden">
           <CardContent className="p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-lg bg-pink-500/10 text-pink-500">
+              <div className="p-2 rounded-lg bg-primary/10 text-primary">
                 <Shirt className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold tracking-tight">My Fashion Preferences</h3>
@@ -146,7 +146,7 @@ function UserProfile() {
                   <select 
                     value={preferences.topSize}
                     onChange={(e) => setPreferences({...preferences, topSize: e.target.value})}
-                    className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all"
+                    className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                   >
                     <option value="XS">XS</option>
                     <option value="S">S</option>
@@ -161,7 +161,7 @@ function UserProfile() {
                   <select 
                     value={preferences.bottomSize}
                     onChange={(e) => setPreferences({...preferences, bottomSize: e.target.value})}
-                    className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all"
+                    className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                   >
                     <option value="28">28</option>
                     <option value="30">30</option>
@@ -176,7 +176,7 @@ function UserProfile() {
                   <select 
                     value={preferences.shoeSize}
                     onChange={(e) => setPreferences({...preferences, shoeSize: e.target.value})}
-                    className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all"
+                    className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                   >
                     <option value="7">7</option>
                     <option value="8">8</option>
@@ -191,7 +191,7 @@ function UserProfile() {
                   <select 
                     value={preferences.style}
                     onChange={(e) => setPreferences({...preferences, style: e.target.value})}
-                    className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all"
+                    className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                   >
                     <option value="Casual">Casual</option>
                     <option value="Streetwear">Streetwear</option>
@@ -203,7 +203,7 @@ function UserProfile() {
               </div>
 
               <div className="flex justify-end pt-4 border-t border-border/50">
-                <Button type="submit" disabled={isLoading} className="bg-gradient-premium bg-gradient-premium-hover rounded-xl text-white font-bold px-8">
+                <Button type="submit" disabled={isLoading} className="bg-gradient-premium bg-gradient-premium-hover rounded-xl text-primary-foreground font-bold px-8">
                   Save Preferences
                 </Button>
               </div>

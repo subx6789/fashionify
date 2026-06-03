@@ -4,7 +4,6 @@ import com.fashionify.backend.entity.Product;
 import com.fashionify.backend.entity.Wishlist;
 import com.fashionify.backend.repository.ProductRepository;
 import com.fashionify.backend.repository.WishlistRepository;
-import com.fashionify.backend.service.UserPreferenceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +22,9 @@ public class ShopWishlistController {
 
     @Autowired
     private WishlistRepository wishlistRepository;
-    
-    @Autowired
-    private ProductRepository productRepository;
 
     @Autowired
-    private UserPreferenceService userPreferenceService;
+    private ProductRepository productRepository;
 
     @PostMapping("/add")
     public ResponseEntity<?> addToWishlist(@RequestBody Map<String, Long> payload) {
@@ -49,13 +45,6 @@ public class ShopWishlistController {
         wishlist.setProductId(productId);
         wishlistRepository.save(wishlist);
 
-        // Record +3 preference score for recommendation engine
-        productRepository.findById(productId).ifPresent(product -> {
-            if (product.getTags() != null && !product.getTags().isEmpty()) {
-                userPreferenceService.recordInteraction(userId, product.getTags(), 3);
-            }
-        });
-
         List<Product> products = fetchWishlistProducts(userId);
         response.put("success", true);
         response.put("data", products);
@@ -67,7 +56,7 @@ public class ShopWishlistController {
     public ResponseEntity<?> getWishlist(@PathVariable Long userId) {
         Map<String, Object> response = new HashMap<>();
         List<Product> products = fetchWishlistProducts(userId);
-        
+
         response.put("success", true);
         response.put("data", products);
         return ResponseEntity.ok(response);
@@ -77,9 +66,9 @@ public class ShopWishlistController {
     @Transactional
     public ResponseEntity<?> removeFromWishlist(@PathVariable Long userId, @PathVariable Long productId) {
         Map<String, Object> response = new HashMap<>();
-        
+
         wishlistRepository.deleteByUserIdAndProductId(userId, productId);
-        
+
         List<Product> products = fetchWishlistProducts(userId);
         response.put("success", true);
         response.put("data", products);

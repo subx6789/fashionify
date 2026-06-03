@@ -285,8 +285,8 @@ function AdminProducts() {
                         onClick={() => addSuggestedSize(size)}
                         disabled={!!already}
                         className={`text-xs px-2.5 py-1 rounded-full border font-medium transition-all ${already
-                            ? "bg-purple-600 text-white border-purple-600 opacity-70 cursor-not-allowed"
-                            : "border-border hover:border-purple-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                            ? "bg-primary text-primary-foreground border-primary-border opacity-70 cursor-not-allowed"
+                            : "border-border hover:border-primary-border hover:text-primary hover:bg-primary/5 dark:hover:bg-primary-dark/20"
                           }`}
                       >
                         {size}
@@ -366,7 +366,7 @@ function AdminProducts() {
                 {selectedTags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 text-xs bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 px-2.5 py-1 rounded-full font-medium border border-purple-200 dark:border-purple-700"
+                    className="inline-flex items-center gap-1 text-xs bg-primary/10 dark:bg-primary-dark/40 text-primary-dark dark:text-primary-soft px-2.5 py-1 rounded-full font-medium border border-primary-border dark:border-primary-border"
                   >
                     {tag}
                     <button
@@ -404,10 +404,10 @@ function AdminProducts() {
                       }
                     }}
                     className={`text-xs px-2.5 py-1 rounded-full border font-medium transition-all ${isSelected
-                        ? "bg-purple-600 text-white border-purple-600"
+                        ? "bg-primary text-primary-foreground border-primary-border"
                         : maxReached
                           ? "opacity-40 cursor-not-allowed border-border"
-                          : "border-border hover:border-purple-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                          : "border-border hover:border-primary-border hover:text-primary hover:bg-primary/5 dark:hover:bg-primary-dark/20"
                       }`}
                   >
                     {tag}

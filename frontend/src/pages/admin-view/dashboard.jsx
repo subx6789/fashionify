@@ -182,14 +182,14 @@ function AdminDashboard() {
       value: `₹${(analytics?.totalRevenue ?? 0).toLocaleString("en-IN")}`,
       desc: "From confirmed orders",
       icon: IndianRupee,
-      color: "bg-purple-600",
+      color: "bg-primary",
     },
     {
       title: "Total Orders",
       value: analytics?.totalOrders ?? "—",
       desc: "All orders in period",
       icon: ShoppingBag,
-      color: "bg-pink-500",
+      color: "bg-primary",
     },
     {
       title: "Products Sold",
@@ -210,14 +210,14 @@ function AdminDashboard() {
       value: analytics?.totalUsers ?? "—",
       desc: "Registered accounts",
       icon: Users,
-      color: "bg-indigo-500",
+      color: "bg-primary",
     },
     {
       title: "Wishlist Entries",
       value: analytics?.wishlistCount ?? "—",
       desc: "Total wishlist items",
       icon: Heart,
-      color: "bg-rose-500",
+      color: "bg-primary",
     },
     {
       title: "Total Products",
@@ -248,8 +248,8 @@ function AdminDashboard() {
             }}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
               activePreset === p.id
-                ? "bg-purple-600 text-white shadow-sm"
-                : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "bg-muted text-primary-foreground hover:bg-muted/80 hover:text-foreground"
             }`}
           >
             {p.label}
@@ -262,8 +262,8 @@ function AdminDashboard() {
           }}
           className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
             activePreset === "custom"
-              ? "bg-purple-600 text-white shadow-sm"
-              : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "bg-muted text-primary-foreground hover:bg-muted/80 hover:text-foreground"
           }`}
         >
           Custom range
@@ -289,7 +289,7 @@ function AdminDashboard() {
           {start} → {end}
         </span>
         {analyticsLoading && (
-          <Loader2 className="h-4 w-4 animate-spin text-purple-600 ml-2" />
+          <Loader2 className="h-4 w-4 animate-spin text-primary ml-2" />
         )}
       </div>
 
@@ -311,7 +311,7 @@ function AdminDashboard() {
             <CardContent>
               {analyticsLoading ? (
                 <div className="h-[240px] flex items-center justify-center">
-                  <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
                 </div>
               ) : analytics?.revenueByDay?.length ? (
                 <ResponsiveContainer width="100%" height={240}>
@@ -354,7 +354,7 @@ function AdminDashboard() {
             <CardContent>
               {analyticsLoading ? (
                 <div className="h-[240px] flex items-center justify-center">
-                  <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
                 </div>
               ) : analytics?.ordersByDay?.length ? (
                 <ResponsiveContainer width="100%" height={240}>

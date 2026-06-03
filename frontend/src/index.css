@@ -2,110 +2,315 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   FASHIONIFY — NEUBRUTALISM DESIGN SYSTEM
+   All tokens centralized here. Change once, update everywhere.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 @layer base {
   :root {
-    --background: 240 20% 98%;
-    --foreground: 240 10% 4%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 4%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 4%;
-    --primary: 262 80% 50%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 240 10% 95%;
-    --secondary-foreground: 240 10% 15%;
-    --muted: 240 10% 95%;
-    --muted-foreground: 240 8% 45%;
-    --accent: 240 10% 95%;
-    --accent-foreground: 240 10% 15%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 240 10% 90%;
-    --input: 240 10% 90%;
-    --ring: 262 80% 50%;
-    --radius: 1rem;
-    --chart-1: 262 80% 50%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    /* ── Semantic color tokens ───────────────────────────────────── */
+    --background:           40 33% 96%;       /* #FAF7F0 — warm editorial off-white */
+    --foreground:           0 0% 0%;          /* #000000 — strong black text for high contrast */
+
+    --card:                 0 0% 100%;
+    --card-foreground:      0 0% 4%;
+
+    --popover:              0 0% 100%;
+    --popover-foreground:   0 0% 4%;
+
+    /* Brand: Acid Lime Green — used as filled surface, NOT as text on white */
+    --primary:              77 100% 50%;      /* #C6FF00 — lime filled surfaces only */
+    --primary-foreground:   0 0% 0%;          /* #000000 on lime — contrast 12:1 ✓ WCAG AAA */
+    --primary-hover:        80 100% 50%;      /* #9EFF00 — slightly shifted on hover */
+    --primary-soft:         77 100% 90%;      /* #F4FFD0 — tinted surface, not text */
+    --primary-dark:         84 100% 64%;      /* #7BFF4A — bright accent variant */
+
+    /* Light-mode supporting tokens (prevent lime-on-white readability issues) */
+    --primary-contrast:     0 0% 0%;          /* #000000 — always pair with lime surfaces */
+    --primary-surface:      77 100% 90%;      /* #F4FFD0 — soft lime tint for card highlights */
+    --primary-border:       0 0% 0%;          /* #000000 — forced black border for lime surfaces */
+    --primary-glow:         77 100% 50%;      /* used at low opacity for focus/glow: /25 */
+
+    --gradient-brand:       linear-gradient(135deg, hsl(77 100% 50%) 0%, hsl(80 100% 50%) 50%, hsl(84 100% 64%) 100%);
+
+    --secondary:            0 0% 94%;
+    --secondary-foreground: 0 0% 8%;
+    --secondary-hover:      0 0% 88%;
+
+    --muted:                0 0% 94%;
+    --muted-foreground:     0 0% 44%;
+
+    --accent:               77 100% 50%;      /* same lime — accent surfaces */
+    --accent-foreground:    0 0% 0%;
+
+    --destructive:          0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border:               0 0% 0%;          /* #000000 — solid black borders */
+    --input:                0 0% 88%;
+    --ring:                 77 100% 50%;
+
+    --radius:               0.5rem;
+
+    /* ── Neubrutalism palette tokens ───────────────────────────────────── */
+    --neu-black:            0 0% 4%;
+    --neu-white:            0 0% 98%;
+    --neu-yellow:           48 100% 60%;
+    
+    --neu-blue:             217 90% 60%;
+    --neu-green:            77 100% 50%;      /* = primary lime */
+    --neu-orange:           24 100% 60%;
+
+    /* ── Chart colors ──────────────────────────────────────────────────── */
+    --chart-1:              77 100% 50%;
+    --chart-2:              173 58% 39%;
+    --chart-3:              197 37% 24%;
+    --chart-4:              43 74% 66%;
+    --chart-5:              27 87% 67%;
   }
 
   .dark {
-    --background: 260 50% 6%;
-    --foreground: 260 20% 98%;
-    --card: 260 45% 10%;
-    --card-foreground: 260 20% 98%;
-    --popover: 260 45% 10%;
-    --popover-foreground: 260 20% 98%;
-    --primary: 272 90% 68%;
-    --primary-foreground: 260 50% 6%;
-    --secondary: 260 40% 16%;
-    --secondary-foreground: 260 10% 98%;
-    --muted: 260 40% 14%;
-    --muted-foreground: 260 15% 75%;
-    --accent: 260 40% 16%;
-    --accent-foreground: 260 10% 98%;
-    --destructive: 350 80% 55%;
-    --destructive-foreground: 260 10% 98%;
-    --border: 260 30% 18%;
-    --input: 260 30% 18%;
-    --ring: 272 90% 68%;
-    --chart-1: 272 90% 68%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --background:           240 10% 6%;
+    --foreground:           0 0% 96%;
+
+    --card:                 240 10% 9%;
+    --card-foreground:      0 0% 96%;
+
+    --popover:              240 10% 9%;
+    --popover-foreground:   0 0% 96%;
+
+    --primary:              77 100% 50%;      /* #C6FF00 — lime stays vivid in dark mode */
+    --primary-foreground:   0 0% 0%;          /* #000000 on lime — contrast 12:1 ✓ WCAG AAA */
+    --primary-hover:        80 100% 50%;      /* #9EFF00 */
+    --primary-soft:         77 100% 15%;      /* dark lime tint background */
+    --primary-dark:         84 100% 64%;      /* #7BFF4A */
+
+    --primary-contrast:     0 0% 0%;          /* #000000 */
+    --primary-surface:      77 100% 15%;      /* dark lime surface */
+    --primary-border:       0 0% 0%;          /* #000000 — forced black border */
+    --primary-glow:         77 100% 50%;
+
+    --gradient-brand:       linear-gradient(135deg, hsl(77 100% 50%) 0%, hsl(80 100% 50%) 50%, hsl(84 100% 64%) 100%);
+
+    --secondary:            240 10% 14%;
+    --secondary-foreground: 0 0% 90%;
+    --secondary-hover:      240 10% 18%;
+
+    --muted:                240 10% 13%;
+    --muted-foreground:     240 5% 60%;
+
+    --accent:               77 100% 50%;      /* #C6FF00 — lime stays vivid in dark mode */
+    --accent-foreground:    0 0% 0%;
+
+    --destructive:          0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border:               240 10% 22%;
+    --input:                240 10% 16%;
+    --ring:                 77 100% 50%;
+
+    --neu-black:            0 0% 92%;
+    --neu-white:            240 10% 9%;
+    --neu-yellow:           48 100% 60%;
+    
+    --neu-blue:             217 90% 60%;
+    --neu-green:            77 100% 50%;
+    --neu-orange:           24 100% 60%;
+
+    --chart-1:              77 100% 50%;
+    --chart-2:              160 60% 45%;
+    --chart-3:              30 80% 55%;
+    --chart-4:              77 100% 50%;      /* lime accent on chart */
+    --chart-5:              340 75% 55%;
   }
 }
 
+/* ── Base resets & typography ──────────────────────────────────────────── */
 @layer base {
   * {
     @apply border-border;
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted-foreground) / 0.4) transparent;
-  }
-  body {
-    @apply bg-background text-foreground font-sans antialiased selection:bg-primary selection:text-primary-foreground;
-  }
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-heading tracking-tight;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
   }
 
-  /* Custom Webkit Scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    @apply selection:bg-primary selection:text-primary-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
-  ::-webkit-scrollbar-track {
-    background: transparent;
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-bold tracking-tight;
   }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.4);
-    border-radius: 8px;
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.6);
+    background: hsl(var(--muted-foreground) / 0.5);
   }
 }
 
+/* ── Neubrutalism component primitives ─────────────────────────────────── */
+@layer components {
+
+  /* Primary neubrutalist card */
+  .neu-card {
+    @apply bg-card border-2 border-border rounded-lg;
+    box-shadow: 4px 4px 0px 0px hsl(var(--neu-black));
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  .neu-card:hover {
+    box-shadow: 2px 2px 0px 0px hsl(var(--neu-black));
+    transform: translate(2px, 2px);
+  }
+
+  /* Neubrutalist button base */
+  .neu-btn {
+    @apply font-heading font-bold border-2 border-border rounded-sm px-6 py-3 cursor-pointer;
+    @apply transition-all duration-150 inline-flex items-center justify-center gap-2;
+    box-shadow: 3px 3px 0px 0px hsl(var(--neu-black));
+  }
+  .neu-btn:hover {
+    box-shadow: 1px 1px 0px 0px hsl(var(--neu-black));
+    transform: translate(2px, 2px);
+  }
+  .neu-btn:active {
+    box-shadow: 0px 0px 0px 0px hsl(var(--neu-black));
+    transform: translate(3px, 3px);
+  }
+  .neu-btn-primary {
+    @apply neu-btn bg-primary text-primary-foreground border-primary-border;
+  }
+  .neu-btn-yellow {
+    @apply neu-btn bg-[hsl(var(--neu-yellow))] text-[hsl(var(--neu-black))] border-[hsl(var(--neu-black))];
+  }
+  .neu-btn-outline {
+    @apply neu-btn bg-transparent text-foreground;
+  }
+
+  /* Input style */
+  .neu-input {
+    @apply border-2 border-border bg-background text-foreground rounded-sm px-4 py-3;
+    @apply font-body placeholder:text-muted-foreground;
+    @apply focus:outline-none focus:ring-0 focus:border-primary;
+    @apply transition-colors duration-150;
+    box-shadow: 2px 2px 0px 0px hsl(var(--neu-black));
+  }
+  .neu-input:focus {
+    box-shadow: 3px 3px 0px 0px hsl(var(--primary));
+  }
+
+  /* Badge */
+  .neu-badge {
+    @apply font-heading font-bold text-xs px-2 py-0.5 border-2 border-border rounded-sm;
+    box-shadow: 2px 2px 0px 0px hsl(var(--neu-black));
+  }
+
+  /* Section heading style */
+  .neu-heading {
+    @apply font-display font-black tracking-tight;
+    text-shadow: 2px 2px 0px hsl(var(--primary) / 0.15);
+  }
+
+  /* Tag style — used by product tags, kept from existing system */
+  .neu-tag {
+    @apply text-xs px-2.5 py-1 rounded-sm font-bold border-2 border-border;
+    @apply bg-[hsl(var(--neu-yellow)/0.2)] text-foreground;
+    box-shadow: 2px 2px 0px 0px hsl(var(--neu-black));
+  }
+
+  /* Product card — neubrutalist style */
+  .product-card {
+    @apply bg-card border-2 border-border rounded-sm overflow-hidden;
+    @apply transition-all duration-200;
+    box-shadow: 4px 4px 0px 0px hsl(var(--neu-black));
+  }
+  .product-card:hover {
+    box-shadow: 6px 6px 0px 0px hsl(var(--primary));
+    transform: translate(-2px, -2px);
+  }
+
+  /* Modal overlay */
+  .neu-modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+    background: hsl(var(--neu-black) / 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* Modal content */
+  .neu-modal {
+    @apply bg-card border-2 border-border rounded-sm w-full max-w-md;
+    @apply animate-modal-in;
+    box-shadow: 8px 8px 0px 0px hsl(var(--neu-black));
+  }
+}
+
+/* ── Utility classes ───────────────────────────────────────────────────── */
 @layer utilities {
+  /* ACID LIME SURFACE CONTRAST ENFORCEMENT */
+  /* Automatically enforce black text and black borders on all primary surfaces */
+  .bg-primary {
+    background-color: hsl(var(--primary)) !important;
+    color: hsl(var(--primary-foreground)) !important;
+    border-color: hsl(var(--primary-border)) !important;
+  }
+
+  .bg-gradient-brand {
+    background-image: var(--gradient-brand) !important;
+    color: hsl(var(--primary-foreground)) !important;
+    border-color: hsl(var(--primary-border)) !important;
+  }
+
+  /* Text gradient */
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 dark:from-violet-400 dark:via-fuchsia-400 dark:to-pink-400 font-extrabold;
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-brand);
   }
-  .bg-gradient-premium {
-    @apply bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-violet-500 dark:via-fuchsia-500 dark:to-pink-500 text-white font-bold border-none shadow-md hover:shadow-lg transition-all duration-300;
+
+  /* Background gradient */
+  .bg-gradient-brand {
+    background-image: var(--gradient-brand);
   }
-  .bg-gradient-premium-hover {
-    @apply hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 dark:hover:from-violet-600 dark:hover:via-fuchsia-600 dark:hover:to-pink-600;
+
+  /* Thick underline — Neubrutalism accent */
+  .neu-underline {
+    @apply relative inline-block;
   }
+  .neu-underline::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-full h-1.5 bg-[hsl(var(--neu-yellow))];
+  }
+
+  /* Marquee text overflow clips */
+  .text-marquee {
+    @apply overflow-hidden whitespace-nowrap;
+  }
+
+  /* Focus ring */
+  .focus-neu:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
+
+  /* Legacy compat classes */
   .card-gradient {
-    @apply bg-gradient-to-br from-card to-muted/50 border border-border shadow-md dark:shadow-none transition-all duration-300 rounded-2xl;
+    @apply bg-card border-2 border-border rounded-sm;
+    box-shadow: 4px 4px 0px 0px hsl(var(--neu-black));
   }
   .card-gradient-hover {
-    @apply hover:border-purple-500/40 hover:shadow-xl hover:shadow-purple-500/5 dark:hover:shadow-purple-500/10 hover:-translate-y-1 transition-all duration-300;
+    @apply transition-all duration-150;
   }
-  .border-gradient-glow {
-    @apply relative before:absolute before:inset-0 before:p-[1px] before:bg-gradient-to-r before:from-indigo-500 before:via-purple-500 before:to-pink-500 before:rounded-2xl before:-z-10;
+  .card-gradient-hover:hover {
+    box-shadow: 6px 6px 0px 0px hsl(var(--primary));
+    transform: translate(-2px, -2px);
+  }
+
+  .bg-gradient-premium {
+    @apply bg-primary text-primary-foreground font-bold;
   }
 }

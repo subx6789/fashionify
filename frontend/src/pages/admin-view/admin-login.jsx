@@ -36,11 +36,11 @@ function AdminLogin() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="mx-auto w-full max-w-md space-y-6 card-gradient p-8 rounded-2xl shadow-xl border-t-4 border-t-indigo-500/40"
+        className="mx-auto w-full max-w-md space-y-6 card-gradient p-8 rounded-2xl shadow-xl border-t-4 border-primary-border"
       >
         {/* Header */}
         <div className="flex flex-col items-center text-center space-y-3">
-          <div className="p-3 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-lg">
+          <div className="p-3 rounded-xl bg-gradient-brand text-primary-foreground text-primary-foreground shadow-lg">
             <ShieldCheck className="w-8 h-8" />
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
@@ -101,7 +101,7 @@ function AdminLogin() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 border-0 text-white rounded-xl py-6 font-bold shadow-lg shadow-indigo-500/25 hover:scale-[1.01] active:scale-[0.99] transition-all"
+            className="w-full bg-gradient-brand text-primary-foreground hover:from-primary hover:to-primary-dark border-0 text-primary-foreground rounded-xl py-6 font-bold shadow-lg shadow-primary/25 hover:scale-[1.01] active:scale-[0.99] transition-all"
           >
             {isLoading ? "Authenticating…" : "Access Dashboard"}
           </Button>
@@ -109,7 +109,7 @@ function AdminLogin() {
 
         <p className="text-xs text-center text-muted-foreground">
           Regular customers?{" "}
-          <a href="/auth/login" className="text-purple-600 hover:underline font-medium">
+          <a href="/auth/login" className="text-primary hover:underline font-medium">
             Use Customer Login
           </a>
         </p>

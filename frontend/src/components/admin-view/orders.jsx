@@ -25,7 +25,7 @@ const STATUS_STYLES = {
   pending_payment: "bg-amber-500",
   pending: "bg-amber-500",
   processing: "bg-blue-500",
-  shipped: "bg-indigo-500",
+  shipped: "bg-primary",
   delivered: "bg-green-700",
 };
 

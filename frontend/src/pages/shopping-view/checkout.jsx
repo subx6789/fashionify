@@ -167,7 +167,7 @@ function ShoppingCheckout() {
           {/* Address Selection */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <MapPin className="h-5 w-5 text-purple-600" />
+              <MapPin className="h-5 w-5 text-primary" />
               <h2 className="text-xl font-bold">Delivery Address</h2>
             </div>
             <Address
@@ -179,7 +179,7 @@ function ShoppingCheckout() {
           {/* Order Summary */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <ShoppingBag className="h-5 w-5 text-purple-600" />
+              <ShoppingBag className="h-5 w-5 text-primary" />
               <h2 className="text-xl font-bold">Order Summary</h2>
             </div>
             <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
@@ -197,23 +197,23 @@ function ShoppingCheckout() {
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold flex items-center gap-2"><Truck className="h-4 w-4" /> Shipping Speed</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <label className={`cursor-pointer flex items-center justify-between p-3 border rounded-lg text-sm transition-all ${shippingMethod === "standard" ? "border-purple-600 bg-purple-50 dark:bg-purple-900/20" : "border-border"}`}>
+                    <label className={`cursor-pointer flex items-center justify-between p-3 border rounded-lg text-sm transition-all ${shippingMethod === "standard" ? "border-primary-border bg-primary/5 dark:bg-primary-dark/20" : "border-border"}`}>
                       <div className="flex items-center gap-2">
-                        <input type="radio" name="shipping" value="standard" checked={shippingMethod === "standard"} onChange={(e) => setShippingMethod(e.target.value)} className="accent-purple-600" />
+                        <input type="radio" name="shipping" value="standard" checked={shippingMethod === "standard"} onChange={(e) => setShippingMethod(e.target.value)} className="accent-primary" />
                         <span>Standard</span>
                       </div>
                       <span className="font-medium">Free</span>
                     </label>
-                    <label className={`cursor-pointer flex items-center justify-between p-3 border rounded-lg text-sm transition-all ${shippingMethod === "express" ? "border-purple-600 bg-purple-50 dark:bg-purple-900/20" : "border-border"}`}>
+                    <label className={`cursor-pointer flex items-center justify-between p-3 border rounded-lg text-sm transition-all ${shippingMethod === "express" ? "border-primary-border bg-primary/5 dark:bg-primary-dark/20" : "border-border"}`}>
                       <div className="flex items-center gap-2">
-                        <input type="radio" name="shipping" value="express" checked={shippingMethod === "express"} onChange={(e) => setShippingMethod(e.target.value)} className="accent-purple-600" />
+                        <input type="radio" name="shipping" value="express" checked={shippingMethod === "express"} onChange={(e) => setShippingMethod(e.target.value)} className="accent-primary" />
                         <span>Express</span>
                       </div>
                       <span className="font-medium">+₹100</span>
                     </label>
-                    <label className={`cursor-pointer flex items-center justify-between p-3 border rounded-lg text-sm transition-all ${shippingMethod === "next-day" ? "border-purple-600 bg-purple-50 dark:bg-purple-900/20" : "border-border"}`}>
+                    <label className={`cursor-pointer flex items-center justify-between p-3 border rounded-lg text-sm transition-all ${shippingMethod === "next-day" ? "border-primary-border bg-primary/5 dark:bg-primary-dark/20" : "border-border"}`}>
                       <div className="flex items-center gap-2">
-                        <input type="radio" name="shipping" value="next-day" checked={shippingMethod === "next-day"} onChange={(e) => setShippingMethod(e.target.value)} className="accent-purple-600" />
+                        <input type="radio" name="shipping" value="next-day" checked={shippingMethod === "next-day"} onChange={(e) => setShippingMethod(e.target.value)} className="accent-primary" />
                         <span>Next-Day</span>
                       </div>
                       <span className="font-medium">+₹250</span>
@@ -225,7 +225,7 @@ function ShoppingCheckout() {
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold flex items-center gap-2"><Gift className="h-4 w-4" /> Gift Options</h3>
                   <label className="cursor-pointer flex items-center gap-2 p-3 border border-border rounded-lg text-sm hover:bg-muted/50 transition-colors">
-                    <input type="checkbox" checked={isGiftWrapped} onChange={(e) => setIsGiftWrapped(e.target.checked)} className="accent-purple-600 h-4 w-4 rounded" />
+                    <input type="checkbox" checked={isGiftWrapped} onChange={(e) => setIsGiftWrapped(e.target.checked)} className="accent-primary h-4 w-4 rounded" />
                     <span className="flex-1">Add Premium Gift Wrapping</span>
                     <span className="font-medium">+₹50</span>
                   </label>
@@ -240,7 +240,7 @@ function ShoppingCheckout() {
                       placeholder="e.g. WELCOME10, SAVE500" 
                       value={promoCode} 
                       onChange={(e) => setPromoCode(e.target.value)}
-                      className="flex-1 border border-border rounded-lg px-3 py-2 text-sm bg-background uppercase focus:outline-none focus:ring-2 focus:ring-purple-600"
+                      className="flex-1 border border-border rounded-lg px-3 py-2 text-sm bg-background uppercase focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                     <Button variant="secondary" onClick={handleApplyPromo} disabled={isApplyingPromo || !promoCode.trim()}>
                       {isApplyingPromo ? <Loader2 className="h-4 w-4 animate-spin" /> : "Apply"}
@@ -278,7 +278,7 @@ function ShoppingCheckout() {
                 )}
                 <div className="flex justify-between text-lg font-bold pt-2 border-t border-border">
                   <span>Total</span>
-                  <span className="text-purple-600">₹{finalTotalAmount.toFixed(2)}</span>
+                  <span className="text-primary">₹{finalTotalAmount.toFixed(2)}</span>
                 </div>
               </div>
 
@@ -294,7 +294,7 @@ function ShoppingCheckout() {
               <Button
                 onClick={handlePlaceOrder}
                 disabled={isProcessing || isLoading || !itemCount}
-                className="w-full h-14 text-base font-bold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl shadow-lg shadow-purple-500/30 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
+                className="w-full h-14 text-base font-bold bg-gradient-brand text-primary-foreground hover:from-primary hover:to-primary-dark text-primary-foreground rounded-xl shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
               >
                 {isProcessing || isLoading ? (
                   <>

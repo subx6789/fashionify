@@ -78,9 +78,9 @@ function ShoppingContact() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.1 }}
             >
-              <Card className="card-gradient card-gradient-hover border-t-2 border-t-purple-500/20 overflow-hidden">
+              <Card className="card-gradient card-gradient-hover border-t-2 border-primary-border overflow-hidden">
                 <CardContent className="flex items-start gap-4 p-6">
-                  <div className="p-3 rounded-xl bg-gradient-to-tr from-purple-500 to-pink-500 text-white shadow-md shadow-purple-500/20">
+                  <div className="p-3 rounded-xl bg-gradient-brand text-primary-foreground text-primary-foreground shadow-md shadow-primary/20">
                     <item.icon className="w-6 h-6" />
                   </div>
                   <div>
@@ -101,11 +101,11 @@ function ShoppingContact() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <Card className="card-gradient card-gradient-hover p-8 border-t-2 border-t-purple-500/20 overflow-hidden relative">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
+            <Card className="card-gradient card-gradient-hover p-8 border-t-2 border-primary-border overflow-hidden relative">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
               <CardContent className="space-y-6 p-0 relative z-10">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                  <div className="p-2 rounded-lg bg-primary/10 text-primary dark:text-primary">
                     <MessageSquare className="w-5 h-5" />
                   </div>
                   <h2 className="text-2xl font-bold">Send a Message</h2>
@@ -121,7 +121,7 @@ function ShoppingContact() {
                         placeholder="John Doe"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="flex h-12 w-full rounded-xl border border-input bg-background/50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
+                        className="flex h-12 w-full rounded-xl border border-input bg-background/50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -132,7 +132,7 @@ function ShoppingContact() {
                         placeholder="john@example.com"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="flex h-12 w-full rounded-xl border border-input bg-background/50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
+                        className="flex h-12 w-full rounded-xl border border-input bg-background/50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                       />
                     </div>
                   </div>
@@ -145,7 +145,7 @@ function ShoppingContact() {
                       placeholder="How can we help?"
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      className="flex h-12 w-full rounded-xl border border-input bg-background/50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
+                      className="flex h-12 w-full rounded-xl border border-input bg-background/50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                     />
                   </div>
 
@@ -157,14 +157,14 @@ function ShoppingContact() {
                       placeholder="Write your query here..."
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="flex w-full rounded-xl border border-input bg-background/50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all resize-none"
+                      className="flex w-full rounded-xl border border-input bg-background/50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all resize-none"
                     />
                   </div>
 
                   <Button
                     disabled={isSubmitting}
                     type="submit"
-                    className="w-full sm:w-auto h-12 px-8 bg-gradient-premium bg-gradient-premium-hover !text-white font-bold rounded-xl shadow-lg shadow-purple-500/25 flex items-center justify-center gap-2 hover:scale-[1.01] transition-transform"
+                    className="w-full sm:w-auto h-12 px-8 bg-gradient-premium bg-gradient-premium-hover !text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/25 flex items-center justify-center gap-2 hover:scale-[1.01] transition-transform"
                   >
                     {isSubmitting ? (
                       "Sending..."

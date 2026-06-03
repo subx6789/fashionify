@@ -1,4 +1,3 @@
-import { Card, CardContent, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
 import { brandOptionsMap, categoryOptionsMap } from "@/config";
 import { Badge } from "../ui/badge";
@@ -6,27 +5,27 @@ import { Heart, Flame } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToWishlist, removeFromWishlist } from "@/store/shop/wishlist-slice";
 import { useToast } from "../ui/use-toast";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 function ShoppingProductTile({
   product,
   handleGetProductDetails,
   handleAddtoCart,
 }) {
-  const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  const dispatch        = useDispatch();
+  const { user }        = useSelector((state) => state.auth);
   const { wishlistItems } = useSelector((state) => state.shopWishlist);
-  const { toast } = useToast();
+  const { toast }       = useToast();
+  const { openAuthModal } = useAuthModal();
 
   const isWishlisted = wishlistItems?.some((item) => item.id === product?.id);
-
-  // Prefer first image from images[], fall back to legacy image field
-  const coverImage = product?.images?.[0] || product?.image || "https://placehold.co/600x600/png?text=No+Image";
-  const totalStock = product?.totalStock ?? 0;
+  const coverImage   = product?.images?.[0] || product?.image || "https://placehold.co/600x600/png?text=No+Image";
+  const totalStock   = product?.totalStock ?? 0;
 
   function handleWishlistToggle(e) {
     e.stopPropagation();
     if (!user) {
-      toast({ title: "Please login to add to wishlist", variant: "destructive" });
+      openAuthModal("login", { action: "wishlist", productId: product?.id });
       return;
     }
     if (isWishlisted) {
@@ -39,158 +38,160 @@ function ShoppingProductTile({
   }
 
   return (
-    <Card className="w-full mx-auto group flex flex-col h-full overflow-hidden">
-      {/* Clickable image + content area */}
+    <div className="product-card w-full mx-auto flex flex-col h-full">
+      {/* Clickable image + content */}
       <div
         onClick={() => handleGetProductDetails(product?.id)}
         className="cursor-pointer flex flex-col flex-1"
       >
-        {/* Fixed-height image area */}
+        {/* Image area */}
         <div className="relative flex-none">
           <img
             src={coverImage}
             alt={product?.title}
             onError={(e) => { e.target.src = "https://placehold.co/600x600/png?text=No+Image"; }}
-            className="w-full h-[300px] object-contain p-4 bg-muted/10 rounded-t-lg"
+            className="w-full h-[280px] object-contain p-3 bg-muted/10"
           />
 
           {/* Stock badges */}
           {totalStock === 0 ? (
-            <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600">
-              Out Of Stock
-            </Badge>
+            <div
+              className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-[10px] font-black px-2 py-0.5 border-2 border-border"
+              style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}
+            >
+              OUT OF STOCK
+            </div>
           ) : totalStock <= 5 ? (
-            <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600 flex items-center gap-1">
-              <Flame className="w-3 h-3" />
-              {`Only ${totalStock} left`}
-            </Badge>
+            <div
+              className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-[10px] font-black px-2 py-0.5 border-2 border-border flex items-center gap-1"
+              style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}
+            >
+              <Flame className="w-3 h-3" /> {`Only ${totalStock} left`}
+            </div>
           ) : totalStock <= 10 ? (
-            <Badge className="absolute top-2 left-2 bg-amber-500 hover:bg-amber-600">
+            <div
+              className="absolute top-2 left-2 bg-[hsl(var(--neu-yellow))] text-[hsl(var(--neu-black))] text-[10px] font-black px-2 py-0.5 border-2 border-border"
+              style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}
+            >
               {`Only ${totalStock} left`}
-            </Badge>
+            </div>
           ) : product?.salePrice > 0 ? (
-            <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600">
-              Sale
-            </Badge>
+            <div
+              className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-[10px] font-black px-2 py-0.5 border-2 border-border"
+              style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}
+            >
+              SALE
+            </div>
           ) : null}
 
-          {/* Multiple images indicator */}
+          {/* Multi-image indicator */}
           {product?.images?.length > 1 && (
-            <div className="absolute bottom-2 left-2 bg-black/40 text-white text-[10px] px-1.5 py-0.5 rounded-full font-medium">
+            <div className="absolute bottom-2 left-2 bg-[hsl(var(--neu-black)/0.7)] text-white text-[10px] px-1.5 py-0.5 font-bold">
               {product.images.length} photos
             </div>
           )}
 
           {/* Wishlist button */}
-          <Button
-            variant="ghost"
-            size="icon"
+          <button
             onClick={handleWishlistToggle}
-            className={`absolute top-2 right-2 rounded-full z-10 transition-colors ${
+            className={`absolute top-2 right-2 p-1.5 border-2 border-border transition-colors z-10 ${
               isWishlisted
-                ? "text-pink-500 bg-pink-50 hover:bg-pink-100 hover:text-pink-600"
-                : "text-slate-400 bg-white/80 hover:bg-white hover:text-pink-500"
+                ? "bg-primary text-primary-foreground"
+                : "bg-background text-primary-foreground hover:bg-primary hover:text-primary-foreground"
             }`}
+            style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}
+            aria-label="Toggle wishlist"
           >
-            <Heart className={`w-5 h-5 ${isWishlisted ? "fill-pink-500" : ""}`} />
-            <span className="sr-only">Wishlist</span>
-          </Button>
+            <Heart className={`w-4 h-4 ${isWishlisted ? "fill-white" : ""}`} />
+          </button>
         </div>
 
-        {/* Content — flex-1 so it fills remaining space, pushing footer down */}
-        <CardContent className="p-4 flex-1 flex flex-col">
-          {/* Title — max 2 lines with ellipsis */}
+        {/* Content */}
+        <div className="p-4 flex-1 flex flex-col border-t-2 border-border">
           <h2
-            className="text-base font-bold mb-2 line-clamp-2 leading-snug min-h-[2.5rem]"
+            className="text-sm font-black mb-2 line-clamp-2 leading-snug min-h-[2.5rem] tracking-tight"
             title={product?.title}
           >
             {product?.title}
           </h2>
 
-          {/* Category / Brand */}
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-muted-foreground line-clamp-1">
+            <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">
               {categoryOptionsMap[product?.category]}
             </span>
-            <span className="text-sm text-muted-foreground line-clamp-1">
+            <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">
               {brandOptionsMap[product?.brand]}
             </span>
           </div>
 
           {/* Price */}
-          <div className="flex justify-between items-center mb-2">
-            <span
-              className={`${
-                product?.salePrice > 0 ? "line-through text-muted-foreground" : ""
-              } text-lg font-semibold text-primary`}
-            >
+          <div className="flex items-center gap-3 mb-2">
+            <span className={`text-lg font-black ${product?.salePrice > 0 ? "line-through text-muted-foreground text-sm" : "text-foreground"}`}>
               ₹{product?.price}
             </span>
-            {product?.salePrice > 0 ? (
-              <span className="text-lg font-semibold text-primary">
-                ₹{product?.salePrice}
-              </span>
-            ) : null}
+            {product?.salePrice > 0 && (
+              <span className="text-lg font-black text-primary">₹{product?.salePrice}</span>
+            )}
           </div>
 
-          {/* Size preview — min-h keeps cards same height even with no sizes */}
-          <div className="flex flex-wrap gap-1 mt-auto min-h-[24px]">
+          {/* Size preview */}
+          <div className="flex flex-wrap gap-1 mt-auto min-h-[22px]">
             {product?.sizeVariants?.slice(0, 4).map((v) => (
               <span
                 key={v.size}
-                className={`text-[10px] px-1.5 py-0.5 rounded border font-medium ${
+                className={`text-[10px] px-1.5 py-0.5 border-2 font-bold ${
                   v.outOfStock || v.stock === 0
                     ? "text-muted-foreground/40 border-border line-through"
-                    : "text-muted-foreground border-border"
+                    : "text-foreground border-border"
                 }`}
               >
                 {v.size}
               </span>
             ))}
             {product?.sizeVariants?.length > 4 && (
-              <span className="text-[10px] text-muted-foreground">
-                +{product.sizeVariants.length - 4} more
+              <span className="text-[10px] text-muted-foreground font-bold">
+                +{product.sizeVariants.length - 4}
               </span>
             )}
           </div>
 
-          {/* Tags — show up to 2 */}
+          {/* Tags — kept from existing tag system */}
           {product?.tags && product.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
               {product.tags.slice(0, 2).map((tag) => (
-                <span
-                  key={tag}
-                  className="text-[10px] px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700 font-medium"
-                >
+                <span key={tag} className="neu-tag text-[10px]">
                   {tag}
                 </span>
               ))}
               {product.tags.length > 2 && (
-                <span className="text-[10px] text-muted-foreground self-center">
+                <span className="text-[10px] text-muted-foreground font-bold self-center">
                   +{product.tags.length - 2}
                 </span>
               )}
             </div>
           )}
-        </CardContent>
+        </div>
       </div>
 
-      {/* Footer always at the bottom */}
-      <CardFooter className="px-4 pb-4 pt-0">
+      {/* Footer CTA */}
+      <div className="px-4 pb-4 pt-0 border-t-0">
         {totalStock === 0 ? (
-          <Button className="w-full opacity-60 cursor-not-allowed" disabled>
-            Out Of Stock
-          </Button>
-        ) : (
-          <Button
-            onClick={() => handleGetProductDetails(product?.id)}
-            className="w-full"
+          <button
+            disabled
+            className="w-full py-2.5 border-2 border-border text-muted-foreground font-bold text-sm opacity-50 cursor-not-allowed"
           >
-            View &amp; Select Size
-          </Button>
+            Out Of Stock
+          </button>
+        ) : (
+          <button
+            onClick={() => handleGetProductDetails(product?.id)}
+            className="neu-btn-primary w-full py-2.5 text-sm"
+          >
+            View & Select Size
+          </button>
         )}
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }
 

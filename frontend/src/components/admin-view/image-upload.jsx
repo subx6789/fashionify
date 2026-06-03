@@ -88,7 +88,7 @@ function ProductImageUpload({
               key={index}
               className={`relative group rounded-xl overflow-hidden border-2 ${
                 index === 0
-                  ? "border-purple-500 ring-2 ring-purple-500/30"
+                  ? "border-primary ring-2 ring-primary/30"
                   : "border-border"
               }`}
             >
@@ -98,7 +98,7 @@ function ProductImageUpload({
                 className="w-24 h-24 object-cover"
               />
               {index === 0 && (
-                <div className="absolute bottom-0 left-0 right-0 bg-purple-600 text-white text-[10px] font-bold text-center py-0.5">
+                <div className="absolute bottom-0 left-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold text-center py-0.5">
                   COVER
                 </div>
               )}
@@ -116,7 +116,7 @@ function ProductImageUpload({
           {!isEditMode && (
             <label
               htmlFor="image-upload-more"
-              className="w-24 h-24 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 hover:bg-purple-500/5 transition-all"
+              className="w-24 h-24 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary-border hover:bg-primary/5 transition-all"
             >
               <PlusIcon className="w-6 h-6 text-muted-foreground" />
               <span className="text-xs text-muted-foreground mt-1">Add more</span>
@@ -142,7 +142,7 @@ function ProductImageUpload({
           onDrop={handleDrop}
           className={`${
             isEditMode ? "opacity-60" : ""
-          } border-2 border-dashed rounded-xl p-6 transition-colors hover:border-purple-500 hover:bg-purple-500/5`}
+          } border-2 border-dashed rounded-xl p-6 transition-colors hover:border-primary-border hover:bg-primary/5`}
         >
           <Input
             id="image-upload"
@@ -180,7 +180,7 @@ function ProductImageUpload({
 
       {imageLoadingState && currentUrls.length > 0 && (
         <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
-          <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           Uploading image...
         </div>
       )}

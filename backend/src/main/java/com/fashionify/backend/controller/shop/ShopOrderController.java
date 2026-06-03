@@ -6,10 +6,8 @@ import com.fashionify.backend.entity.OrderItem;
 import com.fashionify.backend.entity.User;
 import com.fashionify.backend.repository.CartRepository;
 import com.fashionify.backend.repository.OrderRepository;
-import com.fashionify.backend.repository.ProductRepository;
 import com.fashionify.backend.repository.ProductSizeVariantRepository;
 import com.fashionify.backend.repository.UserRepository;
-import com.fashionify.backend.service.UserPreferenceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -37,11 +35,6 @@ public class ShopOrderController {
     @Autowired
     private ProductSizeVariantRepository sizeVariantRepository;
 
-    @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private UserPreferenceService userPreferenceService;
 
     /**
      * Payment mode: "simulated" (default) or "razorpay".
@@ -170,21 +163,6 @@ public class ShopOrderController {
             cart.getItems().clear();
             cartRepository.save(cart);
         });
-
-        // Record +5 preference scores for recommendation engine
-        for (OrderItem item : order.getOrderItems()) {
-            if (item.getProductId() != null) {
-                try {
-                    Long pid = Long.parseLong(item.getProductId());
-                    productRepository.findById(pid).ifPresent(product -> {
-                        if (product.getTags() != null && !product.getTags().isEmpty()) {
-                            userPreferenceService.recordInteraction(
-                                    order.getUser().getId(), product.getTags(), 5);
-                        }
-                    });
-                } catch (NumberFormatException ignored) {}
-            }
-        }
 
         return ResponseEntity.ok(Map.of(
             "success", true,

@@ -21,16 +21,16 @@ function ShoppingAccount() {
       </div>
       
       <div className="container mx-auto px-4 lg:px-8 py-8 -mt-6 relative z-10 max-w-6xl">
-        <div className="flex flex-col rounded-3xl border border-purple-500/10 bg-background/95 backdrop-blur-3xl p-6 md:p-10 shadow-2xl shadow-purple-500/5">
+        <div className="flex flex-col rounded-3xl border border-primary/10 bg-background/95 backdrop-blur-3xl p-6 md:p-10 shadow-2xl shadow-primary/5">
           <Tabs defaultValue="profile" className="w-full">
             <TabsList className="grid w-full grid-cols-3 gap-2 bg-muted/40 p-2 rounded-2xl mb-8">
-              <TabsTrigger value="profile" className="rounded-xl font-bold py-3 data-[state=active]:bg-gradient-premium data-[state=active]:text-white transition-all">
+              <TabsTrigger value="profile" className="rounded-xl font-bold py-3 data-[state=active]:bg-gradient-premium data-[state=active]:text-primary-foreground transition-all">
                 <User className="w-4 h-4 mr-2 hidden sm:block" /> Profile
               </TabsTrigger>
-              <TabsTrigger value="orders" className="rounded-xl font-bold py-3 data-[state=active]:bg-gradient-premium data-[state=active]:text-white transition-all">
+              <TabsTrigger value="orders" className="rounded-xl font-bold py-3 data-[state=active]:bg-gradient-premium data-[state=active]:text-primary-foreground transition-all">
                 <ShoppingBag className="w-4 h-4 mr-2 hidden sm:block" /> Orders
               </TabsTrigger>
-              <TabsTrigger value="address" className="rounded-xl font-bold py-3 data-[state=active]:bg-gradient-premium data-[state=active]:text-white transition-all">
+              <TabsTrigger value="address" className="rounded-xl font-bold py-3 data-[state=active]:bg-gradient-premium data-[state=active]:text-primary-foreground transition-all">
                 <MapPin className="w-4 h-4 mr-2 hidden sm:block" /> Address
               </TabsTrigger>
             </TabsList>

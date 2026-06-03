@@ -78,7 +78,7 @@ function UserCartItemsContent({ cartItem }) {
       <div className="flex-1 min-w-0">
         <h3 className="font-extrabold truncate">{cartItem?.product?.title}</h3>
         {cartItem?.selectedSize && (
-          <span className="inline-block text-xs font-semibold text-purple-700 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 rounded-full mt-1">
+          <span className="inline-block text-xs font-semibold text-primary-dark dark:text-primary bg-primary/10 dark:bg-primary-dark/30 px-2 py-0.5 rounded-full mt-1">
             Size: {cartItem.selectedSize}
           </span>
         )}

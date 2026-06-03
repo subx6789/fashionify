@@ -51,7 +51,7 @@ function PaginationBar({ currentPage, totalPages, onPageChange }) {
             aria-current={page === currentPage ? "page" : undefined}
             className={`h-9 w-9 rounded-lg text-sm font-medium transition-all ${
               page === currentPage
-                ? "bg-purple-600 text-white shadow-sm shadow-purple-400/30"
+                ? "bg-primary text-primary-foreground shadow-sm shadow-primary/30"
                 : "hover:bg-muted text-foreground"
             }`}
           >

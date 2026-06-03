@@ -67,7 +67,6 @@ public class SecurityConfig {
                             .requestMatchers("/api/shop/search/**").permitAll()
                             .requestMatchers("/api/common/feature/get").permitAll()
                             .requestMatchers("/api/shop/review/**").permitAll()
-                            .requestMatchers("/api/shop/recommendations").permitAll()
                             .requestMatchers("/api/admin/products/upload-image").permitAll()
                             .anyRequest().authenticated()
                 );

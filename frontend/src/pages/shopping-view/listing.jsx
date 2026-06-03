@@ -22,6 +22,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 function createSearchParamsHelper(filterParams) {
   const queryParams = [];
@@ -46,6 +47,7 @@ function ShoppingListing() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { openAuthModal } = useAuthModal();
 
   const categorySearchParam = searchParams.get("category");
 
@@ -82,8 +84,7 @@ function ShoppingListing() {
 
   function handleAddtoCart(getCurrentProductId, getTotalStock) {
     if (!isAuthenticated) {
-      toast({ title: "Please login to add to cart", variant: "destructive" });
-      navigate("/auth/login");
+      openAuthModal("login", { action: "addToCart", productId: getCurrentProductId });
       return;
     }
 

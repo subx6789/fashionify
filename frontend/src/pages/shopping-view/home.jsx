@@ -30,7 +30,7 @@ import { useNavigate } from "react-router-dom";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/components/ui/use-toast";
 import { getFeatureImages } from "@/store/common-slice";
-import RecommendationsCarousel from "@/components/shopping-view/recommendations-carousel";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 const categoriesWithIcon = [
   { id: "men", label: "Men", icon: ShirtIcon },
@@ -41,12 +41,12 @@ const categoriesWithIcon = [
 ];
 
 const brandsWithIcon = [
-  { id: "nike", label: "Nike", icon: ({className}) => <img src="https://cdn.simpleicons.org/nike/white" className={className} alt="Nike" /> },
-  { id: "adidas", label: "Adidas", icon: ({className}) => <img src="https://cdn.simpleicons.org/adidas/white" className={className} alt="Adidas" /> },
-  { id: "puma", label: "Puma", icon: ({className}) => <img src="https://cdn.simpleicons.org/puma/white" className={className} alt="Puma" /> },
-  { id: "levi", label: "Levi's", icon: ({className}) => <span className="text-white font-black text-xl">L</span> },
-  { id: "zara", label: "Zara", icon: ({className}) => <span className="text-white font-black text-xl tracking-tighter">ZARA</span> },
-  { id: "h&m", label: "H&M", icon: ({className}) => <span className="text-white font-black text-xl">H&M</span> },
+  { id: "nike", label: "Nike", icon: ({ className }) => <img src="https://cdn.simpleicons.org/nike/white" className={className} alt="Nike" /> },
+  { id: "adidas", label: "Adidas", icon: ({ className }) => <img src="https://cdn.simpleicons.org/adidas/white" className={className} alt="Adidas" /> },
+  { id: "puma", label: "Puma", icon: ({ className }) => <img src="https://cdn.simpleicons.org/puma/white" className={className} alt="Puma" /> },
+  { id: "levi", label: "Levi's", icon: ({ className }) => <span className="text-white font-black text-xl">L</span> },
+  { id: "zara", label: "Zara", icon: ({ className }) => <span className="text-white font-black text-xl tracking-tighter">ZARA</span> },
+  { id: "h&m", label: "H&M", icon: ({ className }) => <span className="text-white font-black text-xl">H&M</span> },
 ];
 
 const defaultSlides = [
@@ -80,6 +80,7 @@ function ShoppingHome() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { openAuthModal } = useAuthModal();
 
   function handleNavigateToListingPage(getCurrentItem, section) {
     sessionStorage.removeItem("filters");
@@ -105,11 +106,7 @@ function ShoppingHome() {
 
   function handleAddtoCart(getCurrentProductId) {
     if (!isAuthenticated) {
-      toast({
-        title: "Please login to add to cart",
-        variant: "destructive",
-      });
-      navigate("/auth/login");
+      openAuthModal("login", { action: "addToCart", productId: getCurrentProductId });
       return;
     }
 
@@ -223,7 +220,7 @@ function ShoppingHome() {
           <ChevronRightIcon className="w-5 h-5" />
         </Button>
       </div>
-      
+
       {/* Promotional Banner */}
       <section className="py-8 border-b border-border bg-muted/30">
         <div className="container mx-auto px-4">
@@ -247,13 +244,13 @@ function ShoppingHome() {
       {/* Shop Smart, Save Bigger */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl sm:text-5xl font-extrabold text-center mb-12 uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-pink-600 to-purple-600 dark:from-red-400 dark:via-pink-400 dark:to-purple-400">
+          <h2 className="text-4xl sm:text-5xl font-extrabold text-center mb-12 uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-primary to-primary-dark dark:from-red-400 dark:via-primary dark:to-primary-dark">
             Shop Smart, Save Bigger
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {[
-              { price: "499", label: "UNDER ₹499", color: "from-purple-500 to-indigo-600", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop" },
-              { price: "699", label: "UNDER ₹699", color: "from-pink-500 to-rose-600", image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=300&auto=format&fit=crop" },
+              { price: "499", label: "UNDER ₹499", color: "from-primary to-primary-dark", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop" },
+              { price: "699", label: "UNDER ₹699", color: "from-primary to-primary-dark", image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=300&auto=format&fit=crop" },
               { price: "999", label: "UNDER ₹999", color: "from-amber-500 to-orange-600", image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=300&auto=format&fit=crop" },
               { price: "1499", label: "UNDER ₹1499", color: "from-emerald-500 to-teal-600", image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=300&auto=format&fit=crop" }
             ].map((deal, i) => (
@@ -261,7 +258,7 @@ function ShoppingHome() {
                 key={i}
                 whileHover={{ y: -8 }}
                 onClick={() => navigate('/shop/listing')}
-                className="group cursor-pointer relative rounded-2xl overflow-hidden border-2 border-transparent hover:border-purple-500/50 transition-all shadow-lg shadow-black/5"
+                className="group cursor-pointer relative rounded-2xl overflow-hidden border-2 border-transparent hover:border-primary/50 transition-all shadow-lg shadow-black/5"
               >
                 <div className={`absolute top-0 left-0 w-full py-2 bg-gradient-to-r ${deal.color} text-white text-center font-extrabold tracking-widest text-sm z-10 shadow-sm`}>
                   {deal.label}
@@ -270,7 +267,7 @@ function ShoppingHome() {
                   <img src={deal.image} alt={deal.label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 </div>
                 <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/80 to-transparent">
-                  <p className="text-white font-bold text-lg flex items-center gap-1 group-hover:text-pink-300 transition-colors">
+                  <p className="text-white font-bold text-lg flex items-center gap-1 group-hover:text-primary-soft transition-colors">
                     Explore <ChevronRightIcon className="w-5 h-5" />
                   </p>
                 </div>
@@ -298,13 +295,13 @@ function ShoppingHome() {
                   onClick={() =>
                     handleNavigateToListingPage(categoryItem, "category")
                   }
-                  className="cursor-pointer card-gradient card-gradient-hover group overflow-hidden border-t-2 border-t-purple-500/20"
+                  className="cursor-pointer card-gradient card-gradient-hover group overflow-hidden border-t-2 border-primary-border"
                 >
                   <CardContent className="flex flex-col items-center justify-center p-8">
-                    <div className="w-16 h-16 mb-4 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-purple-500/20 transition-transform group-hover:scale-110">
+                    <div className="w-16 h-16 mb-4 rounded-full bg-gradient-brand text-primary-foreground flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 transition-transform group-hover:scale-110">
                       <categoryItem.icon className="w-8 h-8" />
                     </div>
-                    <span className="font-bold text-lg group-hover:text-purple-500 transition-colors">{categoryItem.label}</span>
+                    <span className="font-bold text-lg group-hover:text-primary transition-colors">{categoryItem.label}</span>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -327,13 +324,13 @@ function ShoppingHome() {
               >
                 <Card
                   onClick={() => handleNavigateToListingPage(brandItem, "brand")}
-                  className="cursor-pointer card-gradient card-gradient-hover group overflow-hidden border-t-2 border-t-purple-500/20"
+                  className="cursor-pointer card-gradient card-gradient-hover group overflow-hidden border-t-2 border-primary-border"
                 >
                   <CardContent className="flex flex-col items-center justify-center p-8">
-                    <div className="w-16 h-16 mb-4 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-purple-500/20 transition-transform group-hover:scale-110">
+                    <div className="w-16 h-16 mb-4 rounded-full bg-gradient-brand text-primary-foreground flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 transition-transform group-hover:scale-110">
                       <brandItem.icon className="w-8 h-8" />
                     </div>
-                    <span className="font-bold text-lg group-hover:text-purple-500 transition-colors">{brandItem.label}</span>
+                    <span className="font-bold text-lg group-hover:text-primary transition-colors">{brandItem.label}</span>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -349,21 +346,16 @@ function ShoppingHome() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {(productList && productList.length > 0 ? productList.slice(0, 8) : mockProducts).map((productItem) => (
-                  <ShoppingProductTile
-                    key={productItem.id}
-                    handleGetProductDetails={handleGetProductDetails}
-                    product={productItem}
-                    handleAddtoCart={handleAddtoCart}
-                  />
-                ))}
+              <ShoppingProductTile
+                key={productItem.id}
+                handleGetProductDetails={handleGetProductDetails}
+                product={productItem}
+                handleAddtoCart={handleAddtoCart}
+              />
+            ))}
           </div>
         </div>
       </section>
-
-      {/* Recommendations carousel — only for authenticated users */}
-      {/* {isAuthenticated && user?.id && (
-        <RecommendationsCarousel userId={user.id} />
-      )} */}
 
       {/* Customer Reviews Section */}
       <section className="py-20 bg-muted/40 relative overflow-hidden">
@@ -382,16 +374,16 @@ function ShoppingHome() {
                 transition={{ delay: i * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="card-gradient card-gradient-hover p-8 text-center space-y-4 border-t-2 border-t-purple-500/20">
+                <Card className="card-gradient card-gradient-hover p-8 text-center space-y-4 border-t-2 border-primary-border">
                   <div className="flex justify-center space-x-1">
                     {[...Array(5)].map((_, idx) => (
-                      <svg key={idx} className="w-6 h-6 fill-current text-yellow-500" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      <svg key={idx} className="w-6 h-6 fill-current text-yellow-500" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
                     ))}
                   </div>
                   <p className="text-muted-foreground italic text-lg leading-relaxed">"{review.text}"</p>
                   <div>
                     <h4 className="font-bold text-lg">{review.name}</h4>
-                    <span className="text-xs text-muted-foreground bg-purple-500/10 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded-full font-semibold">{review.role}</span>
+                    <span className="text-xs text-primary-foreground bg-primary/10 text-primary dark:text-primary px-2 py-0.5 rounded-full font-semibold">{review.role}</span>
                   </div>
                 </Card>
               </motion.div>
@@ -406,9 +398,9 @@ function ShoppingHome() {
           <h2 className="text-5xl font-extrabold tracking-tight text-foreground">Join the Fashionify Club</h2>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">Subscribe to our newsletter to unlock 15% off your first order, plus updates on our latest offers and exclusive arrivals.</p>
           <div className="flex flex-col sm:flex-row w-full max-w-md mx-auto items-center gap-3">
-            <input 
-              type="email" 
-              placeholder="Enter your email address" 
+            <input
+              type="email"
+              placeholder="Enter your email address"
               className="flex h-12 w-full rounded-xl border border-input bg-background px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-sm"
             />
             <Button className="w-full sm:w-auto h-12 px-8 bg-primary hover:bg-primary/90 rounded-xl text-primary-foreground font-bold shadow-sm">Subscribe</Button>

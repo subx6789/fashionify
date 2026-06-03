@@ -13,10 +13,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByUserId(Long userId);
 
-    // Used by recommendation controller to exclude already-purchased products
-    @Query("SELECT DISTINCT oi.productId FROM Order o JOIN o.orderItems oi WHERE o.user.id = :userId AND o.orderStatus = 'confirmed'")
-    List<String> findPurchasedProductIdsByUserId(@Param("userId") Long userId);
-
     // Used by verified-purchase rating check
     @Query("""
         SELECT COUNT(o) > 0 FROM Order o

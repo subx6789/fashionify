@@ -1,36 +1,52 @@
 import { Navigate, useLocation } from "react-router-dom";
 
+// Public shop routes — browsable without authentication
+const PUBLIC_SHOP_PREFIXES = [
+  "/shop/home",
+  "/shop/listing",
+  "/shop/search",
+  "/shop/about",
+  "/shop/contact",
+  "/shop/product/", // product detail pages are fully public
+];
+
+function isPublicShopRoute(pathname) {
+  return PUBLIC_SHOP_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
 function CheckAuth({ isAuthenticated, user, children }) {
   const location = useLocation();
+  const { pathname } = location;
 
   // Root → always go to shop home
-  if (location.pathname === "/") {
+  if (pathname === "/") {
     return <Navigate to="/shop/home" replace />;
   }
 
-  // Not authenticated: allow public routes
-  const publicRoutes = ["/login", "/register", "/shop/home", "/shop/listing", "/shop/search", "/shop/about", "/shop/contact"];
-  const isPublicRoute = publicRoutes.some((r) => location.pathname.includes(r));
-
-  if (!isAuthenticated && !isPublicRoute) {
-    // Admin login page is public, redirect others to customer login
-    if (location.pathname.includes("/admin-auth")) {
-      return children;
-    }
-    return <Navigate to="/auth/login" replace />;
-  }
-
-  // Authenticated users trying to hit login/register → redirect home
-  if (isAuthenticated && (location.pathname.includes("/login") || location.pathname.includes("/register"))) {
-    if (user?.role === "admin") {
+  // Admin login — always public
+  if (pathname.startsWith("/admin-auth")) {
+    if (isAuthenticated && user?.role === "admin") {
       return <Navigate to="/admin/dashboard" replace />;
     }
-    return <Navigate to="/shop/home" replace />;
+    return <>{children}</>;
   }
 
-  // Non-admin trying to access /admin/** routes
-  if (isAuthenticated && user?.role !== "admin" && location.pathname.startsWith("/admin")) {
-    return <Navigate to="/unauth-page" replace />;
+  // Admin routes — must be authenticated admin
+  if (pathname.startsWith("/admin")) {
+    if (!isAuthenticated) return <Navigate to="/admin-auth/login" replace />;
+    if (user?.role !== "admin") return <Navigate to="/unauth-page" replace />;
+    return <>{children}</>;
+  }
+
+  // Public shop routes — allow everyone, no auth check
+  if (isPublicShopRoute(pathname)) {
+    return <>{children}</>;
+  }
+
+  // Protected shop routes (checkout, account, wishlist) — require auth.
+  // Redirect unauthenticated users to shop home; they can open the auth modal there.
+  if (pathname.startsWith("/shop") && !isAuthenticated) {
+    return <Navigate to="/shop/home" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;

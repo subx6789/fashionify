@@ -12,6 +12,7 @@ import StarRatingComponent from "@/components/common/star-rating";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { addReview, getReviews, checkRatingEligibility, resetEligibility } from "@/store/shop/review-slice";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 function ShoppingProductDetails() {
   const { id } = useParams();
@@ -27,6 +28,7 @@ function ShoppingProductDetails() {
   const { productDetails, isLoading } = useSelector((state) => state.shopProducts);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { openAuthModal } = useAuthModal();
 
   useEffect(() => {
     if (id) {
@@ -90,8 +92,7 @@ function ShoppingProductDetails() {
 
   function handleAddToCart() {
     if (!isAuthenticated) {
-      toast({ title: "Please login to add to cart", variant: "destructive" });
-      navigate("/auth/login");
+      openAuthModal("login", { action: "addToCart", productId: productDetails?.id, selectedSize });
       return;
     }
     if (sizeVariants.length > 0 && !selectedSize) {
@@ -188,9 +189,9 @@ function ShoppingProductDetails() {
       {/* Breadcrumbs */}
       <div className="bg-muted/30 border-b border-border">
         <div className="container mx-auto px-4 py-3 flex items-center text-sm text-muted-foreground">
-          <Link to="/shop/home" className="hover:text-purple-600 transition-colors">Home</Link>
+          <Link to="/shop/home" className="hover:text-primary transition-colors">Home</Link>
           <ChevronRight className="w-4 h-4 mx-2" />
-          <Link to="/shop/listing" className="hover:text-purple-600 transition-colors">Shop</Link>
+          <Link to="/shop/listing" className="hover:text-primary transition-colors">Shop</Link>
           <ChevronRight className="w-4 h-4 mx-2" />
           <span className="text-foreground font-medium truncate">{productDetails?.title}</span>
         </div>
@@ -246,7 +247,7 @@ function ShoppingProductDetails() {
                         key={i}
                         onClick={() => setActiveImageIndex(i)}
                         className={`w-2 h-2 rounded-full transition-all ${
-                          i === activeImageIndex ? "bg-purple-600 w-4" : "bg-white/60"
+                          i === activeImageIndex ? "bg-primary w-4" : "bg-white/60"
                         }`}
                       />
                     ))}
@@ -264,7 +265,7 @@ function ShoppingProductDetails() {
                     onClick={() => setActiveImageIndex(i)}
                     className={`flex-none w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
                       i === activeImageIndex
-                        ? "border-purple-500 ring-2 ring-purple-500/30"
+                        ? "border-primary ring-2 ring-primary/30"
                         : "border-border opacity-60 hover:opacity-100"
                     }`}
                   >
@@ -284,9 +285,9 @@ function ShoppingProductDetails() {
 
               {/* Rating */}
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">
+                <div className="flex items-center gap-1 bg-primary/10 px-3 py-1 rounded-full border border-primary-border/20">
                   <StarRatingComponent rating={averageReview} />
-                  <span className="text-sm font-bold text-purple-700 dark:text-purple-400 ml-1">
+                  <span className="text-sm font-bold text-primary-dark dark:text-primary ml-1">
                     {averageReview.toFixed(1)}
                   </span>
                 </div>
@@ -327,7 +328,7 @@ function ShoppingProductDetails() {
                     <Link
                       key={tag}
                       to={`/shop/listing`}
-                      className="text-xs px-2.5 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium border border-purple-200 dark:border-purple-700 hover:bg-purple-200 dark:hover:bg-purple-800/40 transition-colors"
+                      className="text-xs px-2.5 py-1 rounded-full bg-primary/10 dark:bg-primary-dark/30 text-primary-dark dark:text-primary-soft font-medium border border-primary-border dark:border-primary-border hover:bg-primary/10 dark:hover:bg-primary-dark/40 transition-colors"
                     >
                       {tag}
                     </Link>
@@ -368,10 +369,10 @@ function ShoppingProductDetails() {
                         }
                         className={`relative px-4 py-2 rounded-xl border-2 text-sm font-semibold transition-all
                           ${isOOS
-                            ? "border-border text-muted-foreground/40 line-through cursor-not-allowed bg-muted/30"
+                            ? "border-border text-primary-foreground/40 line-through cursor-not-allowed bg-muted/30"
                             : isSelected
-                            ? "border-purple-600 bg-purple-600 text-white shadow-lg shadow-purple-500/30"
-                            : "border-border hover:border-purple-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                            ? "border-primary-border bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                            : "border-border hover:border-primary-border hover:text-primary hover:bg-primary/5 dark:hover:bg-primary-dark/20"
                           }`}
                       >
                         {variant.size}
@@ -426,7 +427,7 @@ function ShoppingProductDetails() {
                     </p>
                   )}
                   <Button
-                    className="w-full h-14 text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl shadow-lg shadow-purple-500/30 transition-all hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
+                    className="w-full h-14 text-lg font-bold bg-gradient-brand text-primary-foreground hover:from-primary hover:to-primary-dark text-primary-foreground rounded-xl shadow-lg shadow-primary/30 transition-all hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
                     onClick={handleAddToCart}
                     disabled={addToCartDisabled}
                   >
@@ -440,7 +441,7 @@ function ShoppingProductDetails() {
               <Button
                 variant="outline"
                 onClick={handleShare}
-                className="w-full h-11 gap-2 rounded-xl border-border hover:border-purple-500 hover:text-purple-600 transition-colors"
+                className="w-full h-11 gap-2 rounded-xl border-border hover:border-primary hover:text-primary transition-colors"
               >
                 <Share2 className="h-4 w-4" />
                 Share this Product
@@ -463,8 +464,8 @@ function ShoppingProductDetails() {
                   <div className="space-y-6 max-h-[500px] overflow-y-auto pr-4">
                     {reviews.map((reviewItem, idx) => (
                       <div key={idx} className="flex gap-4 p-4 rounded-xl bg-muted/30 border border-border">
-                        <Avatar className="w-12 h-12 border-2 border-purple-500/20">
-                          <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white font-bold">
+                        <Avatar className="w-12 h-12 border-2 border-primary/20">
+                          <AvatarFallback className="bg-gradient-brand text-primary-foreground text-primary-foreground font-bold">
                             {reviewItem?.userName[0].toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
@@ -536,9 +537,9 @@ function ShoppingProductDetails() {
                   </div>
                 )
               ) : (
-                <div className="p-5 rounded-xl border border-border bg-muted/30 text-sm text-muted-foreground flex items-center gap-3">
+                <div className="p-5 rounded-sm border-2 border-border bg-muted/30 text-sm text-muted-foreground flex items-center gap-3">
                   <StarIcon className="w-5 h-5 flex-none" />
-                  <span><Link to="/auth/login" className="text-purple-600 hover:underline font-medium">Login</Link> to leave a review after purchasing.</span>
+                  <span><button onClick={() => openAuthModal("login")} className="text-primary hover:underline font-bold">Login</button> to leave a review after purchasing.</span>
                 </div>
               )}
             </div>

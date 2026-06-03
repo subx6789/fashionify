@@ -26,19 +26,18 @@ import { fetchWishlistItems } from "@/store/shop/wishlist-slice";
 import { Input } from "../ui/input";
 import { useTheme } from "@/components/theme-provider";
 import { resetSearchResults } from "@/store/shop/search-slice";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 function SearchBar({ isMobile }) {
   const [keyword, setKeyword] = useState("");
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const debounceRef = useRef(null);
-  const dispatch = useDispatch();
+  const [searchParams]        = useSearchParams();
+  const navigate              = useNavigate();
+  const location              = useLocation();
+  const debounceRef           = useRef(null);
+  const dispatch              = useDispatch();
 
-  // Sync input when navigating to/from search page
   useEffect(() => {
     if (location.pathname === "/shop/search") {
-      // Only set keyword from URL if it's currently empty, so we don't interrupt active typing
       const urlKeyword = searchParams.get("keyword") || "";
       setKeyword((prev) => prev ? prev : urlKeyword);
     } else {
@@ -49,20 +48,16 @@ function SearchBar({ isMobile }) {
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-
     if (!keyword.trim()) {
-      // If user cleared input while on the search page, reset results immediately
       if (location.pathname === "/shop/search") {
         dispatch(resetSearchResults());
         navigate("/shop/search", { replace: true });
       }
       return;
     }
-
     debounceRef.current = setTimeout(() => {
       navigate(`/shop/search?keyword=${encodeURIComponent(keyword)}`);
     }, 500);
-
     return () => clearTimeout(debounceRef.current);
   }, [keyword, navigate, location.pathname, dispatch]);
 
@@ -76,10 +71,10 @@ function SearchBar({ isMobile }) {
 
   return (
     <div className={`relative w-full ${isMobile ? "" : "max-w-xl"}`}>
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
       <Input
-        className="w-full bg-muted/70 border-transparent focus-visible:ring-1 focus-visible:ring-purple-500 pl-11 pr-9 h-10 rounded-md shadow-sm"
-        placeholder="Search for products, brands and more"
+        className="w-full bg-muted/70 border-2 border-border focus-visible:ring-0 focus-visible:border-primary pl-10 pr-9 h-10 rounded-sm font-body"
+        placeholder="Search products, brands..."
         value={keyword}
         onChange={(e) => setKeyword(e.target.value)}
       />
@@ -97,8 +92,8 @@ function SearchBar({ isMobile }) {
 }
 
 function MenuItems() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigate       = useNavigate();
+  const location       = useLocation();
   const [, setSearchParams] = useSearchParams();
 
   function handleNavigate(getCurrentMenuItem) {
@@ -120,33 +115,42 @@ function MenuItems() {
 
   return (
     <nav className="flex flex-col lg:flex-row gap-6 lg:items-center h-full">
-      {shoppingViewHeaderMenuItems.map((menuItem) => (
-        <button
-          key={menuItem.id}
-          onClick={() => handleNavigate(menuItem)}
-          className="text-[13px] font-bold tracking-widest text-foreground/80 hover:text-purple-600 lg:uppercase relative flex items-center h-full group py-3 lg:py-0"
-        >
-          {menuItem.label}
-          {menuItem.badge && (
-            <span className="absolute -top-2 -right-7 text-[9px] font-bold text-pink-500 hidden lg:block">
-              {menuItem.badge}
-            </span>
-          )}
-          <div className="absolute bottom-0 left-0 w-full h-[4px] bg-purple-600 scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-t-md hidden lg:block" />
-        </button>
-      ))}
+      {shoppingViewHeaderMenuItems.map((menuItem) => {
+        const isActive = location.pathname === menuItem.path || 
+          (menuItem.id !== 'home' && menuItem.id !== 'products' && menuItem.id !== 'search' && menuItem.id !== 'contact' && location.pathname.includes('listing') && new URLSearchParams(location.search).get('category') === menuItem.id);
+        
+        return (
+          <button
+            key={menuItem.id}
+            onClick={() => handleNavigate(menuItem)}
+            className={`text-[13px] font-bold tracking-widest lg:uppercase relative flex items-center justify-center px-4 py-2 transition-all duration-200 border-2 rounded-sm ${
+              isActive 
+                ? "bg-primary text-primary-foreground border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+                : "text-foreground bg-transparent border-transparent hover:bg-primary hover:text-primary-foreground hover:border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:hover:border-white dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
+            }`}
+          >
+            {menuItem.label}
+            {menuItem.badge && (
+              <span className="absolute -top-2 -right-3 px-1.5 py-0.5 rounded-sm border border-black bg-[hsl(var(--neu-yellow))] text-black text-[9px] font-black hidden lg:block shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                {menuItem.badge}
+              </span>
+            )}
+          </button>
+        );
+      })}
     </nav>
   );
 }
 
 function HeaderRightContent() {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
-  const { cartItems } = useSelector((state) => state.shopCart);
-  const { wishlistItems } = useSelector((state) => state.shopWishlist);
+  const { cartItems }             = useSelector((state) => state.shopCart);
+  const { wishlistItems }         = useSelector((state) => state.shopWishlist);
   const [openCartSheet, setOpenCartSheet] = useState(false);
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { theme, setTheme } = useTheme();
+  const navigate                  = useNavigate();
+  const dispatch                  = useDispatch();
+  const { theme, setTheme }       = useTheme();
+  const { openAuthModal }         = useAuthModal();
 
   function handleLogout() {
     dispatch(logoutUser());
@@ -161,8 +165,16 @@ function HeaderRightContent() {
 
   const isDark = theme === "dark";
 
+  function handleWishlistClick() {
+    if (!isAuthenticated) {
+      openAuthModal("login", { action: "wishlist" });
+      return;
+    }
+    navigate("/shop/wishlist");
+  }
+
   return (
-    <div className="flex lg:items-center flex-row gap-4 lg:gap-6">
+    <div className="flex lg:items-center flex-row gap-4 lg:gap-5">
       {/* Theme Toggle */}
       <button
         onClick={() => setTheme(isDark ? "light" : "dark")}
@@ -170,60 +182,86 @@ function HeaderRightContent() {
         aria-label="Toggle theme"
       >
         {isDark ? (
-          <Sun className="h-5 w-5 text-foreground/90 group-hover:text-yellow-400 transition-colors" />
+          <Sun className="h-5 w-5 text-foreground/80 group-hover:text-[hsl(var(--neu-yellow))] transition-colors" />
         ) : (
-          <Moon className="h-5 w-5 text-foreground/90 group-hover:text-purple-600 transition-colors" />
+          <Moon className="h-5 w-5 text-foreground/80 group-hover:text-primary transition-colors" />
         )}
-        <span className="text-[11px] font-semibold mt-1 text-foreground/90 group-hover:text-purple-600 transition-colors hidden lg:block">
+        <span className="text-[10px] font-bold mt-0.5 text-foreground/70 group-hover:text-primary transition-colors hidden lg:block">
           {isDark ? "Light" : "Dark"}
         </span>
       </button>
 
-      {/* Profile Icon with Dropdown */}
+      {/* Profile Dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <div className="flex flex-col items-center justify-center cursor-pointer group pt-1 outline-none">
             {isAuthenticated ? (
-              <Avatar className="h-6 w-6 bg-purple-600 hover:bg-purple-700 shadow-md shadow-purple-500/30 transition-transform hover:scale-105 mb-0.5">
-                <AvatarImage src={`https://api.dicebear.com/9.x/micah/svg?seed=${user?.avatar || user?.userName || "Fashion"}&backgroundColor=transparent`} alt="User Avatar" />
-                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white font-bold text-[10px]">
+              <Avatar className="h-6 w-6 border-2 border-border hover:border-primary transition-colors">
+                <AvatarImage
+                  src={`https://api.dicebear.com/9.x/micah/svg?seed=${user?.avatar || user?.userName || "Fashion"}&backgroundColor=transparent`}
+                  alt="User Avatar"
+                />
+                <AvatarFallback className="bg-primary text-primary-foreground font-black text-[10px]">
                   {user?.userName?.[0]?.toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
             ) : (
-              <User className="h-5 w-5 text-foreground/90 group-hover:text-purple-600 transition-colors" />
+              <User className="h-5 w-5 text-foreground/80 group-hover:text-primary transition-colors" />
             )}
-            <span className="text-[11px] font-semibold mt-1 text-foreground/90 group-hover:text-purple-600 transition-colors hidden lg:block">Profile</span>
+            <span className="text-[10px] font-bold mt-0.5 text-foreground/70 group-hover:text-primary transition-colors hidden lg:block">
+              Profile
+            </span>
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent side="bottom" align="end" className="w-64 mt-4 border-border shadow-lg p-2 rounded-xl">
+        <DropdownMenuContent
+          side="bottom"
+          align="end"
+          className="w-64 mt-4 border-2 border-border shadow-none p-2 rounded-sm"
+          style={{ boxShadow: "4px 4px 0px 0px hsl(var(--neu-black))" }}
+        >
           {isAuthenticated ? (
             <>
-              <DropdownMenuLabel className="font-bold text-sm">Hello, {user?.userName}</DropdownMenuLabel>
-              <DropdownMenuSeparator className="my-2" />
-              <DropdownMenuItem onClick={() => navigate("/shop/account")} className="cursor-pointer font-medium p-3 rounded-lg">
+              <DropdownMenuLabel className="font-black text-sm">
+                Hello, {user?.userName}
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="my-2 border-border" />
+              <DropdownMenuItem
+                onClick={() => navigate("/shop/account")}
+                className="cursor-pointer font-bold p-3 rounded-sm hover:bg-muted"
+              >
                 <UserCog className="mr-3 h-4 w-4" />
                 Account
               </DropdownMenuItem>
               {user?.role === "admin" && (
-                <DropdownMenuItem onClick={() => navigate("/admin/dashboard")} className="cursor-pointer text-indigo-500 font-bold p-3 rounded-lg">
+                <DropdownMenuItem
+                  onClick={() => navigate("/admin/dashboard")}
+                  className="cursor-pointer text-primary font-black p-3 rounded-sm hover:bg-muted"
+                >
                   <ShieldCheck className="mr-3 h-4 w-4" />
                   Admin Panel
                 </DropdownMenuItem>
               )}
-              <DropdownMenuSeparator className="my-2" />
-              <DropdownMenuItem onClick={handleLogout} className="text-red-500 cursor-pointer font-medium p-3 rounded-lg">
+              <DropdownMenuSeparator className="my-2 border-border" />
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="text-destructive cursor-pointer font-bold p-3 rounded-sm hover:bg-muted"
+              >
                 <LogOut className="mr-3 h-4 w-4" />
                 Logout
               </DropdownMenuItem>
             </>
           ) : (
-            <div className="p-4">
-              <DropdownMenuLabel className="font-bold text-sm p-0 mb-1">Welcome</DropdownMenuLabel>
-              <p className="text-xs text-muted-foreground mb-4">To access account and manage orders</p>
-              <Button onClick={() => navigate("/auth/login")} className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-md h-10 font-bold text-xs tracking-wide">
+            <div className="p-3 space-y-3">
+              <div>
+                <p className="font-black text-sm">Welcome</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Sign in to access your account</p>
+              </div>
+              <button
+                onClick={() => openAuthModal("login")}
+                className="neu-btn-primary w-full text-sm py-2.5"
+              >
                 LOGIN / SIGNUP
-              </Button>
+              </button>
             </div>
           )}
         </DropdownMenuContent>
@@ -231,16 +269,20 @@ function HeaderRightContent() {
 
       {/* Wishlist */}
       <div
-        onClick={() => navigate("/shop/wishlist")}
+        onClick={handleWishlistClick}
         className="flex flex-col items-center justify-center cursor-pointer group relative pt-1"
       >
         <div className="relative">
-          <Heart className="h-5 w-5 text-foreground/90 group-hover:text-pink-500 transition-colors" />
-          <span className="absolute -top-1.5 -right-2 flex h-[16px] w-[16px] items-center justify-center rounded-full bg-pink-500 text-[10px] font-bold text-white shadow-sm">
-            {wishlistItems?.length || 0}
-          </span>
+          <Heart className="h-5 w-5 text-foreground/80 group-hover:text-primary-dark transition-colors" />
+          {isAuthenticated && (
+            <span className="absolute -top-1.5 -right-2 flex h-[15px] w-[15px] items-center justify-center rounded-none bg-primary text-[9px] font-black text-primary-foreground border border-border">
+              {wishlistItems?.length || 0}
+            </span>
+          )}
         </div>
-        <span className="text-[11px] font-semibold mt-1 text-foreground/90 group-hover:text-pink-500 transition-colors hidden lg:block">Wishlist</span>
+        <span className="text-[10px] font-bold mt-0.5 text-foreground/70 group-hover:text-primary-dark transition-colors hidden lg:block">
+          Wishlist
+        </span>
       </div>
 
       {/* Cart */}
@@ -250,12 +292,14 @@ function HeaderRightContent() {
           className="flex flex-col items-center justify-center cursor-pointer group relative pt-1 outline-none"
         >
           <div className="relative">
-            <ShoppingCart className="h-5 w-5 text-foreground/90 group-hover:text-purple-600 transition-colors" />
-            <span className="absolute -top-1.5 -right-2 flex h-[16px] w-[16px] items-center justify-center rounded-full bg-purple-600 text-[10px] font-bold text-white shadow-sm">
+            <ShoppingCart className="h-5 w-5 text-foreground/80 group-hover:text-primary transition-colors" />
+            <span className="absolute -top-1.5 -right-2 flex h-[15px] w-[15px] items-center justify-center rounded-none bg-primary text-[9px] font-black text-primary-foreground border border-border">
               {cartItems?.items?.length || 0}
             </span>
           </div>
-          <span className="text-[11px] font-semibold mt-1 text-foreground/90 group-hover:text-purple-600 transition-colors hidden lg:block">Cart</span>
+          <span className="text-[10px] font-bold mt-0.5 text-foreground/70 group-hover:text-primary transition-colors hidden lg:block">
+            Cart
+          </span>
         </div>
         <UserCartWrapper
           setOpenCartSheet={setOpenCartSheet}
@@ -272,43 +316,54 @@ function HeaderRightContent() {
 
 function ShoppingHeader() {
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-background shadow-sm">
+    <header className="sticky top-0 z-40 w-full border-b-2 border-border bg-background">
+      {/* Neubrutalism top accent stripe */}
+      <div className="h-1 w-full bg-primary" />
       <div className="flex flex-col w-full">
         {/* Main Header Row */}
-        <div className="flex h-[70px] md:h-[80px] items-center justify-between px-4 md:px-8 w-full max-w-7xl mx-auto lg:max-w-none lg:px-12">
-          {/* Left Logo */}
-          <Link to="/shop/home" className="flex items-center gap-3 lg:mr-10 shrink-0 group">
-            <div className="p-1 rounded-md bg-gradient-to-tr from-orange-500 via-pink-500 to-purple-500 text-white shadow-lg group-hover:scale-110 transition-transform">
-              <HousePlug className="h-7 w-7" />
+        <div className="flex h-[68px] md:h-[76px] items-center justify-between px-4 md:px-8 w-full max-w-7xl mx-auto lg:max-w-none lg:px-12">
+          {/* Logo */}
+          <Link to="/shop/home" className="flex items-center gap-3 shrink-0 group lg:mr-10">
+            <div
+              className="p-1.5 bg-primary text-primary-foreground border-2 border-border transition-transform group-hover:-translate-y-0.5"
+              style={{ boxShadow: "3px 3px 0px 0px hsl(var(--neu-black))" }}
+            >
+              <HousePlug className="h-6 w-6" />
             </div>
-            <span className="font-extrabold text-2xl tracking-tight bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent hidden sm:block">Fashionify</span>
+            <span className="font-display font-black text-2xl tracking-tight text-foreground hidden sm:block">
+              Fashion<span className="text-primary">ify</span>
+            </span>
           </Link>
 
-          {/* Navigation Links (Hidden on mobile) */}
+          {/* Navigation */}
           <div className="hidden lg:flex h-full items-center justify-start flex-none">
             <MenuItems />
           </div>
 
-          {/* Desktop Search Bar */}
+          {/* Desktop Search */}
           <div className="flex-1 flex justify-center px-4 md:px-8">
             <div className="w-full max-w-xl hidden lg:block">
               <SearchBar isMobile={false} />
             </div>
           </div>
 
-          <div className="flex items-center gap-4 lg:gap-6">
-            {/* Right Icons */}
+          <div className="flex items-center gap-4 lg:gap-5">
             <HeaderRightContent />
 
-            {/* Mobile Menu Toggle */}
+            {/* Mobile Menu */}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden">
-                  <Menu className="h-6 w-6" />
-                  <span className="sr-only">Toggle header menu</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden border-2 border-border rounded-sm"
+                  style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}
+                >
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <SheetContent side="right" className="w-[280px] border-l-2 border-border">
                 <div className="flex flex-col gap-6 mt-8 h-full">
                   <MenuItems />
                 </div>
@@ -317,7 +372,7 @@ function ShoppingHeader() {
           </div>
         </div>
 
-        {/* Mobile Search Bar */}
+        {/* Mobile Search */}
         <div className="lg:hidden w-full px-4 pb-3">
           <SearchBar isMobile={true} />
         </div>

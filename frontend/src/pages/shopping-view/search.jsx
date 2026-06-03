@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Search} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 function SearchProducts() {
   const [searchParams] = useSearchParams();
@@ -19,6 +20,7 @@ function SearchProducts() {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { openAuthModal } = useAuthModal();
 
   useEffect(() => {
     if (keyword && keyword.trim() !== "") {
@@ -30,8 +32,7 @@ function SearchProducts() {
 
   function handleAddtoCart(getCurrentProductId, getTotalStock) {
     if (!isAuthenticated) {
-      toast({ title: "Please login to add to cart", variant: "destructive" });
-      navigate("/auth/login");
+      openAuthModal("login", { action: "addToCart", productId: getCurrentProductId });
       return;
     }
 

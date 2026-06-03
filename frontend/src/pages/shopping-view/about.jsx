@@ -6,13 +6,13 @@ import { ShieldCheck, Sparkles, Truck, Users, ChevronDown, ChevronUp } from "luc
 // Custom FAQ Item Component
 function FAQItem({ question, answer, isOpen, onClick }) {
   return (
-    <div className="border border-border rounded-lg overflow-hidden transition-colors hover:border-purple-500/50">
+    <div className="border border-border rounded-lg overflow-hidden transition-colors hover:border-primary/50">
       <button
         onClick={onClick}
         className="w-full flex items-center justify-between p-4 text-left bg-card hover:bg-muted/30 transition-colors"
       >
         <span className="font-semibold text-foreground">{question}</span>
-        {isOpen ? <ChevronUp className="h-5 w-5 text-purple-500" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}
+        {isOpen ? <ChevronUp className="h-5 w-5 text-primary" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}
       </button>
       <AnimatePresence>
         {isOpen && (
@@ -132,9 +132,9 @@ function ShoppingAbout() {
               viewport={{ once: true }}
               className="h-full"
             >
-              <Card className="card-gradient card-gradient-hover border-t-2 border-t-purple-500/20 overflow-hidden h-full">
+              <Card className="card-gradient card-gradient-hover border-t-2 border-primary-border overflow-hidden h-full">
                 <CardContent className="flex flex-col items-center text-center p-6 space-y-3 h-full">
-                  <div className="p-3 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 text-white shadow-md shadow-purple-500/20">
+                  <div className="p-3 rounded-full bg-gradient-brand text-primary-foreground text-primary-foreground shadow-md shadow-primary/20">
                     <feature.icon className="w-6 h-6" />
                   </div>
                   <h3 className="font-bold text-lg">{feature.title}</h3>

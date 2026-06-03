@@ -1,10 +1,8 @@
 import { Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import AuthLayout from "./components/auth/layout";
-import AuthLogin from "./pages/auth/login";
-import AuthRegister from "./pages/auth/register";
-import AdminLayout from "./components/admin-view/layout";
 import AdminLogin from "./pages/admin-view/admin-login";
+import AdminLayout from "./components/admin-view/layout";
 import AdminDashboard from "./pages/admin-view/dashboard";
 import AdminProducts from "./pages/admin-view/products";
 import AdminOrders from "./pages/admin-view/orders";
@@ -35,7 +33,6 @@ function App() {
     (state) => state.auth
   );
   const dispatch = useDispatch();
-
   const location = useLocation();
 
   useEffect(() => {
@@ -44,14 +41,14 @@ function App() {
 
   if (isLoading) return (
     <div className="flex flex-col min-h-screen bg-background">
-      <header className="h-16 w-full border-b bg-muted/20 animate-pulse" />
+      <header className="h-16 w-full border-b-2 border-border bg-muted/20 animate-pulse" />
       <main className="flex-1 p-6 md:p-10 flex flex-col gap-6 max-w-7xl mx-auto w-full mt-4">
-        <Skeleton className="h-12 w-[300px] rounded-xl" />
-        <Skeleton className="h-[400px] w-full rounded-3xl" />
+        <Skeleton className="h-12 w-[300px] rounded-sm" />
+        <Skeleton className="h-[400px] w-full rounded-sm" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-          <Skeleton className="h-[200px] w-full rounded-2xl" />
-          <Skeleton className="h-[200px] w-full rounded-2xl" />
-          <Skeleton className="h-[200px] w-full rounded-2xl" />
+          <Skeleton className="h-[200px] w-full rounded-sm" />
+          <Skeleton className="h-[200px] w-full rounded-sm" />
+          <Skeleton className="h-[200px] w-full rounded-sm" />
         </div>
       </main>
     </div>
@@ -64,23 +61,11 @@ function App() {
         <Route
           path="/"
           element={
-            <CheckAuth
-              isAuthenticated={isAuthenticated}
-              user={user}
-            ></CheckAuth>
+            <CheckAuth isAuthenticated={isAuthenticated} user={user}></CheckAuth>
           }
         />
-        <Route
-          path="/auth"
-          element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-              <AuthLayout />
-            </CheckAuth>
-          }
-        >
-          <Route path="login" element={<AuthLogin />} />
-          <Route path="register" element={<AuthRegister />} />
-        </Route>
+
+        {/* Admin auth — dedicated page (not modal) */}
         <Route
           path="/admin-auth"
           element={
@@ -91,6 +76,8 @@ function App() {
         >
           <Route path="login" element={<AdminLogin />} />
         </Route>
+
+        {/* Admin panel */}
         <Route
           path="/admin"
           element={
@@ -100,11 +87,13 @@ function App() {
           }
         >
           <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="products" element={<AdminProducts />} />
-          <Route path="orders" element={<AdminOrders />} />
-          <Route path="features" element={<AdminFeatures />} />
-          <Route path="users" element={<AdminUsers />} />
+          <Route path="products"  element={<AdminProducts />} />
+          <Route path="orders"    element={<AdminOrders />} />
+          <Route path="features"  element={<AdminFeatures />} />
+          <Route path="users"     element={<AdminUsers />} />
         </Route>
+
+        {/* Shopping — public product pages, protected account/checkout */}
         <Route
           path="/shop"
           element={
@@ -113,20 +102,21 @@ function App() {
             </CheckAuth>
           }
         >
-          <Route path="home" element={<ShoppingHome />} />
-          <Route path="listing" element={<ShoppingListing />} />
-          <Route path="product/:id" element={<ShoppingProductDetails />} />
-          <Route path="checkout" element={<ShoppingCheckout />} />
-          <Route path="account" element={<ShoppingAccount />} />
-          <Route path="about" element={<ShoppingAbout />} />
-          <Route path="contact" element={<ShoppingContact />} />
-          <Route path="wishlist" element={<ShoppingWishlist />} />
-          <Route path="paypal-return" element={<PaypalReturnPage />} />
+          <Route path="home"            element={<ShoppingHome />} />
+          <Route path="listing"         element={<ShoppingListing />} />
+          <Route path="product/:id"     element={<ShoppingProductDetails />} />
+          <Route path="search"          element={<SearchProducts />} />
+          <Route path="about"           element={<ShoppingAbout />} />
+          <Route path="contact"         element={<ShoppingContact />} />
+          <Route path="checkout"        element={<ShoppingCheckout />} />
+          <Route path="account"         element={<ShoppingAccount />} />
+          <Route path="wishlist"        element={<ShoppingWishlist />} />
+          <Route path="paypal-return"   element={<PaypalReturnPage />} />
           <Route path="payment-success" element={<PaymentSuccessPage />} />
-          <Route path="search" element={<SearchProducts />} />
         </Route>
+
         <Route path="/unauth-page" element={<UnauthPage />} />
-        <Route path="*" element={<NotFound />} />
+        <Route path="*"            element={<NotFound />} />
       </Routes>
       </AnimatePresence>
     </div>

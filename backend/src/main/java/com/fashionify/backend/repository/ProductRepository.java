@@ -27,13 +27,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
             String keyword1, String keyword2, Pageable pageable);
 
-    // Recommendation — find products containing any of given tags (excludes
-    // purchased)
-    @Query("SELECT DISTINCT p FROM Product p JOIN p.tags t WHERE t IN :tags AND p.id NOT IN :excludeIds")
-    List<Product> findByTagsInExcluding(@Param("tags") List<String> tags,
-            @Param("excludeIds") List<Long> excludeIds,
-            Pageable pageable);
-
+    // Tags-based lookup (used by tag migration service)
     @Query("SELECT DISTINCT p FROM Product p JOIN p.tags t WHERE t IN :tags")
     List<Product> findByTagsIn(@Param("tags") List<String> tags, Pageable pageable);
 

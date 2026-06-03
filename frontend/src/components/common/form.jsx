@@ -150,7 +150,7 @@ function CommonForm({
       <Button
         disabled={isBtnDisabled || isLoading}
         type="submit"
-        className="mt-5 w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 border-0 text-white rounded-xl py-6 font-bold shadow-lg shadow-purple-500/25 hover:scale-[1.01] active:scale-[0.99] transition-all"
+        className="mt-5 w-full bg-gradient-brand text-primary-foreground hover:from-primary hover:via-primary hover:to-primary-dark border-0 text-primary-foreground rounded-xl py-6 font-bold shadow-lg shadow-primary/25 hover:scale-[1.01] active:scale-[0.99] transition-all"
       >
         {isLoading ? "Please wait…" : buttonText || "Submit"}
       </Button>

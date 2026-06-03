@@ -35,8 +35,8 @@ function PaymentSuccessPage() {
         {/* Delivery info */}
         <div className="bg-card border border-border rounded-2xl p-5 text-left space-y-3">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-none">
-              <Package className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+            <div className="w-8 h-8 rounded-full bg-primary/10 dark:bg-primary-dark/30 flex items-center justify-center flex-none">
+              <Package className="h-4 w-4 text-primary dark:text-primary" />
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground">Cash on Delivery</p>
@@ -55,7 +55,7 @@ function PaymentSuccessPage() {
             View My Orders
           </Button>
           <Button
-            className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+            className="flex-1 bg-gradient-brand text-primary-foreground hover:from-primary hover:to-primary-dark text-primary-foreground"
             onClick={() => navigate("/shop/home")}
           >
             Continue Shopping

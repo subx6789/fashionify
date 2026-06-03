@@ -80,9 +80,7 @@ public class DataSeeder implements CommandLineRunner {
     private void seedProducts() {
         // Purge any products that were seeded without size variants (old mock data)
         List<Product> existing = productRepository.findAll();
-        boolean hasProperProducts = existing.stream()
-                .anyMatch(p -> !p.getSizeVariants().isEmpty());
-        // if (hasProperProducts) return; // Temporarily commented out to force re-seeding
+        // if (existing.stream().anyMatch(p -> !p.getSizeVariants().isEmpty())) return; // Temporarily commented out to force re-seeding
 
         // Delete old mock products (no size variants)
         if (!existing.isEmpty()) {
