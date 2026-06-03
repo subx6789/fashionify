@@ -22,6 +22,10 @@ public class Feature {
     @Column(nullable = false)
     private String image;
 
+    private String startDate;
+
+    private String endDate;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

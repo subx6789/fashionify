@@ -43,6 +43,12 @@ public class Order {
     private String paymentId;
     private String payerId;
 
+    private String shippingMethod;
+    private Double shippingCost;
+    private Boolean isGiftWrapped;
+    private String appliedPromoCode;
+    private Double discountAmount;
+
     public void addOrderItem(OrderItem item) {
         orderItems.add(item);
         item.setOrder(this);

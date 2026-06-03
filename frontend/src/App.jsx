@@ -36,6 +36,8 @@ function App() {
   );
   const dispatch = useDispatch();
 
+  const location = useLocation();
+
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
@@ -55,15 +57,10 @@ function App() {
     </div>
   );
 
-
-
-
-  const location = useLocation();
-
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
+      <Routes>
         <Route
           path="/"
           element={

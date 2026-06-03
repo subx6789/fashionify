@@ -46,7 +46,12 @@ public class DataSeeder implements CommandLineRunner {
         } else {
             admin = userRepository.findByUserName("Admin").orElse(null);
             if (admin == null) {
-                admin = new User(null, "Admin", adminEmail, passwordEncoder.encode(adminPassword), "admin", null, null);
+                admin = User.builder()
+                        .userName("Admin")
+                        .email(adminEmail)
+                        .password(passwordEncoder.encode(adminPassword))
+                        .role("admin")
+                        .build();
                 userRepository.save(admin);
                 System.out.println("✅ Admin created: " + adminEmail);
             } else {
@@ -77,7 +82,7 @@ public class DataSeeder implements CommandLineRunner {
         List<Product> existing = productRepository.findAll();
         boolean hasProperProducts = existing.stream()
                 .anyMatch(p -> !p.getSizeVariants().isEmpty());
-        if (hasProperProducts) return;
+        // if (hasProperProducts) return; // Temporarily commented out to force re-seeding
 
         // Delete old mock products (no size variants)
         if (!existing.isEmpty()) {
@@ -107,6 +112,22 @@ public class DataSeeder implements CommandLineRunner {
             )
         );
 
+         createProduct(
+    "Premium Polo T-Shirt",
+    "Classic polo crafted from breathable cotton pique fabric.",
+    "men", "lacoste",
+    1499.0, 1199.0,
+    List.of(
+        "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=800&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1527719327859-c6ce80353573?w=800&auto=format&fit=crop"
+    ),
+    List.of(
+        variant("S", 20, "Chest 36\""),
+        variant("M", 25, "Chest 38\""),
+        variant("L", 18, "Chest 40\""),
+        variant("XL", 10, "Chest 42\"")
+    )
+);
         // Men's Slim Fit Jeans
         createProduct(
             "Slim Fit Stretch Jeans",
@@ -124,7 +145,21 @@ public class DataSeeder implements CommandLineRunner {
                 variant("XL", 7, "Waist 34\", Inseam 32\"")
             )
         );
-
+createProduct(
+    "Casual Linen Shirt",
+    "Lightweight linen shirt perfect for summer.",
+    "men", "zara",
+    2199.0, 1899.0,
+    List.of(
+        "https://images.unsplash.com/photo-1603252109303-2751441dd157?w=800&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=800&auto=format&fit=crop"
+    ),
+    List.of(
+        variant("S", 15, "Chest 37\""),
+        variant("M", 25, "Chest 39\""),
+        variant("L", 20, "Chest 41\"")
+    )
+);
         // Women's Floral Dress
         createProduct(
             "Floral Wrap Midi Dress",
@@ -143,7 +178,21 @@ public class DataSeeder implements CommandLineRunner {
                 variant("XL", 5, "Bust 40\", Waist 32\"")
             )
         );
-
+createProduct(
+    "Oversized Denim Jacket",
+    "Trendy oversized denim jacket with vintage wash.",
+    "women", "levi",
+    3499.0, 2999.0,
+    List.of(
+        "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&auto=format&fit=crop"
+    ),
+    List.of(
+        variant("S", 12, "Bust 34\""),
+        variant("M", 18, "Bust 36\""),
+        variant("L", 10, "Bust 38\"")
+    )
+);
         // Women's Oversized Hoodie
         createProduct(
             "Oversized Fleece Hoodie",
@@ -161,7 +210,21 @@ public class DataSeeder implements CommandLineRunner {
                 variant("L", 16, "Chest 46\", Length 29\"")
             )
         );
-
+createProduct(
+    "Ribbed Crop Top",
+    "Soft stretch ribbed crop top with modern fit.",
+    "women", "h&m",
+    899.0, null,
+    List.of(
+        "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800&auto=format&fit=crop"
+    ),
+    List.of(
+        variant("XS", 20, "Bust 30\""),
+        variant("S", 25, "Bust 32\""),
+        variant("M", 20, "Bust 34\"")
+    )
+);
         // Kids' Graphic Tee
         createProduct(
             "Kids Dino Graphic Tee",
@@ -199,6 +262,75 @@ public class DataSeeder implements CommandLineRunner {
                 variant("UK 11", 6, "Length 30.5cm")
             )
         );
+
+        createProduct(
+    "Urban Street Sneakers",
+    "Comfortable sneakers designed for everyday wear.",
+    "footwear", "puma",
+    3999.0, 3499.0,
+    List.of(
+        "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=800&auto=format&fit=crop"
+    ),
+    List.of(
+        variant("UK 6", 10, "25cm"),
+        variant("UK 7", 15, "26cm"),
+        variant("UK 8", 20, "27cm"),
+        variant("UK 9", 18, "28cm")
+    )
+);
+
+
+createProduct(
+    "Performance Running Shoes",
+    "Responsive cushioning and breathable mesh upper.",
+    "footwear", "adidas",
+    6999.0, 5999.0,
+    List.of(
+        "https://images.unsplash.com/photo-1543508282-6319a3e2621f?w=800&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=800&auto=format&fit=crop"
+    ),
+    List.of(
+        variant("UK 7", 10, "26cm"),
+        variant("UK 8", 15, "27cm"),
+        variant("UK 9", 12, "28cm"),
+        variant("UK 10", 8, "29cm")
+    )
+);
+
+
+createProduct(
+    "Fitness Smart Watch",
+    "Track fitness, sleep and notifications.",
+    "accessories", "apple",
+    8999.0, 7999.0,
+    List.of(
+        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=800&auto=format&fit=crop"
+    ),
+    List.of(
+        variant("42mm", 25, "Standard"),
+        variant("44mm", 20, "Large")
+    )
+);
+
+
+
+createProduct(
+    "Travel Backpack",
+    "Water-resistant backpack with laptop compartment.",
+    "accessories", "nike",
+    2499.0, 1999.0,
+    List.of(
+        "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1581605405669-fcdf81165afa?w=800&auto=format&fit=crop"
+    ),
+    List.of(
+        variant("20L", 15, "Compact"),
+        variant("30L", 20, "Standard"),
+        variant("40L", 10, "Large")
+    )
+);
 
         // Leather Belt
         createProduct(

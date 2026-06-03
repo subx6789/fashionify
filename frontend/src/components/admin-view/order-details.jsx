@@ -43,7 +43,7 @@ function AdminOrderDetailsView({ orderDetails }) {
   }
 
   return (
-    <DialogContent aria-describedby={undefined} className="sm:max-w-[600px]">
+    <DialogContent aria-describedby={undefined} className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
       <div className="grid gap-6">
         <div className="grid gap-2">
           <div className="flex mt-6 items-center justify-between">
@@ -74,7 +74,7 @@ function AdminOrderDetailsView({ orderDetails }) {
             <p className="font-medium">Order Status</p>
             <Label>
               <Badge
-                className={`py-1 px-3 ${
+                className={`py-1 px-3 text-white ${
                   orderDetails?.orderStatus === "confirmed"
                     ? "bg-green-500"
                     : orderDetails?.orderStatus === "rejected"
@@ -90,14 +90,16 @@ function AdminOrderDetailsView({ orderDetails }) {
         <Separator />
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <div className="font-medium">Order Details</div>
+            <div className="font-medium text-lg">Order Items</div>
             <ul className="grid gap-3">
               {orderDetails?.orderItems && orderDetails?.orderItems.length > 0
                 ? orderDetails?.orderItems.map((item) => (
-                    <li className="flex items-center justify-between" key={item.id || item.title}>
-                      <span>Title: {item.title || item.product?.title || 'Product'}</span>
-                      <span>Quantity: {item.quantity}</span>
-                      <span>Price: ₹{item.price}</span>
+                    <li className="flex items-center justify-between bg-muted/40 p-3 rounded-lg border border-border/50" key={item.id || item.title}>
+                      <span className="font-medium text-sm">{item.title || item.product?.title || 'Product'}</span>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span>Qty: {item.quantity}</span>
+                        <span className="font-semibold text-foreground">₹{item.price}</span>
+                      </div>
                     </li>
                   ))
                 : null}
@@ -106,14 +108,15 @@ function AdminOrderDetailsView({ orderDetails }) {
         </div>
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <div className="font-medium">Shipping Info</div>
-            <div className="grid gap-0.5 text-muted-foreground">
-              <span>{user.userName}</span>
+            <div className="font-medium text-lg">Shipping Info</div>
+            <div className="grid gap-1 text-sm text-muted-foreground bg-muted/40 p-4 rounded-lg border border-border/50">
+              <span className="font-semibold text-foreground text-base mb-1">{user.userName}</span>
               <span>{orderDetails?.addressInfo?.address}</span>
-              <span>{orderDetails?.addressInfo?.city}</span>
-              <span>{orderDetails?.addressInfo?.pincode}</span>
-              <span>{orderDetails?.addressInfo?.phone}</span>
-              <span>{orderDetails?.addressInfo?.notes}</span>
+              <span>{orderDetails?.addressInfo?.city} — {orderDetails?.addressInfo?.pincode}</span>
+              <span className="mt-1">Phone: {orderDetails?.addressInfo?.phone}</span>
+              {orderDetails?.addressInfo?.notes && (
+                <span className="italic mt-2 text-xs bg-muted/60 p-2 rounded-md">Note: {orderDetails?.addressInfo?.notes}</span>
+              )}
             </div>
           </div>
         </div>

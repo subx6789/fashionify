@@ -7,7 +7,8 @@ import { useMemo, useState } from "react";
 import { createNewOrder, confirmSimulatedOrder } from "@/store/shop/order-slice";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { ShoppingBag, MapPin, Loader2, CheckCircle } from "lucide-react";
+import { ShoppingBag, MapPin, Loader2, CheckCircle, Gift, Truck, Tag } from "lucide-react";
+import axios from "axios";
 
 function ShoppingCheckout() {
   const { cartItems } = useSelector((state) => state.shopCart);
@@ -16,6 +17,14 @@ function ShoppingCheckout() {
   const navigate = useNavigate();
   const [currentSelectedAddress, setCurrentSelectedAddress] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const [shippingMethod, setShippingMethod] = useState("standard");
+  const [isGiftWrapped, setIsGiftWrapped] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState(null);
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+  const [promoMessage, setPromoMessage] = useState({ text: "", isError: false });
+
   const dispatch = useDispatch();
   const { toast } = useToast();
 
@@ -31,6 +40,40 @@ function ShoppingCheckout() {
       0
     );
   }, [cartItems]);
+
+  const shippingCost = shippingMethod === "express" ? 100 : shippingMethod === "next-day" ? 250 : 0;
+  const giftWrapCost = isGiftWrapped ? 50 : 0;
+  const discountAmount = appliedPromo?.discountType === "PERCENTAGE" 
+    ? (totalCartAmount * appliedPromo.discountValue / 100)
+    : appliedPromo?.discountType === "FLAT" 
+      ? appliedPromo.discountValue 
+      : 0;
+  const finalTotalAmount = Math.max(0, totalCartAmount + shippingCost + giftWrapCost - discountAmount);
+
+  async function handleApplyPromo() {
+    if (!promoCode.trim()) return;
+    setIsApplyingPromo(true);
+    setPromoMessage({ text: "", isError: false });
+    try {
+      const response = await axios.post("http://localhost:8080/api/shop/order/apply-promo", { promoCode });
+      if (response.data.success) {
+        setAppliedPromo({
+          code: promoCode,
+          discountType: response.data.discountType,
+          discountValue: response.data.discountValue
+        });
+        setPromoMessage({ text: response.data.message, isError: false });
+      } else {
+        setAppliedPromo(null);
+        setPromoMessage({ text: response.data.message || "Invalid promo code", isError: true });
+      }
+    } catch (error) {
+      setAppliedPromo(null);
+      setPromoMessage({ text: "Error applying promo code", isError: true });
+    } finally {
+      setIsApplyingPromo(false);
+    }
+  }
 
   async function handlePlaceOrder() {
     if (!cartItems?.items?.length) {
@@ -51,7 +94,7 @@ function ShoppingCheckout() {
     setIsProcessing(true);
 
     const orderData = {
-      userId: user?.id,
+      user: { id: user?.id },
       cartId: cartItems?.id,
       orderItems: cartItems.items.map((singleCartItem) => ({
         productId: singleCartItem?.product?.id,
@@ -75,7 +118,12 @@ function ShoppingCheckout() {
       orderStatus: "pending_payment",
       paymentMethod: "simulated_cod",
       paymentStatus: "pending",
-      totalAmount: totalCartAmount,
+      totalAmount: finalTotalAmount,
+      shippingMethod: shippingMethod,
+      shippingCost: shippingCost,
+      isGiftWrapped: isGiftWrapped,
+      appliedPromoCode: appliedPromo?.code || null,
+      discountAmount: discountAmount,
       orderDate: new Date(),
       orderUpdateDate: new Date(),
       paymentId: "",
@@ -143,19 +191,94 @@ function ShoppingCheckout() {
                   <p className="text-muted-foreground text-center py-8">No items in cart</p>
                 )}
 
+              {/* Extras: Shipping, Gifting, Promo */}
+              <div className="space-y-4 border-t border-border pt-4 mt-2">
+                {/* Shipping Selection */}
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold flex items-center gap-2"><Truck className="h-4 w-4" /> Shipping Speed</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <label className={`cursor-pointer flex items-center justify-between p-3 border rounded-lg text-sm transition-all ${shippingMethod === "standard" ? "border-purple-600 bg-purple-50 dark:bg-purple-900/20" : "border-border"}`}>
+                      <div className="flex items-center gap-2">
+                        <input type="radio" name="shipping" value="standard" checked={shippingMethod === "standard"} onChange={(e) => setShippingMethod(e.target.value)} className="accent-purple-600" />
+                        <span>Standard</span>
+                      </div>
+                      <span className="font-medium">Free</span>
+                    </label>
+                    <label className={`cursor-pointer flex items-center justify-between p-3 border rounded-lg text-sm transition-all ${shippingMethod === "express" ? "border-purple-600 bg-purple-50 dark:bg-purple-900/20" : "border-border"}`}>
+                      <div className="flex items-center gap-2">
+                        <input type="radio" name="shipping" value="express" checked={shippingMethod === "express"} onChange={(e) => setShippingMethod(e.target.value)} className="accent-purple-600" />
+                        <span>Express</span>
+                      </div>
+                      <span className="font-medium">+₹100</span>
+                    </label>
+                    <label className={`cursor-pointer flex items-center justify-between p-3 border rounded-lg text-sm transition-all ${shippingMethod === "next-day" ? "border-purple-600 bg-purple-50 dark:bg-purple-900/20" : "border-border"}`}>
+                      <div className="flex items-center gap-2">
+                        <input type="radio" name="shipping" value="next-day" checked={shippingMethod === "next-day"} onChange={(e) => setShippingMethod(e.target.value)} className="accent-purple-600" />
+                        <span>Next-Day</span>
+                      </div>
+                      <span className="font-medium">+₹250</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Gift Wrap */}
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold flex items-center gap-2"><Gift className="h-4 w-4" /> Gift Options</h3>
+                  <label className="cursor-pointer flex items-center gap-2 p-3 border border-border rounded-lg text-sm hover:bg-muted/50 transition-colors">
+                    <input type="checkbox" checked={isGiftWrapped} onChange={(e) => setIsGiftWrapped(e.target.checked)} className="accent-purple-600 h-4 w-4 rounded" />
+                    <span className="flex-1">Add Premium Gift Wrapping</span>
+                    <span className="font-medium">+₹50</span>
+                  </label>
+                </div>
+
+                {/* Promo Code */}
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold flex items-center gap-2"><Tag className="h-4 w-4" /> Apply Promo Code</h3>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      placeholder="e.g. WELCOME10, SAVE500" 
+                      value={promoCode} 
+                      onChange={(e) => setPromoCode(e.target.value)}
+                      className="flex-1 border border-border rounded-lg px-3 py-2 text-sm bg-background uppercase focus:outline-none focus:ring-2 focus:ring-purple-600"
+                    />
+                    <Button variant="secondary" onClick={handleApplyPromo} disabled={isApplyingPromo || !promoCode.trim()}>
+                      {isApplyingPromo ? <Loader2 className="h-4 w-4 animate-spin" /> : "Apply"}
+                    </Button>
+                  </div>
+                  {promoMessage.text && (
+                    <p className={`text-xs font-medium ${promoMessage.isError ? "text-red-500" : "text-green-600"}`}>
+                      {promoMessage.text}
+                    </p>
+                  )}
+                </div>
+              </div>
+
               {/* Price breakdown */}
               <div className="border-t border-border pt-4 mt-2 space-y-2">
                 <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Subtotal ({itemCount} items)</span>
                   <span>₹{totalCartAmount}</span>
                 </div>
-                <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
-                  <span>Delivery</span>
-                  <span className="font-semibold">FREE</span>
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>Shipping ({shippingMethod})</span>
+                  <span>{shippingCost === 0 ? "Free" : `₹${shippingCost}`}</span>
                 </div>
+                {isGiftWrapped && (
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>Gift Wrapping</span>
+                    <span>₹50</span>
+                  </div>
+                )}
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-sm text-green-600 font-medium">
+                    <span>Discount ({appliedPromo.code})</span>
+                    <span>-₹{discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-lg font-bold pt-2 border-t border-border">
                   <span>Total</span>
-                  <span className="text-purple-600">₹{totalCartAmount}</span>
+                  <span className="text-purple-600">₹{finalTotalAmount.toFixed(2)}</span>
                 </div>
               </div>
 

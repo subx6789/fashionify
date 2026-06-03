@@ -1,13 +1,16 @@
 import ProductImageUpload from "@/components/admin-view/image-upload";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { addFeatureImage, getFeatureImages } from "@/store/common-slice";
+import { addFeatureImage, getFeatureImages, deleteFeatureImage, editFeatureImage } from "@/store/common-slice";
 import { fetchLowStockProducts } from "@/store/admin/products-slice";
 import { fetchAnalytics } from "@/store/admin/analytics-slice";
 import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
-import { AlertTriangle, Package, TrendingUp, ShoppingBag, Users, IndianRupee, Heart, BarChart3, Loader2, Calendar } from "lucide-react";
+import { AlertTriangle, Package, TrendingUp, ShoppingBag, Users, IndianRupee, Heart, BarChart3, Loader2, Calendar, Edit2, Trash2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import {
   LineChart,
@@ -116,6 +119,9 @@ function AdminDashboard() {
   const [customRange, setCustomRange] = useState({ start: "", end: "" });
   const [showCustomPicker, setShowCustomPicker] = useState(false);
 
+  const [editingSlide, setEditingSlide] = useState(null);
+  const [editDates, setEditDates] = useState({ startDate: "", endDate: "" });
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { featureImageList } = useSelector((state) => state.commonFeature);
@@ -151,6 +157,22 @@ function AdminDashboard() {
         setImageFiles([]);
         setUploadedImageUrls([]);
       }
+    });
+  }
+
+  function handleDeleteSlide(id) {
+    if (window.confirm("Are you sure you want to delete this slide?")) {
+      dispatch(deleteFeatureImage(id)).then(() => {
+        dispatch(getFeatureImages());
+      });
+    }
+  }
+
+  function handleEditSlide() {
+    if (!editingSlide) return;
+    dispatch(editFeatureImage({ id: editingSlide.id, ...editDates })).then(() => {
+      dispatch(getFeatureImages());
+      setEditingSlide(null);
     });
   }
 
@@ -441,8 +463,34 @@ function AdminDashboard() {
                       className="w-full h-[200px] object-cover transition-transform duration-300 group-hover:scale-105"
                       alt={`Feature ${idx + 1}`}
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="text-white font-medium">Active</span>
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
+                      <div className="flex gap-2">
+                        <Button 
+                          size="icon" 
+                          variant="secondary" 
+                          onClick={() => {
+                            setEditingSlide(featureImgItem);
+                            setEditDates({
+                              startDate: featureImgItem.startDate || "",
+                              endDate: featureImgItem.endDate || ""
+                            });
+                          }}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          size="icon" 
+                          variant="destructive"
+                          onClick={() => handleDeleteSlide(featureImgItem.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <span className="text-white font-medium text-xs text-center px-2">
+                        {featureImgItem.startDate || featureImgItem.endDate 
+                          ? `Active: ${featureImgItem.startDate || 'Any'} to ${featureImgItem.endDate || 'Any'}` 
+                          : 'Always Active'}
+                      </span>
                     </div>
                   </motion.div>
                 ))
@@ -450,6 +498,37 @@ function AdminDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      <Dialog open={!!editingSlide} onOpenChange={(open) => !open && setEditingSlide(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Slide Active Dates</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Start Date</Label>
+              <Input 
+                type="date" 
+                value={editDates.startDate} 
+                onChange={(e) => setEditDates(prev => ({...prev, startDate: e.target.value}))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>End Date</Label>
+              <Input 
+                type="date" 
+                value={editDates.endDate} 
+                onChange={(e) => setEditDates(prev => ({...prev, endDate: e.target.value}))}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">Leave dates empty to make the slide always active.</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingSlide(null)}>Cancel</Button>
+            <Button onClick={handleEditSlide}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

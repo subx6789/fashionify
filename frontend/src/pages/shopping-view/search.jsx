@@ -1,18 +1,17 @@
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+
 import { useToast } from "@/components/ui/use-toast";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
-import { fetchProductDetails } from "@/store/shop/products-slice";
 import { getSearchResults, resetSearchResults } from "@/store/shop/search-slice";
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Search, X, Loader2 } from "lucide-react";
+import { Search} from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function SearchProducts() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [keyword, setKeyword] = useState(searchParams.get("keyword") || "");
+  const [searchParams] = useSearchParams();
+  const keyword = searchParams.get("keyword") || "";
   const dispatch = useDispatch();
   const { searchResults, isLoading } = useSelector((state) => state.shopSearch);
   const { user } = useSelector((state) => state.auth);
@@ -20,41 +19,14 @@ function SearchProducts() {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const debounceRef = useRef(null);
 
-  // When keyword changes: if empty → reset immediately; else debounce API call
   useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-
-    if (!keyword.trim()) {
-      // Immediate reset — no stale results
-      dispatch(resetSearchResults());
-      setSearchParams(new URLSearchParams());
-      return;
-    }
-
-    debounceRef.current = setTimeout(() => {
-      setSearchParams(new URLSearchParams(`?keyword=${encodeURIComponent(keyword)}`));
+    if (keyword && keyword.trim() !== "") {
       dispatch(getSearchResults(keyword));
-    }, 400);
-
-    return () => clearTimeout(debounceRef.current);
-  }, [keyword, dispatch]);
-
-  // Sync state if URL changes from outside (e.g. header SearchBar)
-  useEffect(() => {
-    const urlKeyword = searchParams.get("keyword") || "";
-    if (urlKeyword !== keyword) {
-      setKeyword(urlKeyword);
+    } else {
+      dispatch(resetSearchResults());
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
-
-  function handleClear() {
-    setKeyword("");
-    dispatch(resetSearchResults());
-    setSearchParams(new URLSearchParams());
-  }
+  }, [keyword, dispatch]);
 
   function handleAddtoCart(getCurrentProductId, getTotalStock) {
     if (!isAuthenticated) {
@@ -96,37 +68,35 @@ function SearchProducts() {
 
   return (
     <div className="container mx-auto md:px-6 px-4 py-8">
-      {/* Search input */}
-      <div className="flex justify-center mb-8">
-        <div className="w-full max-w-2xl relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
-          <Input
-            value={keyword}
-            name="keyword"
-            onChange={(e) => setKeyword(e.target.value)}
-            className="pl-11 pr-10 py-6 text-base rounded-xl border-border focus-visible:ring-purple-500 bg-card shadow-sm"
-            placeholder="Search Products..."
-            autoFocus
-          />
-          {/* Clear button — only visible when there is text */}
-          {keyword && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleClear}
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              aria-label="Clear search"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-      </div>
+
 
       {/* Loading indicator */}
       {isLoading && (
-        <div className="flex justify-center items-center py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="w-full mx-auto flex flex-col h-[480px] border border-muted/50 rounded-xl overflow-hidden bg-card/50 shadow-sm">
+              <Skeleton className="w-full h-[300px] rounded-none bg-muted/60" />
+              <div className="p-4 flex-1 flex flex-col gap-3">
+                <Skeleton className="h-5 w-3/4 bg-muted/60" />
+                <div className="flex justify-between items-center mt-1">
+                  <Skeleton className="h-4 w-1/3 bg-muted/60" />
+                  <Skeleton className="h-4 w-1/3 bg-muted/60" />
+                </div>
+                <div className="flex justify-between items-center mt-1">
+                  <Skeleton className="h-5 w-1/4 bg-muted/60" />
+                  <Skeleton className="h-5 w-1/4 bg-muted/60" />
+                </div>
+                <div className="flex gap-2 mt-auto">
+                  <Skeleton className="h-4 w-8 bg-muted/60" />
+                  <Skeleton className="h-4 w-8 bg-muted/60" />
+                  <Skeleton className="h-4 w-8 bg-muted/60" />
+                </div>
+              </div>
+              <div className="px-4 pb-4">
+                <Skeleton className="h-10 w-full bg-muted/60 rounded-md" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

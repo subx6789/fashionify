@@ -94,6 +94,38 @@ export const checkAuth = createAsyncThunk(
   }
 );
 
+export const updatePreferences = createAsyncThunk(
+  "/auth/updatePreferences",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        "http://localhost:8080/api/auth/update-preferences",
+        formData,
+        { withCredentials: true }
+      );
+      return { ...response.data, formData };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: "An error occurred" });
+    }
+  }
+);
+
+export const updatePassword = createAsyncThunk(
+  "/auth/updatePassword",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        "http://localhost:8080/api/auth/update-password",
+        formData,
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: "An error occurred" });
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -164,6 +196,11 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
+      })
+      .addCase(updatePreferences.fulfilled, (state, action) => {
+        if (state.user && action.payload.success) {
+          state.user = { ...state.user, ...action.payload.formData };
+        }
       });
   },
 });

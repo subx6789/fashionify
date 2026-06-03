@@ -38,11 +38,14 @@ function SearchBar({ isMobile }) {
   // Sync input when navigating to/from search page
   useEffect(() => {
     if (location.pathname === "/shop/search") {
-      setKeyword(searchParams.get("keyword") || "");
+      // Only set keyword from URL if it's currently empty, so we don't interrupt active typing
+      const urlKeyword = searchParams.get("keyword") || "";
+      setKeyword((prev) => prev ? prev : urlKeyword);
     } else {
       setKeyword("");
     }
-  }, [location.pathname, searchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -182,9 +185,7 @@ function HeaderRightContent() {
           <div className="flex flex-col items-center justify-center cursor-pointer group pt-1 outline-none">
             {isAuthenticated ? (
               <Avatar className="h-6 w-6 bg-purple-600 hover:bg-purple-700 shadow-md shadow-purple-500/30 transition-transform hover:scale-105 mb-0.5">
-                {user?.avatar && (
-                  <AvatarImage src={`https://api.dicebear.com/9.x/micah/svg?seed=${user.avatar}&backgroundColor=transparent`} alt="User Avatar" />
-                )}
+                <AvatarImage src={`https://api.dicebear.com/9.x/micah/svg?seed=${user?.avatar || user?.userName || "Fashion"}&backgroundColor=transparent`} alt="User Avatar" />
                 <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white font-bold text-[10px]">
                   {user?.userName?.[0]?.toUpperCase() || "U"}
                 </AvatarFallback>

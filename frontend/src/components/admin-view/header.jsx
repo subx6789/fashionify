@@ -46,12 +46,10 @@ function AdminHeader({ setOpen }) {
           Logout
         </Button>
         <Avatar className="cursor-pointer border-2 border-border ml-2">
-          {user?.avatar && (
-            <AvatarImage
-              src={`https://api.dicebear.com/9.x/micah/svg?seed=${user.avatar}&backgroundColor=transparent`}
-              alt="User Avatar"
-            />
-          )}
+          <AvatarImage
+            src={`https://api.dicebear.com/9.x/micah/svg?seed=${user?.avatar || user?.userName || "Fashion"}&backgroundColor=transparent`}
+            alt="User Avatar"
+          />
           <AvatarFallback className="bg-primary text-primary-foreground font-bold">
             {user?.userName?.[0]?.toUpperCase() || "A"}
           </AvatarFallback>
