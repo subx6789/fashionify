@@ -63,7 +63,7 @@ function ShoppingAbout() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-5xl md:text-6xl font-extrabold text-gradient tracking-tight"
+          className="text-5xl md:text-6xl font-extrabold dark:text-gradient tracking-tight"
         >
           Our Story
         </motion.h1>
@@ -91,9 +91,9 @@ function ShoppingAbout() {
           viewport={{ once: true }}
           className="space-y-6"
         >
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gradient">Why Choose Fashionify?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight dark:text-gradient">Why Choose Fashionify?</h2>
           <p className="text-muted-foreground text-lg leading-relaxed">
-            We don't just sell clothes; we provide a curated lifestyle experience. Our styling experts work around the clock to source the finest materials from trusted global artisans. 
+            We don't just sell clothes; we provide a curated lifestyle experience. Our styling experts work around the clock to source the finest materials from trusted global artisans.
           </p>
           <p className="text-muted-foreground text-lg leading-relaxed">
             Whether you are upgrading your daily streetwear, seeking the perfect statement piece for an evening gala, or stepping out in comfortable yet stylish footwear, our platform guarantees an industrial-grade shopping experience with enterprise-level customer support.
@@ -147,7 +147,7 @@ function ShoppingAbout() {
       </div>
 
       {/* FAQ Section */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -155,10 +155,10 @@ function ShoppingAbout() {
         className="max-w-3xl mx-auto space-y-8"
       >
         <div className="text-center space-y-3">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gradient">Frequently Asked Questions</h2>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight dark:text-gradient">Frequently Asked Questions</h2>
           <p className="text-muted-foreground text-lg">Got questions? We've got answers.</p>
         </div>
-        
+
         <div className="space-y-3">
           {faqs.map((faq, index) => (
             <FAQItem

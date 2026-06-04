@@ -81,7 +81,7 @@ function StatCard({ title, value, desc, icon: Icon, color, delay }) {
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
           <div className={`p-2 rounded-lg ${color}`}>
-            <Icon className="h-4 w-4 text-white" />
+            <Icon className="h-4 w-4" />
           </div>
         </CardHeader>
         <CardContent>
@@ -246,11 +246,10 @@ function AdminDashboard() {
               setActivePreset(p.id);
               setShowCustomPicker(false);
             }}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-              activePreset === p.id
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-            }`}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${activePreset === p.id
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+              }`}
           >
             {p.label}
           </button>
@@ -260,11 +259,10 @@ function AdminDashboard() {
             setActivePreset("custom");
             setShowCustomPicker(true);
           }}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-            activePreset === "custom"
-              ? "bg-primary text-primary-foreground shadow-sm"
-              : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-          }`}
+          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${activePreset === "custom"
+            ? "bg-primary text-primary-foreground shadow-sm"
+            : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+            }`}
         >
           Custom range
         </button>
@@ -451,50 +449,50 @@ function AdminDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
             {featureImageList && featureImageList.length > 0
               ? featureImageList.map((featureImgItem, idx) => (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="relative overflow-hidden rounded-xl shadow-sm group"
-                    key={idx}
-                  >
-                    <img
-                      src={featureImgItem.image}
-                      className="w-full h-[200px] object-cover transition-transform duration-300 group-hover:scale-105"
-                      alt={`Feature ${idx + 1}`}
-                    />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
-                      <div className="flex gap-2">
-                        <Button 
-                          size="icon" 
-                          variant="secondary" 
-                          onClick={() => {
-                            setEditingSlide(featureImgItem);
-                            setEditDates({
-                              startDate: featureImgItem.startDate || "",
-                              endDate: featureImgItem.endDate || "",
-                              linkUrl: featureImgItem.linkUrl || ""
-                            });
-                          }}
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          size="icon" 
-                          variant="destructive"
-                          onClick={() => handleDeleteSlide(featureImgItem.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <span className="text-white font-medium text-xs text-center px-2">
-                        {featureImgItem.startDate || featureImgItem.endDate 
-                          ? `Active: ${featureImgItem.startDate || 'Any'} to ${featureImgItem.endDate || 'Any'}` 
-                          : 'Always Active'}
-                      </span>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="relative overflow-hidden rounded-xl shadow-sm group"
+                  key={idx}
+                >
+                  <img
+                    src={featureImgItem.image}
+                    className="w-full h-[200px] object-cover transition-transform duration-300 group-hover:scale-105"
+                    alt={`Feature ${idx + 1}`}
+                  />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
+                    <div className="flex gap-2">
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        onClick={() => {
+                          setEditingSlide(featureImgItem);
+                          setEditDates({
+                            startDate: featureImgItem.startDate || "",
+                            endDate: featureImgItem.endDate || "",
+                            linkUrl: featureImgItem.linkUrl || ""
+                          });
+                        }}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        onClick={() => handleDeleteSlide(featureImgItem.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                  </motion.div>
-                ))
+                    <span className="text-white font-medium text-xs text-center px-2">
+                      {featureImgItem.startDate || featureImgItem.endDate
+                        ? `Active: ${featureImgItem.startDate || 'Any'} to ${featureImgItem.endDate || 'Any'}`
+                        : 'Always Active'}
+                    </span>
+                  </div>
+                </motion.div>
+              ))
               : null}
           </div>
         </CardContent>
@@ -508,27 +506,27 @@ function AdminDashboard() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Start Date</Label>
-              <Input 
-                type="date" 
-                value={editDates.startDate} 
-                onChange={(e) => setEditDates(prev => ({...prev, startDate: e.target.value}))}
+              <Input
+                type="date"
+                value={editDates.startDate}
+                onChange={(e) => setEditDates(prev => ({ ...prev, startDate: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
               <Label>End Date</Label>
-              <Input 
-                type="date" 
-                value={editDates.endDate} 
-                onChange={(e) => setEditDates(prev => ({...prev, endDate: e.target.value}))}
+              <Input
+                type="date"
+                value={editDates.endDate}
+                onChange={(e) => setEditDates(prev => ({ ...prev, endDate: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
               <Label>Link URL (Optional)</Label>
-              <Input 
-                type="text" 
+              <Input
+                type="text"
                 placeholder="/shop/listing?category=men"
-                value={editDates.linkUrl} 
-                onChange={(e) => setEditDates(prev => ({...prev, linkUrl: e.target.value}))}
+                value={editDates.linkUrl}
+                onChange={(e) => setEditDates(prev => ({ ...prev, linkUrl: e.target.value }))}
               />
             </div>
             <p className="text-xs text-muted-foreground">Leave dates empty to make the slide always active. Add a link URL to make the slide clickable.</p>

@@ -252,7 +252,7 @@ function ShoppingHome() {
               <img
                 src={slides[currentSlide]?.image}
                 alt="Banner"
-                className={`w-full h-full object-cover object-top ${slides[currentSlide]?.linkUrl ? 'cursor-pointer' : ''}`}
+                className={`w-full h-full object-cover object-fill ${slides[currentSlide]?.linkUrl ? 'cursor-pointer' : ''}`}
                 onClick={() => {
                   if (slides[currentSlide]?.linkUrl) {
                     navigate(slides[currentSlide].linkUrl);
@@ -289,42 +289,6 @@ function ShoppingHome() {
         </Button>
       </div>
 
-      {/* Shop Smart, Save Bigger */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl sm:text-5xl font-extrabold text-center mb-12 uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-primary to-primary-dark dark:from-red-400 dark:via-primary dark:to-primary-dark">
-            Shop Smart, Save Bigger
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            {[
-              { price: "499", label: "UNDER ₹499", color: "from-primary to-primary-dark", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=300&auto=format&fit=crop" },
-              { price: "699", label: "UNDER ₹699", color: "from-primary to-primary-dark", image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=300&auto=format&fit=crop" },
-              { price: "999", label: "UNDER ₹999", color: "from-amber-500 to-orange-600", image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=300&auto=format&fit=crop" },
-              { price: "1499", label: "UNDER ₹1499", color: "from-emerald-500 to-teal-600", image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=300&auto=format&fit=crop" }
-            ].map((deal, i) => (
-              <motion.div
-                key={i}
-                whileHover={{ y: -8 }}
-                onClick={() => navigate('/shop/listing')}
-                className="group cursor-pointer relative rounded-2xl overflow-hidden border-2 border-transparent hover:border-primary/50 transition-all shadow-lg shadow-black/5"
-              >
-                <div className={`absolute top-0 left-0 w-full py-2 bg-gradient-to-r ${deal.color} text-white text-center font-extrabold tracking-widest text-sm z-10 shadow-sm`}>
-                  {deal.label}
-                </div>
-                <div className="h-64 sm:h-80 w-full overflow-hidden bg-muted">
-                  <img src={deal.image} alt={deal.label} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                </div>
-                <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/80 to-transparent">
-                  <p className="text-white font-bold text-lg flex items-center gap-1 group-hover:text-primary-soft transition-colors">
-                    Explore <ChevronRightIcon className="w-5 h-5" />
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Shop the Look Section */}
       {outfits.length > 0 && (
         <section className="py-16 bg-muted/20">
@@ -337,8 +301,8 @@ function ShoppingHome() {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {outfits.map((outfit) => (
-                <div 
-                  key={outfit.id} 
+                <div
+                  key={outfit.id}
                   onClick={() => navigate(`/shop/outfit/${outfit.id}`)}
                   className="bg-card rounded-2xl border shadow-sm overflow-hidden flex flex-col group cursor-pointer"
                 >
@@ -388,7 +352,7 @@ function ShoppingHome() {
 
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-extrabold text-center mb-12 text-gradient">
+          <h2 className="text-4xl font-extrabold text-center mb-12 dark:text-gradient">
             Shop by Category
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
@@ -421,7 +385,7 @@ function ShoppingHome() {
 
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-extrabold text-center mb-12 text-gradient">Shop by Brand</h2>
+          <h2 className="text-4xl font-extrabold text-center mb-12 dark:text-gradient">Shop by Brand</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             {brandsWithIcon.map((brandItem, index) => (
               <motion.div
@@ -450,7 +414,7 @@ function ShoppingHome() {
 
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-extrabold text-center mb-12 text-gradient">
+          <h2 className="text-4xl font-extrabold text-center mb-12 dark:text-gradient">
             Featured Products
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
@@ -469,86 +433,69 @@ function ShoppingHome() {
       {/* Customer Reviews Section */}
       <section className="py-20 bg-muted/40 relative overflow-hidden">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-extrabold text-center mb-16 text-gradient">What Our Customers Say</h2>
+          <h2 className="text-4xl font-extrabold text-center mb-16 dark:text-gradient">What Our Customers Say</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {(latestReviews && latestReviews.length > 0 ? latestReviews : [
               { userName: "Sarah J.", verifiedPurchase: true, reviewMessage: "Absolutely love the quality of the clothes! The shipping was incredibly fast and everything fit perfectly.", reviewValue: 5 },
               { userName: "Mike T.", verifiedPurchase: true, reviewMessage: "The modern aesthetic of the brand really stands out. Customer service was also very helpful when I needed to exchange a size.", reviewValue: 5 },
               { userName: "Emily R.", verifiedPurchase: true, reviewMessage: "My go-to store for trendy and comfortable wear. The prices are unbeatable for this level of premium quality.", reviewValue: 5 }
             ]).map((review, i) => (
-                <motion.div
-                  key={review.id || i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  <Card className="card-gradient card-gradient-hover p-8 text-center space-y-4 border-t-2 border-primary-border h-full flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-center space-x-1 mb-4">
-                        {[...Array(5)].map((_, idx) => (
-                          <svg key={idx} className={`w-6 h-6 fill-current ${idx < review.reviewValue ? "text-yellow-500" : "text-gray-600"}`} viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                        ))}
-                      </div>
-                      <p className="text-muted-foreground italic text-lg leading-relaxed mb-6">"{review.reviewMessage}"</p>
+              <motion.div
+                key={review.id || i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <Card className="card-gradient card-gradient-hover p-8 text-center space-y-4 border-t-2 border-primary-border h-full flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-center space-x-1 mb-4">
+                      {[...Array(5)].map((_, idx) => (
+                        <svg key={idx} className={`w-6 h-6 fill-current ${idx < review.reviewValue ? "text-yellow-500" : "text-gray-600"}`} viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                      ))}
                     </div>
+                    <p className="text-muted-foreground italic text-lg leading-relaxed mb-6">"{review.reviewMessage}"</p>
+                  </div>
 
-                    <div className="border-t border-border/50 pt-4 mt-auto">
-                      {review.productId && (
-                        <div className="flex items-center gap-3 mb-4 bg-background/50 p-2 rounded-lg cursor-pointer hover:bg-background/80 transition-colors" onClick={() => navigate(`/shop/product/${review.productId}`)}>
-                          {review.productImage ? (
-                            <img src={review.productImage} alt={review.productTitle} className="w-10 h-10 object-cover rounded-md" />
-                          ) : (
-                            <div className="w-10 h-10 bg-muted rounded-md flex items-center justify-center"><ShoppingBasket className="w-5 h-5 text-muted-foreground" /></div>
-                          )}
-                          <div className="text-left flex-1 min-w-0">
-                            <p className="text-xs text-muted-foreground">Reviewing</p>
-                            <p className="text-sm font-semibold truncate text-foreground">{review.productTitle}</p>
-                          </div>
-                        </div>
-                      )}
-                      <div className="flex items-center justify-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-lg overflow-hidden shrink-0">
-                          <img 
-                            src={`https://api.dicebear.com/9.x/micah/svg?seed=${review.userAvatar || review.userName || "Fashion"}&backgroundColor=transparent`}
-                            alt={review.userName} 
-                            className="w-full h-full object-cover" 
-                          />
-                        </div>
-                        <div className="text-left flex-1">
-                          <h4 className="font-bold text-base text-foreground leading-tight">{review.userName}</h4>
-                          {review.verifiedPurchase && (
-                            <span className="text-[10px] text-green-700 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full font-bold uppercase tracking-wide inline-flex items-center gap-1 mt-1">
-                              <CheckCircle2 className="w-3 h-3" />
-                              Verified Buyer
-                            </span>
-                          )}
+                  <div className="border-t border-border/50 pt-4 mt-auto">
+                    {review.productId && (
+                      <div className="flex items-center gap-3 mb-4 bg-background/50 p-2 rounded-lg cursor-pointer hover:bg-background/80 transition-colors" onClick={() => navigate(`/shop/product/${review.productId}`)}>
+                        {review.productImage ? (
+                          <img src={review.productImage} alt={review.productTitle} className="w-10 h-10 object-cover rounded-md" />
+                        ) : (
+                          <div className="w-10 h-10 bg-muted rounded-md flex items-center justify-center"><ShoppingBasket className="w-5 h-5 text-muted-foreground" /></div>
+                        )}
+                        <div className="text-left flex-1 min-w-0">
+                          <p className="text-xs text-muted-foreground">Reviewing</p>
+                          <p className="text-sm font-semibold truncate text-foreground">{review.productTitle}</p>
                         </div>
                       </div>
+                    )}
+                    <div className="flex items-center justify-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-lg overflow-hidden shrink-0">
+                        <img
+                          src={`https://api.dicebear.com/9.x/micah/svg?seed=${review.userAvatar || review.userName || "Fashion"}&backgroundColor=transparent`}
+                          alt={review.userName}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="text-left flex-1">
+                        <h4 className="font-bold text-base text-foreground leading-tight">{review.userName}</h4>
+                        {review.verifiedPurchase && (
+                          <span className="text-[10px] text-green-700 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full font-bold uppercase tracking-wide inline-flex items-center gap-1 mt-1">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Verified Buyer
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </Card>
-                </motion.div>
-              ))}
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
-
-      {/* Newsletter / Contact Section */}
-      <section className="py-24 bg-card border-t border-border text-foreground">
-        <div className="container mx-auto px-4 text-center max-w-3xl space-y-8">
-          <h2 className="text-5xl font-extrabold tracking-tight text-foreground">Join the Fashionify Club</h2>
-          <p className="text-muted-foreground text-lg max-w-xl mx-auto">Subscribe to our newsletter to unlock 15% off your first order, plus updates on our latest offers and exclusive arrivals.</p>
-          <div className="flex flex-col sm:flex-row w-full max-w-md mx-auto items-center gap-3">
-            <input
-              type="email"
-              placeholder="Enter your email address"
-              className="flex h-12 w-full rounded-xl border border-input bg-background px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-sm"
-            />
-            <Button className="w-full sm:w-auto h-12 px-8 bg-primary hover:bg-primary/90 rounded-xl text-primary-foreground font-bold shadow-sm">Subscribe</Button>
-          </div>
-        </div>
-      </section>
-
     </div>
   );
 }

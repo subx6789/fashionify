@@ -35,7 +35,7 @@ function ShoppingContact() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-5xl font-extrabold text-gradient tracking-tight"
+          className="text-5xl font-extrabold dark:text-gradient tracking-tight"
         >
           Get in Touch
         </motion.h1>
@@ -161,10 +161,10 @@ function ShoppingContact() {
                     />
                   </div>
 
-                  <Button
+                  <button
                     disabled={isSubmitting}
                     type="submit"
-                    className="w-full sm:w-auto h-12 px-8 bg-gradient-premium bg-gradient-premium-hover !text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/25 flex items-center justify-center gap-2 hover:scale-[1.01] transition-transform"
+                    className="neu-btn-primary w-full sm:w-auto h-12 px-8 flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
                   >
                     {isSubmitting ? (
                       "Sending..."
@@ -174,7 +174,7 @@ function ShoppingContact() {
                         <Send className="w-4 h-4" />
                       </>
                     )}
-                  </Button>
+                  </button>
                 </form>
               </CardContent>
             </Card>
