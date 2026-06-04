@@ -252,7 +252,7 @@ function ShoppingHome() {
               <img
                 src={slides[currentSlide]?.image}
                 alt="Banner"
-                className={`w-full h-full object-cover object-fill ${slides[currentSlide]?.linkUrl ? 'cursor-pointer' : ''}`}
+                className={`w-full h-full object-cover ${slides[currentSlide]?.linkUrl ? 'cursor-pointer' : ''}`}
                 onClick={() => {
                   if (slides[currentSlide]?.linkUrl) {
                     navigate(slides[currentSlide].linkUrl);
@@ -371,7 +371,7 @@ function ShoppingHome() {
                   className="cursor-pointer card-gradient card-gradient-hover group overflow-hidden border-t-2 border-primary-border"
                 >
                   <CardContent className="flex flex-col items-center justify-center p-8">
-                    <div className="w-16 h-16 mb-4 rounded-full bg-gradient-brand text-primary-foreground flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 transition-transform group-hover:scale-110">
+                    <div className="w-16 h-16 mb-4 rounded-full bg-gradient-brand text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/20 transition-transform group-hover:scale-110">
                       <categoryItem.icon className="w-8 h-8" />
                     </div>
                     <span className="font-bold text-lg group-hover:text-primary transition-colors">{categoryItem.label}</span>
@@ -400,7 +400,7 @@ function ShoppingHome() {
                   className="cursor-pointer card-gradient card-gradient-hover group overflow-hidden border-t-2 border-primary-border"
                 >
                   <CardContent className="flex flex-col items-center justify-center p-8">
-                    <div className="w-16 h-16 mb-4 rounded-full bg-gradient-brand text-primary-foreground flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 transition-transform group-hover:scale-110">
+                    <div className="w-16 h-16 mb-4 rounded-full bg-gradient-brand text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/20 transition-transform group-hover:scale-110">
                       <brandItem.icon className="w-8 h-8" />
                     </div>
                     <span className="font-bold text-lg group-hover:text-primary transition-colors">{brandItem.label}</span>
