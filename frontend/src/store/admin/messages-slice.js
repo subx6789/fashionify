@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const BASE = "/api/admin/messages";
+const BASE = (import.meta.env.VITE_API_URL || "") + "/api/admin/messages";
 
 // ── Async thunks ─────────────────────────────────────────────────────────────
 

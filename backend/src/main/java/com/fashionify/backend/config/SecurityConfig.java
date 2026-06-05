@@ -68,8 +68,10 @@ public class SecurityConfig {
                             .requestMatchers("/api/common/feature/get").permitAll()
                             .requestMatchers("/api/shop/review/**").permitAll()
                             .requestMatchers("/api/admin/products/upload-image").permitAll()
-                            // Public contact form endpoint — no auth required
-                            .requestMatchers("/api/contact").permitAll()
+                            // Public endpoints — no auth required
+                            .requestMatchers("/api/contact", "/api/contact/**").permitAll()
+                            .requestMatchers("/api/newsletter", "/api/newsletter/**").permitAll()
+                            .requestMatchers("/error").permitAll()
                             .anyRequest().authenticated()
                 );
         

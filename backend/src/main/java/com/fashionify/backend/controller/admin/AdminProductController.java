@@ -7,6 +7,7 @@ import com.fashionify.backend.repository.ProductSizeVariantRepository;
 import com.fashionify.backend.repository.WaitlistRepository;
 import com.fashionify.backend.entity.Waitlist;
 import com.fashionify.backend.service.CloudinaryService;
+import com.fashionify.backend.service.EmailService;
 import com.fashionify.backend.service.TagMigrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,9 @@ public class AdminProductController {
 
     @Autowired
     private CloudinaryService cloudinaryService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private TagMigrationService tagMigrationService;
@@ -115,8 +119,11 @@ public class AdminProductController {
                         for (Waitlist wl : waitlistedUsers) {
                             wl.setIsNotified(true);
                             waitlistRepository.save(wl);
-                            // In a real app, send an email here!
+                            // Send an email here!
                             System.out.println("NOTIFYING " + wl.getEmail() + " THAT " + saved.getTitle() + " SIZE " + size + " IS BACK IN STOCK!");
+                            String subject = "Your waitlisted item is back in stock!";
+                            String text = String.format("Good news! The item %s (Size: %s) is now back in stock. Grab it before it's gone!", saved.getTitle(), size);
+                            emailService.sendSimpleEmail(wl.getEmail(), subject, text);
                         }
                     }
                 }

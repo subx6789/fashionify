@@ -5,6 +5,7 @@ import UserCartItemsContent from "@/components/shopping-view/cart-items-content"
 import { Button } from "@/components/ui/button";
 import { useMemo, useState } from "react";
 import { createNewOrder, confirmSimulatedOrder } from "@/store/shop/order-slice";
+import { fetchCartItems } from "@/store/shop/cart-slice";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { ShoppingBag, MapPin, Loader2, CheckCircle, Gift, Truck, Tag } from "lucide-react";
@@ -146,6 +147,8 @@ function ShoppingCheckout() {
     const orderId = createResult.payload.orderId;
     const confirmResult = await dispatch(confirmSimulatedOrder(orderId));
     if (confirmResult?.payload?.success) {
+      // Sync the Redux cart state — backend has cleared the cart DB record
+      dispatch(fetchCartItems(user?.id));
       toast({ title: "🎉 Order placed successfully!" });
       navigate("/shop/payment-success");
     } else {

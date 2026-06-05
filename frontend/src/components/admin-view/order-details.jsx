@@ -6,7 +6,6 @@ import { Separator } from "../ui/separator";
 import { Badge } from "../ui/badge";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getAllOrdersForAdmin,
   getOrderDetailsForAdmin,
   updateOrderStatus,
 } from "@/store/admin/order-slice";
@@ -22,7 +21,6 @@ function AdminOrderDetailsView({ orderDetails }) {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
-  console.log(orderDetails, "orderDetailsorderDetails");
 
   function handleUpdateStatus(event) {
     event.preventDefault();
@@ -32,11 +30,11 @@ function AdminOrderDetailsView({ orderDetails }) {
       updateOrderStatus({ id: orderDetails?.id, orderStatus: status })
     ).then((data) => {
       if (data?.payload?.success) {
+        // Optimistic update already applied in the slice — just refresh details
         dispatch(getOrderDetailsForAdmin(orderDetails?.id));
-        dispatch(getAllOrdersForAdmin());
         setFormData(initialFormData);
         toast({
-          title: data?.payload?.message,
+          title: data?.payload?.message || "Order status updated!",
         });
       }
     });

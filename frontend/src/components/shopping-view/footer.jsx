@@ -1,15 +1,42 @@
 import { Link } from "react-router-dom";
-import { Facebook, Twitter, Instagram, Youtube } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube, Send } from "lucide-react";
 import BrandLogo from "@/components/common/BrandLogo";
+import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import axios from "axios";
 
 function ShoppingFooter() {
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    setIsSubmitting(true);
+    try {
+      const res = await axios.post((import.meta.env.VITE_API_URL || "") + "/api/newsletter/subscribe", { email });
+      if (res.data.success) {
+        toast({ title: "Success", description: res.data.message });
+        setEmail("");
+      } else {
+        toast({ title: "Error", description: res.data.message, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to subscribe. Please try again.", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <footer className="bg-background border-t-2 border-border">
       {/* Accent bar */}
       <div className="h-1 w-full bg-primary" />
 
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="space-y-4">
             <div className="group">
@@ -82,6 +109,31 @@ function ShoppingFooter() {
                 </li>
               ))}
             </ul>
+          </div>
+
+          {/* Newsletter */}
+          <div>
+            <h3 className="font-heading font-black mb-4 uppercase tracking-wider text-sm">Newsletter</h3>
+            <p className="text-sm text-muted-foreground font-body mb-4">
+              Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.
+            </p>
+            <form onSubmit={handleSubscribe} className="flex gap-2">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="flex-1 bg-background border-2 border-border p-2 text-sm focus:outline-none focus:border-primary font-body"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-primary text-primary-foreground p-2 border-2 border-primary hover:bg-background hover:text-primary transition-colors disabled:opacity-50"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </form>
           </div>
         </div>
 

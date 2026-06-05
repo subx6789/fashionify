@@ -18,6 +18,9 @@ public class AdminOrderController {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private com.fashionify.backend.service.EmailService emailService;
+
     @GetMapping("/get")
     public ResponseEntity<?> getAllOrdersForAdmin() {
         List<Order> orders = orderRepository.findAll();
@@ -38,9 +41,27 @@ public class AdminOrderController {
         Optional<Order> optionalOrder = orderRepository.findById(id);
         if (optionalOrder.isPresent()) {
             Order order = optionalOrder.get();
-            order.setOrderStatus(statusMap.get("orderStatus"));
+            String newStatus = statusMap.get("orderStatus");
+            order.setOrderStatus(newStatus);
             order.setOrderUpdateDate(LocalDateTime.now());
             orderRepository.save(order);
+            
+            // Send email notification for important status updates
+            if ("delivered".equalsIgnoreCase(newStatus)) {
+                String subject = "Your Fashionify Order has been Delivered!";
+                String text = "Hi " + order.getUser().getUserName() + ",\n\n" +
+                              "Great news! Your order #" + order.getId() + " has been successfully delivered. " +
+                              "We hope you love your new items!\n\n" +
+                              "Thank you for shopping with Fashionify!";
+                emailService.sendSimpleEmail(order.getUser().getEmail(), subject, text);
+            } else if ("shipped".equalsIgnoreCase(newStatus) || "in transit".equalsIgnoreCase(newStatus)) {
+                String subject = "Your Fashionify Order is on its way!";
+                String text = "Hi " + order.getUser().getUserName() + ",\n\n" +
+                              "Good news! Your order #" + order.getId() + " has been shipped and is currently on its way to you.\n\n" +
+                              "Thank you for shopping with Fashionify!";
+                emailService.sendSimpleEmail(order.getUser().getEmail(), subject, text);
+            }
+
             return ResponseEntity.ok(Map.of("success", true, "message", "Order status is updated successfully"));
         }
         return ResponseEntity.notFound().build();

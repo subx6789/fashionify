@@ -212,6 +212,8 @@ function ShoppingProductDetails() {
         setFitFeedback("");
         setImageUrl("");
         dispatch(getReviews(productDetails?.id));
+        // Re-check eligibility — user has now reviewed, so eligible becomes false
+        dispatch(checkRatingEligibility({ productId: id, userId: user.id }));
         toast({ title: "Review added successfully!" });
       }
     });
@@ -264,16 +266,35 @@ function ShoppingProductDetails() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
 
           {/* ── Image Gallery ─────────────────────────────────────── */}
-          <div className="space-y-4">
+          <div className="flex flex-col lg:flex-row gap-4 lg:items-start lg:sticky lg:top-28">
+            
+            {/* Thumbnail strip (Left on Desktop, Bottom on Mobile) */}
+            {images.length > 1 && (
+              <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto lg:max-h-[600px] scrollbar-thin pb-2 lg:pb-0 lg:pr-1 flex-none order-2 lg:order-1 lg:w-20">
+                {images.map((url, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveImageIndex(i)}
+                    className={`flex-none w-16 h-20 rounded-lg overflow-hidden border-2 transition-all ${i === activeImageIndex
+                        ? "border-primary shadow-sm"
+                        : "border-transparent opacity-60 hover:opacity-100"
+                      }`}
+                  >
+                    <img src={url} alt={`View ${i + 1}`} onError={(e) => { e.target.src = "https://placehold.co/600x600/png?text=No+Image"; }} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/* Main image */}
-            <div className="relative overflow-hidden rounded-2xl bg-muted/20 border border-border aspect-[4/5] lg:sticky lg:top-28">
+            <div className="relative overflow-hidden rounded-xl bg-muted/20 border border-border aspect-[3/4] flex-1 order-1 lg:order-2 w-full">
               {images.length > 0 ? (
                 <img
                   key={activeImageIndex}
                   src={images[activeImageIndex]}
                   alt={productDetails?.title}
                   onError={(e) => { e.target.src = "https://placehold.co/600x600/png?text=No+Image"; }}
-                  className="w-full h-full object-contain p-4 transition-opacity duration-300"
+                  className="w-full h-full object-contain p-2 transition-opacity duration-300"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground">
@@ -304,7 +325,7 @@ function ShoppingProductDetails() {
                     <ChevronRight className="w-4 h-4" />
                   </button>
                   {/* Dot indicators */}
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 lg:hidden">
                     {images.map((_, i) => (
                       <button
                         key={i}
@@ -317,24 +338,6 @@ function ShoppingProductDetails() {
                 </>
               )}
             </div>
-
-            {/* Thumbnail strip */}
-            {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
-                {images.map((url, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveImageIndex(i)}
-                    className={`flex-none w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${i === activeImageIndex
-                        ? "border-primary ring-2 ring-primary/30"
-                        : "border-border opacity-60 hover:opacity-100"
-                      }`}
-                  >
-                    <img src={url} alt={`View ${i + 1}`} onError={(e) => { e.target.src = "https://placehold.co/600x600/png?text=No+Image"; }} className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* ── Product Details ────────────────────────────────────── */}
@@ -346,13 +349,13 @@ function ShoppingProductDetails() {
 
               {/* Rating */}
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1 bg-primary/10 px-3 py-1 rounded-full border border-primary-border/20">
+                <div className="flex items-center gap-1 bg-muted/50 px-3 py-1 rounded-full border border-border">
                   <StarRatingComponent rating={averageReview} />
-                  <span className="text-sm font-bold text-primary-dark dark:text-primary ml-1">
+                  <span className="text-sm font-bold text-foreground ml-1">
                     {averageReview.toFixed(1)}
                   </span>
                 </div>
-                <span className="text-muted-foreground text-sm font-medium">
+                <span className="text-muted-foreground text-sm font-medium hover:underline cursor-pointer">
                   {reviews?.length || 0} Reviews
                 </span>
               </div>
@@ -388,7 +391,7 @@ function ShoppingProductDetails() {
                     <Link
                       key={tag}
                       to={`/shop/listing`}
-                      className="text-xs px-2.5 py-1 rounded-full bg-primary/10 dark:bg-primary-dark/30 text-primary-dark dark:text-primary-soft font-medium border border-primary-border dark:border-primary-border hover:bg-primary/10 dark:hover:bg-primary-dark/40 transition-colors"
+                      className="text-xs px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground font-medium hover:bg-secondary/80 transition-colors shadow-sm border border-transparent"
                     >
                       {tag}
                     </Link>
@@ -658,11 +661,13 @@ function ShoppingProductDetails() {
                     </div>
                   </div>
                 ) : (
-                  <div className="p-5 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 flex items-center gap-3">
-                    <BadgeCheck className="w-5 h-5 text-amber-500 flex-none" />
+                  <div className="p-6 rounded-xl border border-border bg-card shadow-sm flex items-start gap-4">
+                    <BadgeCheck className="w-6 h-6 text-muted-foreground flex-none mt-0.5" />
                     <div>
-                      <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">Rating available after purchase</p>
-                      <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">{eligibility.reason || "Purchase this product and wait for delivery to leave a review."}</p>
+                      <p className="text-base font-bold text-foreground">Write a Review</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {eligibility.reason || "You must purchase and receive this product before you can leave a review. This helps us ensure all reviews are authentic."}
+                      </p>
                     </div>
                   </div>
                 )
