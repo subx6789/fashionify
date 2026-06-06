@@ -27,8 +27,7 @@ public class ShopProductController {
     public ResponseEntity<?> getFilteredProducts(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String brand,
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) String priceRanges,
             @RequestParam(required = false) String inStockSize,
             @RequestParam(required = false, defaultValue = "price-lowtohigh") String sortBy,
             @RequestParam(required = false, defaultValue = "0") int page,
@@ -55,8 +54,20 @@ public class ShopProductController {
         List<Product> filteredProducts = products.stream()
             .filter(p -> {
                 double effectivePrice = p.getSalePrice() != null && p.getSalePrice() > 0 ? p.getSalePrice() : p.getPrice();
-                if (minPrice != null && effectivePrice < minPrice) return false;
-                if (maxPrice != null && effectivePrice > maxPrice) return false;
+                if (priceRanges != null && !priceRanges.isEmpty()) {
+                    boolean matchesRange = false;
+                    String[] ranges = priceRanges.split(",");
+                    for (String range : ranges) {
+                        String[] bounds = range.split("-");
+                        double min = Double.parseDouble(bounds[0]);
+                        double max = bounds.length > 1 ? Double.parseDouble(bounds[1]) : Double.MAX_VALUE;
+                        if (effectivePrice >= min && effectivePrice <= max) {
+                            matchesRange = true;
+                            break;
+                        }
+                    }
+                    if (!matchesRange) return false;
+                }
                 if (inStockSize != null && !inStockSize.isEmpty()) {
                     boolean hasStockInSize = p.getSizeVariants().stream()
                         .anyMatch(v -> v.getSize().equalsIgnoreCase(inStockSize) && v.getStock() > 0);
@@ -115,18 +126,44 @@ public class ShopProductController {
     @GetMapping("/price-range")
     public ResponseEntity<?> getPriceRange() {
         List<Product> products = productRepository.findAll();
-        double minPrice = products.stream()
-                .mapToDouble(p -> p.getSalePrice() != null && p.getSalePrice() > 0 ? p.getSalePrice() : p.getPrice())
-                .min()
-                .orElse(0.0);
-        double maxPrice = products.stream()
-                .mapToDouble(p -> p.getSalePrice() != null && p.getSalePrice() > 0 ? p.getSalePrice() : p.getPrice())
-                .max()
-                .orElse(1000.0);
+        
+        long below500 = 0;
+        long between500And1000 = 0;
+        long between1000And1500 = 0;
+        long between1500And2000 = 0;
+        long above2000 = 0;
+
+        Map<String, Long> categoryCounts = new HashMap<>();
+        Map<String, Long> brandCounts = new HashMap<>();
+
+        for (Product p : products) {
+            double effectivePrice = p.getSalePrice() != null && p.getSalePrice() > 0 ? p.getSalePrice() : p.getPrice();
+            if (effectivePrice <= 500) below500++;
+            else if (effectivePrice <= 1000) between500And1000++;
+            else if (effectivePrice <= 1500) between1000And1500++;
+            else if (effectivePrice <= 2000) between1500And2000++;
+            else above2000++;
+
+            if (p.getCategory() != null) {
+                categoryCounts.put(p.getCategory(), categoryCounts.getOrDefault(p.getCategory(), 0L) + 1);
+            }
+            if (p.getBrand() != null) {
+                brandCounts.put(p.getBrand(), brandCounts.getOrDefault(p.getBrand(), 0L) + 1);
+            }
+        }
                 
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("0-500", below500);
+        data.put("501-1000", between500And1000);
+        data.put("1001-1500", between1000And1500);
+        data.put("1501-2000", between1500And2000);
+        data.put("2001-1000000", above2000);
+        data.put("categoryCounts", categoryCounts);
+        data.put("brandCounts", brandCounts);
+
         return ResponseEntity.ok(Map.of(
                 "success", true,
-                "data", Map.of("minPrice", minPrice, "maxPrice", maxPrice)
+                "data", data
         ));
     }
 

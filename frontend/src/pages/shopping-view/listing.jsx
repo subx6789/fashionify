@@ -62,8 +62,8 @@ function ShoppingListing() {
     setFilters((prevFilters) => {
       let cpyFilters = { ...prevFilters };
       
-      // For non-array filters (price, size)
-      if (getSectionId === "minPrice" || getSectionId === "maxPrice" || getSectionId === "inStockSize") {
+      // For non-array filters (size)
+      if (getSectionId === "inStockSize") {
         if (getCurrentOption !== null && getCurrentOption !== undefined && getCurrentOption !== "") {
           cpyFilters[getSectionId] = getCurrentOption;
         } else {

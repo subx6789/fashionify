@@ -10,4 +10,5 @@ import java.util.List;
 public interface WaitlistRepository extends JpaRepository<Waitlist, Long> {
     List<Waitlist> findByProductIdAndSizeAndIsNotifiedFalse(Long productId, String size);
     boolean existsByEmailAndProductIdAndSizeAndIsNotifiedFalse(String email, Long productId, String size);
+    void deleteByProductId(Long productId);
 }

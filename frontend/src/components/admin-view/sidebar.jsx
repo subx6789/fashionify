@@ -39,10 +39,10 @@ const adminSidebarMenuItems = [
     icon:  <Tag />,
   },
   {
-    id:    "outfits",
-    label: "Outfits",
-    path:  "/admin/outfits",
-    icon:  <Shirt />,
+    id:    "collections",
+    label: "Collections",
+    path:  "/admin/collections",
+    icon:  <Shirt size={24} />,
   },
   {
     id:    "messages",
@@ -118,7 +118,7 @@ function AdminSideBar({ open, setOpen }) {
     <Fragment>
       {/* Mobile sheet */}
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="left" className="w-64">
+        <SheetContent side="left" className="w-64" aria-describedby={undefined}>
           <div className="flex flex-col h-full">
             <SheetHeader className="border-b">
               <SheetTitle className="flex mt-5 mb-5 items-center justify-center">

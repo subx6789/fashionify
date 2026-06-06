@@ -435,6 +435,12 @@ function AdminDashboard() {
             setImageLoadingState={setImageLoadingState}
             imageLoadingState={imageLoadingState}
             isCustomStyling={true}
+            multiple={false}
+            title="Upload Banner Image"
+            helpText="1 landscape image (optimal: 1920x1080)"
+            dropText="Drag & drop or click to upload banner"
+            subDropText="Supported formats: JPG, PNG, AVIF (Max 5MB)"
+            imageClass="w-full max-w-3xl aspect-[16/9] object-cover rounded-md"
           />
           <Button onClick={handleUploadFeatureImage} className="mt-5 w-full">
             Upload Image

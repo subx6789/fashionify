@@ -198,7 +198,6 @@ function AdminProducts() {
       setSizeVariants([]);
       setSelectedTags([]);
     }
-    setCustomTagInput(""); // kept for state reset compatibility
   }
 
   function closeDialog() {
@@ -393,7 +392,9 @@ function AdminProducts() {
                     setUploadedImageUrls={setUploadedImageUrls}
                     setImageLoadingState={setImageLoadingState}
                     imageLoadingState={imageLoadingState}
-                    isEditMode={false}
+                    isEditMode={currentEditedId !== null}
+                    title="Product Images"
+                    helpText="(First image is cover. Optimal: 1600x2000px, 4:5)"
                   />
                 </div>
                 {submitAttempted && uploadedImageUrls.length === 0 && (

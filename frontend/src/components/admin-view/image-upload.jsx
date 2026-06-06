@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { Button } from "../ui/button";
 import axios from "axios";
 import { Skeleton } from "../ui/skeleton";
+import { useToast } from "../ui/use-toast";
 
 function ProductImageUpload({
   imageFiles,
@@ -15,9 +16,16 @@ function ProductImageUpload({
   setImageLoadingState,
   isEditMode,
   isCustomStyling = false,
-  uploadUrl = "/api/admin/products/upload-image"
+  uploadUrl = "/api/admin/products/upload-image",
+  multiple = true,
+  title = "Upload Image",
+  helpText,
+  dropText = "Drag & drop or click to upload",
+  subDropText,
+  imageClass = "w-24 h-24 object-cover",
 }) {
   const inputRef = useRef(null);
+  const { toast } = useToast();
 
   async function uploadImageToCloudinary(file) {
     const data = new FormData();
@@ -37,11 +45,27 @@ function ProductImageUpload({
     const selectedFiles = Array.from(event.target.files || []);
     if (!selectedFiles.length) return;
 
+    // Validation
+    const validFiles = [];
+    for (const file of selectedFiles) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast({ title: "Image must be under 5MB", variant: "destructive" });
+        if (inputRef.current) inputRef.current.value = "";
+        return;
+      }
+      if (!file.type.match(/image\/(jpeg|png|avif)/)) {
+        toast({ title: "Only JPG, PNG, and AVIF formats are allowed", variant: "destructive" });
+        if (inputRef.current) inputRef.current.value = "";
+        return;
+      }
+      validFiles.push(file);
+    }
+
     setImageLoadingState(true);
-    const newFiles = [...(imageFiles || []), ...selectedFiles];
+    const newFiles = [...(imageFiles || []), ...validFiles];
     setImageFiles(newFiles);
 
-    const urls = await Promise.all(selectedFiles.map(uploadImageToCloudinary));
+    const urls = await Promise.all(validFiles.map(uploadImageToCloudinary));
     const validUrls = urls.filter(Boolean);
     setUploadedImageUrls((prev) => [...(prev || []), ...validUrls]);
     setImageLoadingState(false);
@@ -75,10 +99,12 @@ function ProductImageUpload({
   return (
     <div className={`w-full mt-4 ${isCustomStyling ? "" : ""}`}>
       <Label className="text-lg font-semibold mb-3 block">
-        Product Images
-        <span className="text-sm font-normal text-muted-foreground ml-2">
-          (First image will be used as cover)
-        </span>
+        {title}
+        {helpText && (
+          <span className="text-sm font-normal text-muted-foreground ml-2">
+            {helpText}
+          </span>
+        )}
       </Label>
 
       {/* Uploaded image thumbnails */}
@@ -95,10 +121,10 @@ function ProductImageUpload({
             >
               <img
                 src={url}
-                alt={`Product image ${index + 1}`}
-                className="w-24 h-24 object-cover"
+                alt={`Uploaded image ${index + 1}`}
+                className={imageClass}
               />
-              {index === 0 && (
+              {index === 0 && multiple && (
                 <div className="absolute bottom-0 left-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold text-center py-0.5">
                   COVER
                 </div>
@@ -114,7 +140,7 @@ function ProductImageUpload({
           ))}
 
           {/* Add more button */}
-          {!isEditMode && (
+          {!isEditMode && multiple && (
             <label
               htmlFor="image-upload-more"
               className="w-24 h-24 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary-border hover:bg-primary/5 transition-all"
@@ -124,7 +150,7 @@ function ProductImageUpload({
               <Input
                 id="image-upload-more"
                 type="file"
-                accept="image/*"
+                accept="image/png, image/jpeg, image/avif"
                 multiple
                 className="hidden"
                 ref={inputRef}
@@ -148,8 +174,8 @@ function ProductImageUpload({
           <Input
             id="image-upload"
             type="file"
-            accept="image/*"
-            multiple
+            accept="image/png, image/jpeg, image/avif"
+            multiple={multiple}
             className="hidden"
             ref={inputRef}
             onChange={handleImageFilesChange}
@@ -168,11 +194,11 @@ function ProductImageUpload({
               } flex flex-col items-center justify-center gap-2`}
             >
               <UploadCloudIcon className="w-12 h-12 text-muted-foreground" />
-              <span className="text-sm font-medium text-muted-foreground">
-                Drag & drop or click to upload images
+              <span className="text-sm font-medium text-muted-foreground text-center">
+                {dropText}
               </span>
-              <span className="text-xs text-muted-foreground">
-                You can upload multiple images
+              <span className="text-xs text-muted-foreground text-center">
+                {subDropText}
               </span>
             </Label>
           )}

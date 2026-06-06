@@ -5,12 +5,19 @@ import com.fashionify.backend.entity.ProductSizeVariant;
 import com.fashionify.backend.repository.ProductRepository;
 import com.fashionify.backend.repository.ProductSizeVariantRepository;
 import com.fashionify.backend.repository.WaitlistRepository;
+import com.fashionify.backend.repository.CartRepository;
+import com.fashionify.backend.repository.ReviewRepository;
+import com.fashionify.backend.repository.WishlistRepository;
+import com.fashionify.backend.repository.FashionCollectionRepository;
 import com.fashionify.backend.entity.Waitlist;
+import com.fashionify.backend.entity.Cart;
+import com.fashionify.backend.entity.FashionCollection;
 import com.fashionify.backend.service.CloudinaryService;
 import com.fashionify.backend.service.EmailService;
 import com.fashionify.backend.service.TagMigrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +37,18 @@ public class AdminProductController {
 
     @Autowired
     private WaitlistRepository waitlistRepository;
+
+    @Autowired
+    private CartRepository cartRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    @Autowired
+    private WishlistRepository wishlistRepository;
+
+    @Autowired
+    private FashionCollectionRepository collectionRepository;
 
     @Autowired
     private CloudinaryService cloudinaryService;
@@ -136,9 +155,30 @@ public class AdminProductController {
     }
 
     // ── Delete Product ────────────────────────────────────────────────────────
+    @Transactional
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
         if (productRepository.existsById(id)) {
+            // Remove from carts
+            List<Cart> allCarts = cartRepository.findAll();
+            for (Cart cart : allCarts) {
+                boolean removed = cart.getItems().removeIf(item -> item.getProduct().getId().equals(id));
+                if (removed) cartRepository.save(cart);
+            }
+
+            // Remove from collections
+            List<FashionCollection> allCollections = collectionRepository.findAll();
+            for (FashionCollection collection : allCollections) {
+                boolean removed = collection.getProducts().removeIf(p -> p.getId().equals(id));
+                if (removed) collectionRepository.save(collection);
+            }
+
+            // Delete reviews, waitlists, and wishlists associated with the product
+            reviewRepository.deleteByProductId(id);
+            waitlistRepository.deleteByProductId(id);
+            wishlistRepository.deleteByProductId(id);
+
+            // Finally, delete the product itself
             productRepository.deleteById(id);
             return ResponseEntity.ok(Map.of("success", true, "message", "Product deleted successfully"));
         }

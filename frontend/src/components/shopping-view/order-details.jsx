@@ -1,7 +1,7 @@
 import { CheckCircle, Package, Truck, Home } from "lucide-react";
 import { useSelector } from "react-redux";
 import { Badge } from "../ui/badge";
-import { DialogContent } from "../ui/dialog";
+import { DialogContent, DialogTitle } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
 
@@ -28,6 +28,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
 
   return (
     <DialogContent aria-describedby={undefined} className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogTitle className="sr-only">Order Details</DialogTitle>
       <div className="grid gap-6">
         
         {/* Visual Stepper */}

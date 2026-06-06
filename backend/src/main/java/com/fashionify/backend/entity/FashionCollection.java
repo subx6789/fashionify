@@ -9,12 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "outfits")
+@Table(name = "collections")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Outfit {
+public class FashionCollection {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,8 +31,8 @@ public class Outfit {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "outfit_products",
-            joinColumns = @JoinColumn(name = "outfit_id"),
+            name = "collection_products",
+            joinColumns = @JoinColumn(name = "collection_id"),
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
     @Builder.Default

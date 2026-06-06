@@ -5,7 +5,7 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import { shoppingViewHeaderMenuItems } from "@/config";
@@ -327,7 +327,7 @@ function ShoppingHeader() {
       <div className="h-1 w-full bg-primary" />
       <div className="flex flex-col w-full">
         {/* Main Header Row */}
-        <div className="flex h-[68px] md:h-[76px] items-center justify-between px-4 md:px-8 w-full max-w-7xl mx-auto lg:max-w-none lg:px-12">
+        <div className="container mx-auto px-4 flex h-[68px] md:h-[76px] items-center justify-between w-full">
           {/* Logo */}
           <div className="shrink-0 group lg:mr-10">
             <BrandLogo textClassName="text-2xl hidden sm:block" />
@@ -361,7 +361,8 @@ function ShoppingHeader() {
                   <span className="sr-only">Toggle menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[280px] border-l-2 border-border">
+              <SheetContent side="right" className="w-[280px] border-l-2 border-border" aria-describedby={undefined}>
+                <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
                 <div className="flex flex-col gap-6 mt-8 h-full">
                   <MenuItems />
                 </div>
@@ -371,7 +372,7 @@ function ShoppingHeader() {
         </div>
 
         {/* Mobile Search */}
-        <div className="lg:hidden w-full px-4 pb-3">
+        <div className="container mx-auto px-4 pb-3 lg:hidden w-full">
           <SearchBar isMobile={true} />
         </div>
       </div>

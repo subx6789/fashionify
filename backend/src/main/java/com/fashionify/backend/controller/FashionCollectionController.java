@@ -1,8 +1,8 @@
 package com.fashionify.backend.controller;
 
-import com.fashionify.backend.entity.Outfit;
+import com.fashionify.backend.entity.FashionCollection;
 import com.fashionify.backend.entity.Product;
-import com.fashionify.backend.repository.OutfitRepository;
+import com.fashionify.backend.repository.FashionCollectionRepository;
 import com.fashionify.backend.repository.ProductRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +16,11 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/outfits")
-public class OutfitController {
+@RequestMapping("/api/collections")
+public class FashionCollectionController {
 
     @Autowired
-    private OutfitRepository outfitRepository;
+    private FashionCollectionRepository collectionRepository;
 
     @Autowired
     private ProductRepository productRepository;
@@ -31,7 +31,7 @@ public class OutfitController {
     @PostMapping("/upload-image")
     public ResponseEntity<?> handleImageUpload(@RequestParam("my_file") MultipartFile file) {
         try {
-            String url = cloudinaryService.uploadImage(file, "outfits");
+            String url = cloudinaryService.uploadImage(file, "collections");
             return ResponseEntity.ok(Map.of("success", true, "result", Map.of("url", url)));
         } catch (IOException e) {
             return ResponseEntity.internalServerError()
@@ -40,12 +40,12 @@ public class OutfitController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllOutfits() {
+    public ResponseEntity<?> getAllCollections() {
         try {
-            List<Outfit> outfits = outfitRepository.findAll();
+            List<FashionCollection> collections = collectionRepository.findAll();
             return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "data", outfits
+                    "data", collections
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -56,13 +56,13 @@ public class OutfitController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getOutfitById(@PathVariable Long id) {
+    public ResponseEntity<?> getCollectionById(@PathVariable Long id) {
         try {
-            Outfit outfit = outfitRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Outfit not found"));
+            FashionCollection collection = collectionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Collection not found"));
             return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "data", outfit
+                    "data", collection
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -73,22 +73,22 @@ public class OutfitController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createOutfit(@RequestBody OutfitRequest request) {
+    public ResponseEntity<?> createCollection(@RequestBody FashionCollectionRequest request) {
         try {
-            Outfit outfit = new Outfit();
-            outfit.setName(request.getName());
-            outfit.setDescription(request.getDescription());
-            outfit.setImageUrl(request.getImageUrl());
+            FashionCollection collection = new FashionCollection();
+            collection.setName(request.getName());
+            collection.setDescription(request.getDescription());
+            collection.setImageUrl(request.getImageUrl());
             
             if (request.getProductIds() != null && !request.getProductIds().isEmpty()) {
                 List<Product> products = productRepository.findAllById(request.getProductIds());
-                outfit.setProducts(products);
+                collection.setProducts(products);
             }
 
-            Outfit savedOutfit = outfitRepository.save(outfit);
+            FashionCollection savedCollection = collectionRepository.save(collection);
             return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "data", savedOutfit
+                    "data", savedCollection
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -99,12 +99,12 @@ public class OutfitController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOutfit(@PathVariable Long id) {
+    public ResponseEntity<?> deleteCollection(@PathVariable Long id) {
         try {
-            outfitRepository.deleteById(id);
+            collectionRepository.deleteById(id);
             return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "message", "Outfit deleted successfully"
+                    "message", "Collection deleted successfully"
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -116,7 +116,7 @@ public class OutfitController {
 }
 
 @Data
-class OutfitRequest {
+class FashionCollectionRequest {
     private String name;
     private String description;
     private String imageUrl;

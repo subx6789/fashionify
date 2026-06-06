@@ -8,8 +8,8 @@ import { Trash2, Plus, Shirt, CheckCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import ProductImageUpload from "@/components/admin-view/image-upload";
 
-function AdminOutfits() {
-  const [outfits, setOutfits] = useState([]);
+function AdminCollections() {
+  const [collections, setCollections] = useState([]);
   const [products, setProducts] = useState([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -24,11 +24,11 @@ function AdminOutfits() {
 
   const { toast } = useToast();
 
-  const fetchOutfits = async () => {
+  const fetchCollections = async () => {
     try {
-      const res = await axios.get(import.meta.env.VITE_API_URL + "/api/outfits");
+      const res = await axios.get(import.meta.env.VITE_API_URL + "/api/collections");
       if (res.data.success) {
-        setOutfits(res.data.data);
+        setCollections(res.data.data);
       }
     } catch (err) {
       console.error(err);
@@ -47,7 +47,7 @@ function AdminOutfits() {
   };
 
   useEffect(() => {
-    fetchOutfits();
+    fetchCollections();
     fetchProducts();
   }, []);
 
@@ -59,7 +59,7 @@ function AdminOutfits() {
     }
   };
 
-  const handleCreateOutfit = async (e) => {
+  const handleCreateCollection = async (e) => {
     e.preventDefault();
     const finalImageUrl = (uploadedImageUrls && uploadedImageUrls.length > 0) ? uploadedImageUrls[0] : imageUrl;
 
@@ -70,54 +70,54 @@ function AdminOutfits() {
     
     setLoading(true);
     try {
-      const res = await axios.post(import.meta.env.VITE_API_URL + "/api/outfits", {
+      const res = await axios.post(import.meta.env.VITE_API_URL + "/api/collections", {
         name,
         description,
         imageUrl: finalImageUrl,
         productIds: selectedProductIds
       });
       if (res.data.success) {
-        toast({ title: "Outfit created successfully!" });
+        toast({ title: "Collection created successfully!" });
         setName("");
         setDescription("");
         setImageUrl("");
         setImageFiles([]);
         setUploadedImageUrls([]);
         setSelectedProductIds([]);
-        fetchOutfits();
+        fetchCollections();
       }
     } catch (err) {
-      toast({ title: "Error creating outfit", variant: "destructive" });
+      toast({ title: "Error creating collection", variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteOutfit = async (id) => {
+  const handleDeleteCollection = async (id) => {
     try {
-      const res = await axios.delete(`${import.meta.env.VITE_API_URL}/api/outfits/${id}`);
+      const res = await axios.delete(`${import.meta.env.VITE_API_URL}/api/collections/${id}`);
       if (res.data.success) {
-        toast({ title: "Outfit deleted" });
-        fetchOutfits();
+        toast({ title: "Collection deleted" });
+        fetchCollections();
       }
     } catch (err) {
-      toast({ title: "Error deleting outfit", variant: "destructive" });
+      toast({ title: "Error deleting collection", variant: "destructive" });
     }
   };
 
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold flex items-center gap-2">
-        <Shirt className="w-8 h-8 text-primary" /> Manage Outfits (Shop the Look)
+        <Shirt className="w-8 h-8 text-primary" /> Manage Collections
       </h1>
       
       <div className="bg-card p-6 rounded-2xl border shadow-sm">
-        <h2 className="text-xl font-bold mb-4">Create New Outfit Bundle</h2>
-        <form onSubmit={handleCreateOutfit} className="space-y-4">
+        <h2 className="text-xl font-bold mb-4">Create New Collection Bundle</h2>
+        <form onSubmit={handleCreateCollection} className="space-y-4">
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Outfit Name</Label>
+                <Label>Collection Name</Label>
                 <Input placeholder="e.g. Summer Vacation Vibes" value={name} onChange={e => setName(e.target.value)} />
               </div>
               <div className="space-y-2">
@@ -137,7 +137,13 @@ function AdminOutfits() {
                   setImageLoadingState={setImageLoadingState}
                   imageLoadingState={imageLoadingState}
                   isEditMode={false}
-                  uploadUrl="/api/outfits/upload-image"
+                  uploadUrl="/api/collections/upload-image"
+                  multiple={false}
+                  title="Collection Cover Image"
+                  helpText="(Cover display. Optimal: 1200x1500px, 4:5)"
+                  dropText="Drag & drop or click to upload cover image"
+                  subDropText="Upload 1 image only"
+                  imageClass="w-32 h-40 object-cover rounded-md"
                 />
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
@@ -163,7 +169,7 @@ function AdminOutfits() {
           </div>
 
           <div className="space-y-2 pt-2">
-            <Label>Select Products for this Look ({selectedProductIds.length} selected)</Label>
+            <Label>Select Products for this Collection ({selectedProductIds.length} selected)</Label>
             <div className="border rounded-xl p-4 max-h-[300px] overflow-y-auto bg-muted/20">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {products.map(product => {
@@ -188,41 +194,41 @@ function AdminOutfits() {
           </div>
           
           <Button type="submit" disabled={loading} className="w-full font-bold h-12 text-lg">
-            <Plus className="w-5 h-5 mr-2" /> Save Outfit
+            <Plus className="w-5 h-5 mr-2" /> Save Collection
           </Button>
         </form>
       </div>
 
       <div className="bg-card rounded-2xl border shadow-sm overflow-hidden">
         <div className="p-6">
-          <h2 className="text-xl font-bold mb-4">Existing Outfits</h2>
-          {outfits.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">No outfits created yet.</p>
+          <h2 className="text-xl font-bold mb-4">Existing Collections</h2>
+          {collections.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">No collections created yet.</p>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {outfits.map(outfit => (
-                <div key={outfit.id} className="border rounded-xl overflow-hidden bg-background">
+              {collections.map(collection => (
+                <div key={collection.id} className="border rounded-xl overflow-hidden bg-background">
                   <div className="h-48 w-full overflow-hidden relative">
-                    <img src={outfit.imageUrl} alt={outfit.name} className="w-full h-full object-cover" />
+                    <img src={collection.imageUrl} alt={collection.name} className="w-full h-full object-cover" />
                     <Button 
                       variant="destructive" 
                       size="icon" 
                       className="absolute top-2 right-2 rounded-full shadow-lg"
-                      onClick={() => handleDeleteOutfit(outfit.id)}
+                      onClick={() => handleDeleteCollection(collection.id)}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                   <div className="p-4 space-y-2">
-                    <h3 className="font-bold text-lg">{outfit.name}</h3>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{outfit.description}</p>
+                    <h3 className="font-bold text-lg">{collection.name}</h3>
+                    <p className="text-sm text-muted-foreground line-clamp-2">{collection.description}</p>
                     <div className="flex gap-2 items-center flex-wrap pt-2">
-                      {outfit.products?.map(p => (
+                      {collection.products?.map(p => (
                         <div key={p.id} className="w-8 h-8 rounded-full border-2 border-background overflow-hidden -ml-2 first:ml-0" title={p.title}>
                           <img src={p.imageUrl || p.images?.[0] || p.image} alt={p.title} className="w-full h-full object-cover" />
                         </div>
                       ))}
-                      <span className="text-xs font-semibold text-muted-foreground ml-2">{outfit.products?.length} items</span>
+                      <span className="text-xs font-semibold text-muted-foreground ml-2">{collection.products?.length} items</span>
                     </div>
                   </div>
                 </div>
@@ -235,4 +241,4 @@ function AdminOutfits() {
   );
 }
 
-export default AdminOutfits;
+export default AdminCollections;

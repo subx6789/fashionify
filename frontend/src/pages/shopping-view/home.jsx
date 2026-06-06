@@ -66,7 +66,7 @@ function ShoppingHome() {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
 
   const [mockProducts, setMockProducts] = useState([]);
-  const [outfits, setOutfits] = useState([]);
+  const [collections, setCollections] = useState([]);
   const [addingToCart, setAddingToCart] = useState(false);
   const [latestReviews, setLatestReviews] = useState([]);
 
@@ -85,17 +85,17 @@ function ShoppingHome() {
   }, []);
 
   useEffect(() => {
-    const fetchOutfits = async () => {
+    const fetchCollections = async () => {
       try {
-        const res = await axios.get(import.meta.env.VITE_API_URL + "/api/outfits");
+        const res = await axios.get(import.meta.env.VITE_API_URL + "/api/collections");
         if (res.data.success) {
-          setOutfits(res.data.data);
+          setCollections(res.data.data);
         }
       } catch (err) {
         console.error(err);
       }
     };
-    fetchOutfits();
+    fetchCollections();
   }, []);
 
   const activeFeatureImages = useMemo(() => {
@@ -168,17 +168,17 @@ function ShoppingHome() {
     });
   }
 
-  async function handleAddOutfitToCart(outfit) {
+  async function handleAddCollectionToCart(collection) {
     if (!isAuthenticated) {
       openAuthModal("login");
       return;
     }
-    if (!outfit.products || outfit.products.length === 0) return;
+    if (!collection.products || collection.products.length === 0) return;
 
     setAddingToCart(true);
     try {
       // Add each product to cart (requires size selection in a real app, but for demo we just add it with null size or default)
-      for (const product of outfit.products) {
+      for (const product of collection.products) {
         await dispatch(
           addToCart({
             userId: user?.id,
@@ -189,9 +189,9 @@ function ShoppingHome() {
         );
       }
       dispatch(fetchCartItems(user?.id));
-      toast({ title: `Added "${outfit.name}" to cart!` });
+      toast({ title: `Added "${collection.name}" to cart!` });
     } catch (err) {
-      toast({ title: "Failed to add outfit to cart", variant: "destructive" });
+      toast({ title: "Failed to add collection to cart", variant: "destructive" });
     } finally {
       setAddingToCart(false);
     }
@@ -238,89 +238,80 @@ function ShoppingHome() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9] xl:aspect-[2.5/1] max-h-[600px] overflow-hidden bg-zinc-100 dark:bg-zinc-900">
-        <AnimatePresence>
-          {slides && slides.length > 0 && (
-            <motion.div
-              key={currentSlide}
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1, ease: "easeInOut" }}
-              className="absolute top-0 left-0 w-full h-full"
-            >
-              <img
-                src={slides[currentSlide]?.image}
-                alt="Banner"
-                className={`w-full h-full object-cover ${slides[currentSlide]?.linkUrl ? 'cursor-pointer' : ''}`}
-                onClick={() => {
-                  if (slides[currentSlide]?.linkUrl) {
-                    navigate(slides[currentSlide].linkUrl);
-                  }
-                }}
+      <div className="container mx-auto px-4 mt-8 mb-4">
+        <div className="neu-card relative w-full h-[380px] md:h-[500px] lg:h-[550px] max-h-[600px] overflow-hidden bg-zinc-100 dark:bg-zinc-900 group">
+          <AnimatePresence>
+            {slides && slides.length > 0 && (
+              <motion.div
+                key={currentSlide}
+                initial={{ opacity: 0, scale: 1.05 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1, ease: "easeInOut" }}
+                className="absolute top-0 left-0 w-full h-full"
+              >
+                <img
+                  src={slides[currentSlide]?.image}
+                  alt="Banner"
+                  className={`w-full h-full object-cover ${slides[currentSlide]?.linkUrl ? 'cursor-pointer' : ''}`}
+                  onClick={() => {
+                    if (slides[currentSlide]?.linkUrl) {
+                      navigate(slides[currentSlide].linkUrl);
+                    }
+                  }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+          {/* Dot Indicators */}
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center items-center gap-1 z-10">
+            {slides && slides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`h-2.5 md:h-3 rounded-full border-2 border-black transition-all duration-300 ${currentSlide === index
+                  ? "w-6 md:w-8 bg-primary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                  : "w-2.5 md:w-3 bg-white hover:bg-gray-200"
+                  }`}
+                aria-label={`Go to slide ${index + 1}`}
               />
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
-        <Button
-          variant="outline"
-          onClick={() =>
-            setCurrentSlide(
-              (prevSlide) =>
-                (prevSlide - 1 + slides.length) %
-                slides.length
-            )
-          }
-          className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/30 hover:bg-white/50 dark:bg-black/40 dark:hover:bg-black/60 backdrop-blur-md border border-white/40 dark:border-white/20 text-foreground z-10 rounded-full h-12 w-12 flex items-center justify-center transition-all shadow-lg"
-        >
-          <ChevronLeftIcon className="w-6 h-6" />
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() =>
-            setCurrentSlide(
-              (prevSlide) => (prevSlide + 1) % slides.length
-            )
-          }
-          className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/30 hover:bg-white/50 dark:bg-black/40 dark:hover:bg-black/60 backdrop-blur-md border border-white/40 dark:border-white/20 text-foreground z-10 rounded-full h-12 w-12 flex items-center justify-center transition-all shadow-lg"
-        >
-          <ChevronRightIcon className="w-6 h-6" />
-        </Button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Shop the Look Section */}
-      {outfits.length > 0 && (
+      {/* Shop by Collections Section */}
+      {collections.length > 0 && (
         <section className="py-16 bg-muted/20">
           <div className="container mx-auto px-4">
             <h2 className="text-4xl font-extrabold text-center mb-4 uppercase tracking-tight text-foreground">
-              Shop the Look
+              Shop by Collections
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Curated outfits by our expert stylists. Add entire looks to your cart with a single click.
+              Curated collections by our expert stylists. Add entire looks to your cart with a single click.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {outfits.map((outfit) => (
+              {collections.map((collection) => (
                 <div
-                  key={outfit.id}
-                  onClick={() => navigate(`/shop/outfit/${outfit.id}`)}
+                  key={collection.id}
+                  onClick={() => navigate(`/shop/collection/${collection.id}`)}
                   className="bg-card rounded-2xl border shadow-sm overflow-hidden flex flex-col group cursor-pointer"
                 >
                   <div className="h-80 relative overflow-hidden bg-muted">
                     <img
-                      src={outfit.imageUrl}
-                      alt={outfit.name}
+                      src={collection.imageUrl}
+                      alt={collection.name}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                   <div className="p-6 flex flex-col flex-1">
-                    <h3 className="text-2xl font-bold mb-2">{outfit.name}</h3>
-                    <p className="text-muted-foreground text-sm flex-1">{outfit.description}</p>
+                    <h3 className="text-2xl font-bold mb-2">{collection.name}</h3>
+                    <p className="text-muted-foreground text-sm flex-1">{collection.description}</p>
                     <div className="mt-4 mb-6">
                       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Included in this look</p>
                       <div className="flex -space-x-3 overflow-hidden p-1">
-                        {outfit.products?.map((p, i) => (
+                        {collection.products?.map((p, i) => (
                           <img
                             key={p.id}
                             src={p.image || p.images?.[0]}
@@ -335,7 +326,7 @@ function ShoppingHome() {
                     <Button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleAddOutfitToCart(outfit);
+                        handleAddCollectionToCart(collection);
                       }}
                       disabled={addingToCart}
                       className="w-full bg-foreground text-background hover:bg-foreground/90 font-bold h-12 mt-auto rounded-xl shadow-md"

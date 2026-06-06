@@ -8,36 +8,36 @@ import { useDispatch, useSelector } from "react-redux";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 
-function ShoppingOutfitDetails() {
+function ShoppingCollectionDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 
-  const [outfit, setOutfit] = useState(null);
+  const [collection, setCollection] = useState(null);
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
 
   useEffect(() => {
-    const fetchOutfitDetails = async () => {
+    const fetchCollectionDetails = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/outfits/${id}`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/collections/${id}`);
         if (res.data.success) {
-          setOutfit(res.data.data);
+          setCollection(res.data.data);
         }
       } catch (err) {
         console.error(err);
-        toast({ title: "Failed to load outfit details", variant: "destructive" });
+        toast({ title: "Failed to load collection details", variant: "destructive" });
       } finally {
         setLoading(false);
       }
     };
 
-    fetchOutfitDetails();
+    fetchCollectionDetails();
   }, [id, toast]);
 
-  const handleAddOutfitToCart = async () => {
+  const handleAddCollectionToCart = async () => {
     if (!user) {
       toast({ title: "Please login to add to cart", variant: "destructive" });
       return;
@@ -47,7 +47,7 @@ function ShoppingOutfitDetails() {
     let successCount = 0;
     
     try {
-      for (const product of outfit.products) {
+      for (const product of collection.products) {
         const res = await dispatch(
           addToCart({
             userId: user?.id,
@@ -63,7 +63,7 @@ function ShoppingOutfitDetails() {
       
       if (successCount > 0) {
         dispatch(fetchCartItems(user?.id));
-        toast({ title: `Added ${successCount} items from the look to your cart!` });
+        toast({ title: `Added ${successCount} items from the collection to your cart!` });
       } else {
         toast({ title: "Failed to add items", variant: "destructive" });
       }
@@ -100,11 +100,11 @@ function ShoppingOutfitDetails() {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-[50vh]">Loading outfit details...</div>;
+    return <div className="flex justify-center items-center h-[50vh]">Loading collection details...</div>;
   }
 
-  if (!outfit) {
-    return <div className="flex justify-center items-center h-[50vh]">Outfit not found.</div>;
+  if (!collection) {
+    return <div className="flex justify-center items-center h-[50vh]">Collection not found.</div>;
   }
 
   return (
@@ -120,54 +120,54 @@ function ShoppingOutfitDetails() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
         <div className="rounded-3xl overflow-hidden shadow-2xl relative h-[600px]">
           <img 
-            src={outfit.imageUrl} 
-            alt={outfit.name} 
+            src={collection.imageUrl} 
+            alt={collection.name} 
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           <div className="absolute bottom-6 left-6 text-white">
-            <h1 className="text-4xl font-extrabold mb-2">{outfit.name}</h1>
-            <p className="text-white/80 max-w-md">{outfit.description}</p>
+            <h1 className="text-4xl font-extrabold mb-2">{collection.name}</h1>
+            <p className="text-white/80 max-w-md">{collection.description}</p>
           </div>
         </div>
 
         <div className="flex flex-col justify-center">
           <div className="bg-card rounded-3xl p-8 border shadow-sm">
-            <h2 className="text-2xl font-bold mb-6">About this look</h2>
+            <h2 className="text-2xl font-bold mb-6">About this collection</h2>
             <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-              Carefully curated by our styling experts, this complete look takes the guesswork out of fashion. 
-              {outfit.description}
+              Carefully curated by our styling experts, this complete collection takes the guesswork out of fashion. 
+              {collection.description}
             </p>
 
             <div className="flex items-center justify-between mb-8 pb-8 border-b">
               <div>
                 <p className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Total Items</p>
-                <p className="text-3xl font-bold">{outfit.products?.length || 0}</p>
+                <p className="text-3xl font-bold">{collection.products?.length || 0}</p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Look Price</p>
+                <p className="text-sm text-muted-foreground uppercase tracking-wider font-semibold mb-1">Collection Price</p>
                 <p className="text-3xl font-bold text-primary">
-                  ₹{outfit.products?.reduce((acc, curr) => acc + (curr.salePrice > 0 ? curr.salePrice : curr.price), 0)}
+                  ₹{collection.products?.reduce((acc, curr) => acc + (curr.salePrice > 0 ? curr.salePrice : curr.price), 0)}
                 </p>
               </div>
             </div>
 
             <Button
-              onClick={handleAddOutfitToCart}
+              onClick={handleAddCollectionToCart}
               disabled={addingToCart}
               className="w-full h-14 text-lg font-bold rounded-xl shadow-lg bg-foreground text-background hover:bg-foreground/90 transition-all hover:scale-[1.02]"
             >
               <ShoppingBag className="w-5 h-5 mr-2" />
-              {addingToCart ? "Adding..." : "Add Entire Look to Cart"}
+              {addingToCart ? "Adding..." : "Add Entire Collection to Cart"}
             </Button>
           </div>
         </div>
       </div>
 
       <div>
-        <h2 className="text-3xl font-extrabold mb-8 text-center text-gradient">Included in this look</h2>
+        <h2 className="text-3xl font-extrabold mb-8 text-center text-gradient">Included in this collection</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {outfit.products?.map((product) => (
+          {collection.products?.map((product) => (
             <ShoppingProductTile
               key={product.id}
               product={product}
@@ -181,4 +181,4 @@ function ShoppingOutfitDetails() {
   );
 }
 
-export default ShoppingOutfitDetails;
+export default ShoppingCollectionDetails;
