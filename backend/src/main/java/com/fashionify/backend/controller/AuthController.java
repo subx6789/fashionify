@@ -3,7 +3,6 @@ package com.fashionify.backend.controller;
 import com.fashionify.backend.dto.JwtResponse;
 import com.fashionify.backend.dto.LoginRequest;
 import com.fashionify.backend.dto.MessageResponse;
-import com.fashionify.backend.dto.RegisterRequest;
 import com.fashionify.backend.entity.User;
 import com.fashionify.backend.repository.UserRepository;
 import com.fashionify.backend.security.JwtUtils;

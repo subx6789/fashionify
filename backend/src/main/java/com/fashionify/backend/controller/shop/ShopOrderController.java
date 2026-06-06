@@ -14,7 +14,6 @@ import com.fashionify.backend.repository.UserCouponUsageRepository;
 import com.fashionify.backend.entity.Coupon;
 import com.fashionify.backend.entity.CouponRedemption;
 import com.fashionify.backend.entity.UserCouponUsage;
-import com.fashionify.backend.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;

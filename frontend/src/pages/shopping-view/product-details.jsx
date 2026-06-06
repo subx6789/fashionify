@@ -601,7 +601,7 @@ function ShoppingProductDetails() {
                     {reviews.map((reviewItem, idx) => (
                       <div key={idx} className="flex gap-4 p-4 rounded-xl bg-muted/30 border border-border">
                         <Avatar className="w-12 h-12 border-2 border-primary/20">
-                          <AvatarFallback className="bg-gradient-brand text-primary-foreground text-primary-foreground font-bold">
+                          <AvatarFallback className="bg-gradient-brand text-primary-foreground font-bold">
                             {reviewItem?.userName[0].toUpperCase()}
                           </AvatarFallback>
                         </Avatar>

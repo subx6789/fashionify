@@ -44,7 +44,7 @@ function UserProfile() {
           </div>
           <button
             onClick={handleGenerateNewAvatar}
-            className="absolute bottom-0 right-0 p-2 bg-gradient-brand text-primary-foreground text-primary-foreground rounded-full shadow-lg hover:scale-110 transition-transform"
+            className="absolute bottom-0 right-0 p-2 bg-gradient-brand text-primary-foreground rounded-full shadow-lg hover:scale-110 transition-transform"
             title="Generate Random Avatar"
           >
             <RefreshCw className="w-4 h-4" />
