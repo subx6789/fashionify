@@ -8,8 +8,8 @@ const CONTACT_INFO = [
   {
     icon: Phone,
     title: "Call Us",
-    detail: "+1 (800) 555-FASH",
-    sub: "Mon – Fri, 9 AM – 6 PM EST",
+    detail: "+91 98765 43210",
+    sub: "24 x 7",
   },
   {
     icon: Mail,
@@ -19,17 +19,17 @@ const CONTACT_INFO = [
   },
   {
     icon: MapPin,
-    title: "Visit Boutique",
-    detail: "742 Avenue of Style",
-    sub: "New York, NY 10001",
+    title: "Head Office",
+    detail: "Sector V",
+    sub: "Salt Lake, Kolkata 700091",
   },
 ];
 
 function ShoppingContact() {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
-    name:    "",
-    email:   "",
+    name: "",
+    email: "",
     subject: "",
     message: "",
   });

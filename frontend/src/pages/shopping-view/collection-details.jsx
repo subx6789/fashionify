@@ -17,7 +17,6 @@ function ShoppingCollectionDetails() {
 
   const [collection, setCollection] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [addingToCart, setAddingToCart] = useState(false);
 
   useEffect(() => {
     const fetchCollectionDetails = async () => {
@@ -37,42 +36,7 @@ function ShoppingCollectionDetails() {
     fetchCollectionDetails();
   }, [id, toast]);
 
-  const handleAddCollectionToCart = async () => {
-    if (!user) {
-      toast({ title: "Please login to add to cart", variant: "destructive" });
-      return;
-    }
-    
-    setAddingToCart(true);
-    let successCount = 0;
-    
-    try {
-      for (const product of collection.products) {
-        const res = await dispatch(
-          addToCart({
-            userId: user?.id,
-            productId: product?.id,
-            quantity: 1,
-          })
-        );
-        
-        if (res?.payload?.success) {
-          successCount++;
-        }
-      }
-      
-      if (successCount > 0) {
-        dispatch(fetchCartItems(user?.id));
-        toast({ title: `Added ${successCount} items from the collection to your cart!` });
-      } else {
-        toast({ title: "Failed to add items", variant: "destructive" });
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setAddingToCart(false);
-    }
-  };
+
 
   const handleGetProductDetails = (getCurrentProductId) => {
     navigate(`/shop/product/${getCurrentProductId}`);
@@ -151,15 +115,6 @@ function ShoppingCollectionDetails() {
                 </p>
               </div>
             </div>
-
-            <Button
-              onClick={handleAddCollectionToCart}
-              disabled={addingToCart}
-              className="w-full h-14 text-lg font-bold rounded-xl shadow-lg bg-foreground text-background hover:bg-foreground/90 transition-all hover:scale-[1.02]"
-            >
-              <ShoppingBag className="w-5 h-5 mr-2" />
-              {addingToCart ? "Adding..." : "Add Entire Collection to Cart"}
-            </Button>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { StarIcon, ChevronRight, ChevronLeft, Flame, AlertTriangle, Ruler, Share2, BadgeCheck, Tag } from "lucide-react";
+import { StarIcon, ChevronRight, ChevronLeft, Flame, AlertTriangle, Ruler, Share2, BadgeCheck, Tag, Heart } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -12,8 +12,8 @@ import StarRatingComponent from "@/components/common/star-rating";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { addReview, getReviews, checkRatingEligibility, resetEligibility } from "@/store/shop/review-slice";
+import { addToWishlist, removeFromWishlist, fetchWishlistItems } from "@/store/shop/wishlist-slice";
 import { useAuthModal } from "@/context/AuthModalContext";
-import SizeGuideModal from "@/components/shopping-view/size-guide-modal";
 import axios from "axios";
 
 function ShoppingProductDetails() {
@@ -29,6 +29,7 @@ function ShoppingProductDetails() {
   const dispatch = useDispatch();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.shopCart);
+  const { wishlistItems } = useSelector((state) => state.shopWishlist);
   const { reviews, eligibility } = useSelector((state) => state.shopReview);
   const { productDetails, isLoading } = useSelector((state) => state.shopProducts);
   const navigate = useNavigate();
@@ -43,10 +44,11 @@ function ShoppingProductDetails() {
     }
   }, [id, dispatch]);
 
-  // Check review eligibility for authenticated users
+  // Check review eligibility and wishlist for authenticated users
   useEffect(() => {
     if (isAuthenticated && user?.id && id) {
       dispatch(checkRatingEligibility({ productId: id, userId: user.id }));
+      dispatch(fetchWishlistItems(user.id));
     }
   }, [isAuthenticated, user?.id, id, dispatch]);
 
@@ -134,7 +136,7 @@ function ShoppingProductDetails() {
     let getCartItems = cartItems?.items || [];
     if (getCartItems.length) {
       const existingItem = getCartItems.find(
-        (item) => item.productId === String(productDetails?.id) && item.selectedSize === selectedSize
+        (item) => String(item.productId) === String(productDetails?.id) && item.selectedSize === selectedSize
       );
       if (existingItem) {
         if (existingItem.quantity + 1 > selectedVariantStock) {
@@ -244,6 +246,29 @@ function ShoppingProductDetails() {
     );
   }
 
+  let getCartItems = cartItems?.items || [];
+  const existingItem = getCartItems.find(
+    (item) => String(item.productId) === String(productDetails?.id) && item.selectedSize === selectedSize
+  );
+
+  const isWishlisted = wishlistItems?.some(item => String(item.id) === String(productDetails?.id));
+
+  function handleWishlist() {
+    if (!isAuthenticated) {
+      openAuthModal("login");
+      return;
+    }
+    if (isWishlisted) {
+      dispatch(removeFromWishlist({ userId: user?.id, productId: productDetails?.id })).then(() => {
+        toast({ title: "Removed from wishlist" });
+      });
+    } else {
+      dispatch(addToWishlist({ userId: user?.id, productId: productDetails?.id })).then(() => {
+        toast({ title: "Added to wishlist" });
+      });
+    }
+  }
+
   const addToCartDisabled =
     totalStock === 0 ||
     (sizeVariants.length > 0 && !selectedSize) ||
@@ -267,7 +292,7 @@ function ShoppingProductDetails() {
 
           {/* ── Image Gallery ─────────────────────────────────────── */}
           <div className="flex flex-col lg:flex-row gap-4 lg:items-start lg:sticky lg:top-28">
-            
+
             {/* Thumbnail strip (Left on Desktop, Bottom on Mobile) */}
             {images.length > 1 && (
               <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto lg:max-h-[600px] scrollbar-thin pb-2 lg:pb-0 lg:pr-1 flex-none order-2 lg:order-1 lg:w-20">
@@ -276,8 +301,8 @@ function ShoppingProductDetails() {
                     key={i}
                     onClick={() => setActiveImageIndex(i)}
                     className={`flex-none w-16 h-20 rounded-lg overflow-hidden border-2 transition-all ${i === activeImageIndex
-                        ? "border-primary shadow-sm"
-                        : "border-transparent opacity-60 hover:opacity-100"
+                      ? "border-primary shadow-sm"
+                      : "border-transparent opacity-60 hover:opacity-100"
                       }`}
                   >
                     <img src={url} alt={`View ${i + 1}`} onError={(e) => { e.target.src = "https://placehold.co/600x600/png?text=No+Image"; }} className="w-full h-full object-cover" />
@@ -407,12 +432,11 @@ function ShoppingProductDetails() {
                   <Label className="text-base font-semibold">Select Size</Label>
                   <div className="flex items-center gap-3">
                     {selectedVariant?.measurements && (
-                      <span className="text-xs text-muted-foreground flex items-center gap-1 border-r pr-3 border-border">
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
                         <Ruler className="w-3.5 h-3.5" />
                         {selectedVariant.measurements}
                       </span>
                     )}
-                    <SizeGuideModal category={productDetails?.category} />
                   </div>
                 </div>
 
@@ -536,15 +560,28 @@ function ShoppingProductDetails() {
                   )}
                 </div>
               )}
-              {/* Share button */}
-              <Button
-                variant="outline"
-                onClick={handleShare}
-                className="w-full h-11 gap-2 rounded-xl border-border hover:border-primary hover:text-primary transition-colors"
-              >
-                <Share2 className="h-4 w-4" />
-                Share this Product
-              </Button>
+              {/* Action buttons */}
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={handleWishlist}
+                  className={`w-full h-11 gap-2 rounded-xl transition-colors ${isWishlisted
+                    ? "border-red-500 text-red-500 hover:bg-red-50"
+                    : "border-border hover:border-red-500 hover:text-red-500"
+                    }`}
+                >
+                  <Heart className={`h-4 w-4 ${isWishlisted ? "fill-red-500" : ""}`} />
+                  {isWishlisted ? "Saved" : "Save to Wishlist"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleShare}
+                  className="w-full h-11 gap-2 rounded-xl border-border transition-colors"
+                >
+                  <Share2 className="h-4 w-4" />
+                  Share
+                </Button>
+              </div>
             </div>
 
             <Separator />

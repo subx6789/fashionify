@@ -67,7 +67,6 @@ function ShoppingHome() {
 
   const [mockProducts, setMockProducts] = useState([]);
   const [collections, setCollections] = useState([]);
-  const [addingToCart, setAddingToCart] = useState(false);
   const [latestReviews, setLatestReviews] = useState([]);
 
   useEffect(() => {
@@ -168,35 +167,6 @@ function ShoppingHome() {
     });
   }
 
-  async function handleAddCollectionToCart(collection) {
-    if (!isAuthenticated) {
-      openAuthModal("login");
-      return;
-    }
-    if (!collection.products || collection.products.length === 0) return;
-
-    setAddingToCart(true);
-    try {
-      // Add each product to cart (requires size selection in a real app, but for demo we just add it with null size or default)
-      for (const product of collection.products) {
-        await dispatch(
-          addToCart({
-            userId: user?.id,
-            productId: product.id,
-            quantity: 1,
-            selectedSize: product.sizeVariants?.[0]?.size || null,
-          })
-        );
-      }
-      dispatch(fetchCartItems(user?.id));
-      toast({ title: `Added "${collection.name}" to cart!` });
-    } catch (err) {
-      toast({ title: "Failed to add collection to cart", variant: "destructive" });
-    } finally {
-      setAddingToCart(false);
-    }
-  }
-
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
@@ -288,51 +258,41 @@ function ShoppingHome() {
               Shop by Collections
             </h2>
             <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Curated collections by our expert stylists. Add entire looks to your cart with a single click.
+              Curated collections by our expert stylists. Click a collection to discover the perfect look.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {collections.map((collection) => (
                 <div
                   key={collection.id}
                   onClick={() => navigate(`/shop/collection/${collection.id}`)}
-                  className="bg-card rounded-2xl border shadow-sm overflow-hidden flex flex-col group cursor-pointer"
+                  className="product-card flex flex-col group cursor-pointer h-full"
                 >
-                  <div className="h-80 relative overflow-hidden bg-muted">
+                  <div className="h-80 relative overflow-hidden bg-muted border-b-2 border-border">
                     <img
                       src={collection.imageUrl}
                       alt={collection.name}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {/* Hover indicator strip inside image area like product cards */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <div className="p-6 flex flex-col flex-1">
-                    <h3 className="text-2xl font-bold mb-2">{collection.name}</h3>
-                    <p className="text-muted-foreground text-sm flex-1">{collection.description}</p>
-                    <div className="mt-4 mb-6">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Included in this look</p>
-                      <div className="flex -space-x-3 overflow-hidden p-1">
+                  <div className="p-6 flex flex-col flex-1 bg-card">
+                    <h3 className="text-2xl font-black mb-2 tracking-tight line-clamp-1 text-foreground">{collection.name}</h3>
+                    <p className="text-muted-foreground text-sm font-bold flex-1 mb-4">{collection.description}</p>
+                    <div className="mt-auto">
+                      <div className="flex -space-x-3 overflow-hidden p-1 pt-2">
                         {collection.products?.map((p, i) => (
                           <img
                             key={p.id}
                             src={p.image || p.images?.[0]}
                             alt={p.title}
                             title={p.title}
-                            className={`inline-block h-12 w-12 rounded-full ring-2 ring-background object-cover`}
+                            className={`inline-block h-12 w-12 rounded-full border-2 border-border object-cover`}
                             style={{ zIndex: 10 - i }}
                           />
                         ))}
                       </div>
                     </div>
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddCollectionToCart(collection);
-                      }}
-                      disabled={addingToCart}
-                      className="w-full bg-foreground text-background hover:bg-foreground/90 font-bold h-12 mt-auto rounded-xl shadow-md"
-                    >
-                      {addingToCart ? "Adding..." : "Add All to Cart"}
-                    </Button>
                   </div>
                 </div>
               ))}

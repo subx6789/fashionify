@@ -1,23 +1,24 @@
 # Fashionify 🛍️
 
-Fashionify is a modern, full-stack e-commerce application featuring a sleek, dark-mode user interface and a robust Spring Boot backend. 
+Fashionify is a modern, full-stack e-commerce application featuring a bold Neubrutalism user interface and a robust Spring Boot backend. 
 
 ## 🚀 Features
 
 - **Public Shop Browsing:** Guests can effortlessly browse products, search, and filter by categories and brands.
 - **Secure Authentication:** JWT-based authentication system with separate flows for customers and administrators.
 - **Shopping Cart & Checkout:** Seamless cart management and a secure checkout flow (integrated with Razorpay).
+- **Personalized Wishlist:** Save and manage favorite items to revisit later.
 - **Real-World Product Management:** Products now support size variants (e.g., S, M, L or UK sizes) with individual stock limits, mimicking real e-commerce systems.
 - **Modern Search UI:** A modernized, vertical-style search bar with built-in throttling/debouncing for an ultra-smooth experience.
 - **Admin Dashboard:** A dedicated portal for administrators to manage products, sizes, stocks, view orders, and upload images seamlessly.
-- **Dark Mode UI:** A gorgeous, responsive, and dynamic interface built with TailwindCSS and Shadcn UI.
+- **Neubrutalism UI:** A gorgeous, bold, and dynamic interface built with TailwindCSS, featuring distinct hard shadows, acid colors, and micro-interactions.
 - **Cloudinary Integration:** Efficient product image hosting and delivery via Cloudinary.
 
 ## 🛠️ Technology Stack
 
 ### Frontend
 - **Framework:** React + Vite
-- **Styling:** TailwindCSS + Shadcn UI (Custom Dark Theme)
+- **Styling:** TailwindCSS + Shadcn UI (Neubrutalism Theme)
 - **State Management:** Redux Toolkit
 - **Routing:** React Router DOM
 
@@ -71,8 +72,6 @@ Create a `.env` file in the `backend` directory and add the following required v
 DATABASE_URL=jdbc:mysql://your_host:your_port/defaultdb?sslMode=REQUIRED&sessionVariables=sql_require_primary_key=0
 DB_USER=your_mysql_username
 DB_PASSWORD=your_mysql_password
-```
-*(Note: If you are using Aiven MySQL or a strict cloud provider, the `&sessionVariables=sql_require_primary_key=0` parameter in the JDBC URL is required so Hibernate can auto-create join tables properly).*
 
 # JWT Authentication
 JWT_SECRET=your_random_secret_string_minimum_256_bits_length
