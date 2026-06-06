@@ -19,6 +19,9 @@ public class CartRecoveryService {
     @Autowired
     private CartRepository cartRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     /**
      * Runs every hour to check for abandoned carts.
      * An abandoned cart is defined as a cart with items that hasn't been updated in over 24 hours.
@@ -39,18 +42,12 @@ public class CartRecoveryService {
                 if (cart.getUpdatedAt() != null && cart.getUpdatedAt().isBefore(thresholdTime)) {
                     abandonedCount++;
                     
-                    // In a real application, you would send an email using JavaMailSender here.
-                    // For now, we simulate this via logger since there's no SMTP server configured.
-                    logger.info("---------------------------------------------------------");
-                    logger.info("🔔 ABANDONED CART ALERT");
-                    logger.info("User ID: {}", cart.getUser().getId());
-                    logger.info("User Email: {}", cart.getUser().getEmail());
-                    logger.info("Items left behind: {}", cart.getItems().size());
-                    logger.info("Action: Simulating automated recovery email to {}", cart.getUser().getEmail());
-                    logger.info("Subject: You left something behind! Complete your order with 10% off");
-                    logger.info("Body: Hey {}, you left {} items in your cart. Come back and use code RECOVER10 to finish your purchase!", 
+                    // Send email using EmailService
+                    logger.info("Sending automated recovery email to {}", cart.getUser().getEmail());
+                    String subject = "You left something behind! Complete your order with 10% off";
+                    String text = String.format("Hey %s, you left %d items in your cart. Come back and use code RECOVER10 to finish your purchase!", 
                                 cart.getUser().getUserName(), cart.getItems().size());
-                    logger.info("---------------------------------------------------------");
+                    emailService.sendSimpleEmail(cart.getUser().getEmail(), subject, text);
                     
                     // You might also want to mark that an email was sent for this cart update
                     // so you don't spam them every hour. For a complete implementation, 

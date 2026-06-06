@@ -14,6 +14,7 @@ import com.fashionify.backend.repository.UserCouponUsageRepository;
 import com.fashionify.backend.entity.Coupon;
 import com.fashionify.backend.entity.CouponRedemption;
 import com.fashionify.backend.entity.UserCouponUsage;
+import com.fashionify.backend.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -127,6 +128,9 @@ public class ShopOrderController {
         ));
     }
 
+    @Autowired
+    private com.fashionify.backend.service.EmailService emailService;
+
     /**
      * Simulated payment confirmation — marks order as confirmed and clears cart.
      * In Razorpay mode this would verify the payment signature.
@@ -156,6 +160,13 @@ public class ShopOrderController {
         order.setOrderUpdateDate(LocalDateTime.now());
         orderRepository.save(order);
 
+        // Clear cart after successful order confirmation
+        Optional<Cart> cartOpt = cartRepository.findByUserId(order.getUser().getId());
+        cartOpt.ifPresent(cart -> {
+            cart.getItems().clear();
+            cartRepository.save(cart);
+        });
+
         // Decrement stock for each ordered size variant
         for (OrderItem item : order.getOrderItems()) {
             if (item.getProductId() != null && item.getSelectedSize() != null) {
@@ -171,12 +182,6 @@ public class ShopOrderController {
             }
         }
 
-        // Clear cart
-        Optional<Cart> cartOpt = cartRepository.findByUserId(order.getUser().getId());
-        cartOpt.ifPresent(cart -> {
-            cart.getItems().clear();
-            cartRepository.save(cart);
-        });
 
         // Record coupon usage if any
         if (order.getAppliedPromoCode() != null && !order.getAppliedPromoCode().isEmpty()) {
@@ -205,6 +210,39 @@ public class ShopOrderController {
                 usage.setUsageCount(usage.getUsageCount() + 1);
                 userCouponUsageRepository.save(usage);
             });
+        }
+
+        // Send order confirmation email
+        try {
+            StringBuilder emailBody = new StringBuilder();
+            emailBody.append("Hi ").append(order.getUser().getUserName()).append(",\n\n");
+            emailBody.append("Thank you for your order! Your order #").append(order.getId()).append(" has been successfully placed.\n\n");
+            emailBody.append("Order Details:\n");
+            
+            for (OrderItem item : order.getOrderItems()) {
+                double itemPrice = 0.0;
+                try {
+                    itemPrice = Double.parseDouble(item.getPrice());
+                } catch (Exception ignored) {}
+                
+                emailBody.append("- ").append(item.getTitle())
+                         .append(" (Size: ").append(item.getSelectedSize()).append(")")
+                         .append(" x ").append(item.getQuantity())
+                         .append(" - Rs.").append(itemPrice * item.getQuantity()).append("\n");
+            }
+            
+            emailBody.append("\nTotal Amount: Rs.").append(order.getTotalAmount()).append("\n\n");
+            emailBody.append("We will notify you once your order is shipped.\n\n");
+            emailBody.append("Thank you for shopping with Fashionify!");
+            
+            emailService.sendSimpleEmail(
+                order.getUser().getEmail(),
+                "Fashionify Order Confirmation #" + order.getId(),
+                emailBody.toString()
+            );
+        } catch (Exception e) {
+            // Log but do not fail the checkout process
+            e.printStackTrace();
         }
 
         return ResponseEntity.ok(Map.of(
@@ -269,6 +307,80 @@ public class ShopOrderController {
             "discountType", coupon.getType(),
             "discountValue", coupon.getValue(),
             "message", "Promo code applied successfully!"
+        ));
+    }
+
+    // ── Cancel Order ──────────────────────────────────────────────────────────
+
+    /**
+     * PATCH /api/shop/order/{id}/cancel
+     * Body: { "userId": 42 }
+     *
+     * Authorization: only the order owner can cancel.
+     * Guard: cannot cancel orders that are already delivered or cancelled.
+     */
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<?> cancelOrder(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> body) {
+
+        Object userIdObj = body.get("userId");
+        if (userIdObj == null) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "userId is required."));
+        }
+
+        Long requestingUserId;
+        try {
+            requestingUserId = Long.parseLong(userIdObj.toString());
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "Invalid userId."));
+        }
+
+        Optional<Order> orderOpt = orderRepository.findById(id);
+        if (orderOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Order order = orderOpt.get();
+
+        // Authorization: only the owner can cancel
+        if (!order.getUser().getId().equals(requestingUserId)) {
+            return ResponseEntity.status(403)
+                    .body(Map.of("success", false, "message", "You are not authorized to cancel this order."));
+        }
+
+        // Business rule: cannot cancel delivered or already-cancelled orders
+        String currentStatus = order.getOrderStatus();
+        if ("delivered".equalsIgnoreCase(currentStatus) || "CANCELLED".equalsIgnoreCase(currentStatus)) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Order cannot be cancelled (status: " + currentStatus + ")."
+            ));
+        }
+
+        order.setOrderStatus("CANCELLED");
+        order.setOrderUpdateDate(LocalDateTime.now());
+        orderRepository.save(order);
+
+        // Notify user by email
+        try {
+            String subject = "Your Fashionify Order #" + order.getId() + " has been cancelled.";
+            String text = "Hi " + order.getUser().getUserName() + ",\n\n" +
+                          "Your order #" + order.getId() + " has been successfully cancelled.\n\n" +
+                          "If this was a mistake, please place a new order.\n\n" +
+                          "Thank you for shopping with Fashionify!";
+            emailService.sendSimpleEmail(order.getUser().getEmail(), subject, text);
+        } catch (Exception e) {
+            // Non-fatal — log and continue
+            e.printStackTrace();
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Order #" + id + " cancelled successfully.",
+                "orderId", id
         ));
     }
 }

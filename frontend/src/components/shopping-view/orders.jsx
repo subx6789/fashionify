@@ -18,6 +18,7 @@ import {
   resetOrderDetails,
 } from "@/store/shop/order-slice";
 import { Badge } from "../ui/badge";
+import CancelOrderButton from "./CancelOrderButton";
 
 function ShoppingOrders() {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
@@ -30,14 +31,13 @@ function ShoppingOrders() {
   }
 
   useEffect(() => {
-    dispatch(getAllOrdersByUserId(user?.id));
-  }, [dispatch]);
+    if (user?.id) dispatch(getAllOrdersByUserId(user.id));
+  }, [dispatch, user?.id]);
 
   useEffect(() => {
     if (orderDetails !== null) setOpenDetailsDialog(true);
   }, [orderDetails]);
 
-  console.log(orderDetails, "orderDetails");
 
   return (
     <Card>
@@ -45,6 +45,17 @@ function ShoppingOrders() {
         <CardTitle>Order History</CardTitle>
       </CardHeader>
       <CardContent>
+        {/* Single Dialog instance for all orders */}
+        <Dialog
+          open={openDetailsDialog}
+          onOpenChange={() => {
+            setOpenDetailsDialog(false);
+            dispatch(resetOrderDetails());
+          }}
+        >
+          <ShoppingOrderDetailsView orderDetails={orderDetails} />
+        </Dialog>
+
         <Table>
           <TableHeader>
             <TableRow>
@@ -52,25 +63,27 @@ function ShoppingOrders() {
               <TableHead>Order Date</TableHead>
               <TableHead>Order Status</TableHead>
               <TableHead>Order Price</TableHead>
-              <TableHead>
-                <span className="sr-only">Details</span>
-              </TableHead>
+              <TableHead><span className="sr-only">Actions</span></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {orderList && orderList.length > 0
               ? orderList.map((orderItem) => (
-                  <TableRow>
+                  <TableRow key={orderItem?.id}>
                     <TableCell>{orderItem?.id}</TableCell>
-                    <TableCell>{orderItem?.orderDate.split("T")[0]}</TableCell>
+                    <TableCell>{orderItem?.orderDate?.split("T")?.[0] ?? "N/A"}</TableCell>
                     <TableCell>
                       <Badge
-                        className={`py-1 px-3 text-white ${
+                        className={`py-1 px-3 ${
                           orderItem?.orderStatus === "confirmed"
-                            ? "bg-green-500"
+                            ? "bg-green-500 text-white"
                             : orderItem?.orderStatus === "rejected"
-                            ? "bg-red-600"
-                            : "bg-black"
+                            ? "bg-red-600 text-white"
+                            : orderItem?.orderStatus === "delivered"
+                            ? "bg-primary text-primary-foreground"
+                            : orderItem?.orderStatus === "CANCELLED"
+                            ? "bg-gray-300 text-gray-800"
+                            : "bg-black text-white"
                         }`}
                       >
                         {orderItem?.orderStatus}
@@ -78,26 +91,28 @@ function ShoppingOrders() {
                     </TableCell>
                     <TableCell>₹{orderItem?.totalAmount}</TableCell>
                     <TableCell>
-                      <Dialog
-                        open={openDetailsDialog}
-                        onOpenChange={() => {
-                          setOpenDetailsDialog(false);
-                          dispatch(resetOrderDetails());
-                        }}
-                      >
+                      <div className="flex items-center gap-2">
                         <Button
-                          onClick={() =>
-                            handleFetchOrderDetails(orderItem?.id)
-                          }
+                          size="sm"
+                          onClick={() => handleFetchOrderDetails(orderItem?.id)}
                         >
                           View Details
                         </Button>
-                        <ShoppingOrderDetailsView orderDetails={orderDetails} />
-                      </Dialog>
+                        <CancelOrderButton
+                          orderId={orderItem?.id}
+                          status={orderItem?.orderStatus}
+                        />
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
-              : null}
+              : (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                    No orders yet.
+                  </TableCell>
+                </TableRow>
+              )}
           </TableBody>
         </Table>
       </CardContent>

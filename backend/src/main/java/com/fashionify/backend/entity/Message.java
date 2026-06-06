@@ -37,7 +37,7 @@ public class Message {
     private LocalDateTime createdAt;
 
     /** Whether the admin has opened/read this message. Defaults to false. */
-    @Column(nullable = false)
+    @Column(name = "is_read", nullable = false)
     @Builder.Default
     private boolean read = false;
 

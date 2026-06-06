@@ -79,6 +79,11 @@ module.exports = {
           green:    "hsl(var(--neu-green))",
           orange:   "hsl(var(--neu-orange))",
         },
+        // Explicit alias tokens — map var(--color-*) for use in arbitrary values
+        "acid-green":  "var(--color-acid-green)",
+        "brand-black": "var(--color-black)",
+        "brand-white": "var(--color-white)",
+        "off-white":   "var(--color-off-white)",
       },
       // ── Spacing ────────────────────────────────────────────────────────────
       borderRadius: {

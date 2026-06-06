@@ -10,119 +10,162 @@
 @layer base {
   :root {
     /* ── Semantic color tokens ───────────────────────────────────── */
-    --background:           40 33% 96%;       /* #FAF7F0 — warm editorial off-white */
-    --foreground:           0 0% 0%;          /* #000000 — strong black text for high contrast */
+    --background: 40 33% 96%;
+    /* #FAF7F0 — warm editorial off-white */
+    --foreground: 0 0% 0%;
+    /* #000000 — strong black text for high contrast */
 
-    --card:                 0 0% 100%;
-    --card-foreground:      0 0% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 4%;
 
-    --popover:              0 0% 100%;
-    --popover-foreground:   0 0% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 4%;
 
     /* Brand: Acid Lime Green — used as filled surface, NOT as text on white */
-    --primary:              77 100% 50%;      /* #C6FF00 — lime filled surfaces only */
-    --primary-foreground:   0 0% 0%;          /* #000000 on lime — contrast 12:1 ✓ WCAG AAA */
-    --primary-hover:        80 100% 50%;      /* #9EFF00 — slightly shifted on hover */
-    --primary-soft:         77 100% 90%;      /* #F4FFD0 — tinted surface, not text */
-    --primary-dark:         84 100% 64%;      /* #7BFF4A — bright accent variant */
+    --primary: 77 100% 50%;
+    /* #C6FF00 — lime filled surfaces only */
+    --primary-foreground: 0 0% 0%;
+    /* #000000 on lime — contrast 12:1 ✓ WCAG AAA */
+    --primary-hover: 80 100% 50%;
+    /* #9EFF00 — slightly shifted on hover */
+    --primary-soft: 77 100% 90%;
+    /* #F4FFD0 — tinted surface, not text */
+    --primary-dark: 84 100% 64%;
+    /* #7BFF4A — bright accent variant */
 
     /* Light-mode supporting tokens (prevent lime-on-white readability issues) */
-    --primary-contrast:     0 0% 0%;          /* #000000 — always pair with lime surfaces */
-    --primary-surface:      77 100% 90%;      /* #F4FFD0 — soft lime tint for card highlights */
-    --primary-border:       0 0% 0%;          /* #000000 — forced black border for lime surfaces */
-    --primary-glow:         77 100% 50%;      /* used at low opacity for focus/glow: /25 */
+    --primary-contrast: 0 0% 0%;
+    /* #000000 — always pair with lime surfaces */
+    --primary-surface: 77 100% 90%;
+    /* #F4FFD0 — soft lime tint for card highlights */
+    --primary-border: 0 0% 0%;
+    /* #000000 — forced black border for lime surfaces */
+    --primary-glow: 77 100% 50%;
+    /* used at low opacity for focus/glow: /25 */
 
-    --gradient-brand:       linear-gradient(135deg, hsl(77 100% 50%) 0%, hsl(80 100% 50%) 50%, hsl(84 100% 64%) 100%);
+    --gradient-brand: linear-gradient(135deg, hsl(77 100% 50%) 0%, hsl(80 100% 50%) 50%, hsl(84 100% 64%) 100%);
 
-    --secondary:            0 0% 94%;
+    --secondary: 0 0% 94%;
     --secondary-foreground: 0 0% 8%;
-    --secondary-hover:      0 0% 88%;
+    --secondary-hover: 0 0% 88%;
 
-    --muted:                0 0% 94%;
-    --muted-foreground:     0 0% 44%;
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 44%;
 
-    --accent:               77 100% 50%;      /* same lime — accent surfaces */
-    --accent-foreground:    0 0% 0%;
+    --accent: 77 100% 50%;
+    /* same lime — accent surfaces */
+    --accent-foreground: 0 0% 0%;
 
-    --destructive:          0 84% 60%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border:               0 0% 0%;          /* #000000 — solid black borders */
-    --input:                0 0% 88%;
-    --ring:                 77 100% 50%;
+    --border: 0 0% 0%;
+    /* #000000 — solid black borders */
+    --input: 0 0% 88%;
+    --ring: 77 100% 50%;
 
-    --radius:               0.5rem;
+    --radius: 0.5rem;
 
     /* ── Neubrutalism palette tokens ───────────────────────────────────── */
-    --neu-black:            0 0% 4%;
-    --neu-white:            0 0% 98%;
-    --neu-yellow:           48 100% 60%;
-    
-    --neu-blue:             217 90% 60%;
-    --neu-green:            77 100% 50%;      /* = primary lime */
-    --neu-orange:           24 100% 60%;
+    --neu-black: 0 0% 4%;
+    --neu-white: 0 0% 98%;
+    --neu-yellow: 48 100% 60%;
+
+    --neu-blue: 217 90% 60%;
+    --neu-green: 77 100% 50%;
+    /* = primary lime */
+    --neu-orange: 24 100% 60%;
 
     /* ── Chart colors ──────────────────────────────────────────────────── */
-    --chart-1:              77 100% 50%;
-    --chart-2:              173 58% 39%;
-    --chart-3:              197 37% 24%;
-    --chart-4:              43 74% 66%;
-    --chart-5:              27 87% 67%;
+    --chart-1: 77 100% 50%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+
+    /* ── Explicit alias tokens (plain hex — no hsl() wrapper needed) ─────
+       Usage in plain CSS:   background: var(--color-acid-green);
+       Usage in Tailwind:    bg-[var(--color-acid-green)]              */
+    --color-acid-green:        #C6FF00;
+    --color-black:             #000000;
+    --color-white:             #FFFFFF;
+    --color-off-white:         #FAF7F0;
+
+    /* Shadow scale — solid offset, zero blur = Neubrutalism signature */
+    --shadow-neubrutal-sm:     2px 2px 0px 0px #000000;
+    --shadow-neubrutal:        4px 4px 0px 0px #000000;
+    --shadow-neubrutal-lg:     6px 6px 0px 0px #000000;
+    --shadow-neubrutal-xl:     8px 8px 0px 0px #000000;
+    --shadow-neubrutal-green:  4px 4px 0px 0px #C6FF00;
+
+    /* Border shorthands */
+    --border-neubrutal:        2px solid #000000;
+    --border-neubrutal-thick:  3px solid #000000;
   }
 
   .dark {
-    --background:           240 10% 6%;
-    --foreground:           0 0% 96%;
+    --background: 240 10% 6%;
+    --foreground: 0 0% 96%;
 
-    --card:                 240 10% 9%;
-    --card-foreground:      0 0% 96%;
+    --card: 240 10% 9%;
+    --card-foreground: 0 0% 96%;
 
-    --popover:              240 10% 9%;
-    --popover-foreground:   0 0% 96%;
+    --popover: 240 10% 9%;
+    --popover-foreground: 0 0% 96%;
 
-    --primary:              77 100% 50%;      /* #C6FF00 — lime stays vivid in dark mode */
-    --primary-foreground:   0 0% 0%;          /* #000000 on lime — contrast 12:1 ✓ WCAG AAA */
-    --primary-hover:        80 100% 50%;      /* #9EFF00 */
-    --primary-soft:         77 100% 15%;      /* dark lime tint background */
-    --primary-dark:         84 100% 64%;      /* #7BFF4A */
+    --primary: 77 100% 50%;
+    /* #C6FF00 — lime stays vivid in dark mode */
+    --primary-foreground: 0 0% 0%;
+    /* #000000 on lime — contrast 12:1 ✓ WCAG AAA */
+    --primary-hover: 80 100% 50%;
+    /* #9EFF00 */
+    --primary-soft: 77 100% 15%;
+    /* dark lime tint background */
+    --primary-dark: 84 100% 64%;
+    /* #7BFF4A */
 
-    --primary-contrast:     0 0% 0%;          /* #000000 */
-    --primary-surface:      77 100% 15%;      /* dark lime surface */
-    --primary-border:       0 0% 0%;          /* #000000 — forced black border */
-    --primary-glow:         77 100% 50%;
+    --primary-contrast: 0 0% 0%;
+    /* #000000 */
+    --primary-surface: 77 100% 15%;
+    /* dark lime surface */
+    --primary-border: 0 0% 0%;
+    /* #000000 — forced black border */
+    --primary-glow: 77 100% 50%;
 
-    --gradient-brand:       linear-gradient(135deg, hsl(77 100% 50%) 0%, hsl(80 100% 50%) 50%, hsl(84 100% 64%) 100%);
+    --gradient-brand: linear-gradient(135deg, hsl(77 100% 50%) 0%, hsl(80 100% 50%) 50%, hsl(84 100% 64%) 100%);
 
-    --secondary:            240 10% 14%;
+    --secondary: 240 10% 14%;
     --secondary-foreground: 0 0% 90%;
-    --secondary-hover:      240 10% 18%;
+    --secondary-hover: 240 10% 18%;
 
-    --muted:                240 10% 13%;
-    --muted-foreground:     240 5% 60%;
+    --muted: 240 10% 13%;
+    --muted-foreground: 240 5% 60%;
 
-    --accent:               77 100% 50%;      /* #C6FF00 — lime stays vivid in dark mode */
-    --accent-foreground:    0 0% 0%;
+    --accent: 77 100% 50%;
+    /* #C6FF00 — lime stays vivid in dark mode */
+    --accent-foreground: 0 0% 0%;
 
-    --destructive:          0 72% 55%;
+    --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border:               240 10% 22%;
-    --input:                240 10% 16%;
-    --ring:                 77 100% 50%;
+    --border: 240 10% 22%;
+    --input: 240 10% 16%;
+    --ring: 77 100% 50%;
 
-    --neu-black:            0 0% 92%;
-    --neu-white:            240 10% 9%;
-    --neu-yellow:           48 100% 60%;
-    
-    --neu-blue:             217 90% 60%;
-    --neu-green:            77 100% 50%;
-    --neu-orange:           24 100% 60%;
+    --neu-black: 0 0% 92%;
+    --neu-white: 240 10% 9%;
+    --neu-yellow: 48 100% 60%;
 
-    --chart-1:              77 100% 50%;
-    --chart-2:              160 60% 45%;
-    --chart-3:              30 80% 55%;
-    --chart-4:              77 100% 50%;      /* lime accent on chart */
-    --chart-5:              340 75% 55%;
+    --neu-blue: 217 90% 60%;
+    --neu-green: 77 100% 50%;
+    --neu-orange: 24 100% 60%;
+
+    --chart-1: 77 100% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 77 100% 50%;
+    /* lime accent on chart */
+    --chart-5: 340 75% 55%;
   }
 }
 
@@ -140,16 +183,29 @@
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-heading font-bold tracking-tight;
   }
 
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
   ::-webkit-scrollbar-thumb {
     background: hsl(var(--muted-foreground) / 0.3);
     border-radius: 3px;
   }
+
   ::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--muted-foreground) / 0.5);
   }
@@ -164,6 +220,7 @@
     box-shadow: 4px 4px 0px 0px hsl(var(--neu-black));
     transition: box-shadow 0.15s ease, transform 0.15s ease;
   }
+
   .neu-card:hover {
     box-shadow: 2px 2px 0px 0px hsl(var(--neu-black));
     transform: translate(2px, 2px);
@@ -175,20 +232,25 @@
     @apply transition-all duration-150 inline-flex items-center justify-center gap-2;
     box-shadow: 3px 3px 0px 0px hsl(var(--neu-black));
   }
+
   .neu-btn:hover {
     box-shadow: 1px 1px 0px 0px hsl(var(--neu-black));
     transform: translate(2px, 2px);
   }
+
   .neu-btn:active {
     box-shadow: 0px 0px 0px 0px hsl(var(--neu-black));
     transform: translate(3px, 3px);
   }
+
   .neu-btn-primary {
     @apply neu-btn bg-primary text-primary-foreground border-primary-border;
   }
+
   .neu-btn-yellow {
     @apply neu-btn bg-[hsl(var(--neu-yellow))] text-[hsl(var(--neu-black))] border-[hsl(var(--neu-black))];
   }
+
   .neu-btn-outline {
     @apply neu-btn bg-transparent text-foreground;
   }
@@ -201,6 +263,7 @@
     @apply transition-colors duration-150;
     box-shadow: 2px 2px 0px 0px hsl(var(--neu-black));
   }
+
   .neu-input:focus {
     box-shadow: 3px 3px 0px 0px hsl(var(--primary));
   }
@@ -230,6 +293,7 @@
     @apply transition-all duration-200;
     box-shadow: 4px 4px 0px 0px hsl(var(--neu-black));
   }
+
   .product-card:hover {
     box-shadow: 6px 6px 0px 0px hsl(var(--primary));
     transform: translate(-2px, -2px);
@@ -253,6 +317,7 @@
 
 /* ── Utility classes ───────────────────────────────────────────────────── */
 @layer utilities {
+
   /* ACID LIME SURFACE CONTRAST ENFORCEMENT */
   /* Automatically enforce black text and black borders on all primary surfaces */
   .bg-primary {
@@ -282,6 +347,7 @@
   .neu-underline {
     @apply relative inline-block;
   }
+
   .neu-underline::after {
     content: '';
     @apply absolute bottom-0 left-0 w-full h-1.5 bg-[hsl(var(--neu-yellow))];
@@ -302,9 +368,11 @@
     @apply bg-card border-2 border-border rounded-sm;
     box-shadow: 4px 4px 0px 0px hsl(var(--neu-black));
   }
+
   .card-gradient-hover {
     @apply transition-all duration-150;
   }
+
   .card-gradient-hover:hover {
     box-shadow: 6px 6px 0px 0px hsl(var(--primary));
     transform: translate(-2px, -2px);

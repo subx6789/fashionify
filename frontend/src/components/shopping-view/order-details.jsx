@@ -78,7 +78,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
           </div>
           <div className="flex mt-2 items-center justify-between">
             <p className="font-medium">Order Date</p>
-            <Label>{orderDetails?.orderDate.split("T")[0]}</Label>
+            <Label>{orderDetails?.orderDate ? (typeof orderDetails.orderDate === "string" ? orderDetails.orderDate.split("T")[0] : Array.isArray(orderDetails.orderDate) ? `${orderDetails.orderDate[0]}-${String(orderDetails.orderDate[1]).padStart(2,"0")}-${String(orderDetails.orderDate[2]).padStart(2,"0")}` : "N/A") : "N/A"}</Label>
           </div>
           <div className="flex mt-2 items-center justify-between">
             <p className="font-medium">Order Price</p>
@@ -114,17 +114,22 @@ function ShoppingOrderDetailsView({ orderDetails }) {
           <div className="grid gap-2">
             <div className="font-medium text-lg">Order Items</div>
             <ul className="grid gap-3">
-              {orderDetails?.cartItems && orderDetails?.cartItems.length > 0
-                ? orderDetails?.cartItems.map((item) => (
+              {orderDetails?.orderItems && orderDetails?.orderItems.length > 0
+                ? orderDetails?.orderItems.map((item) => (
                     <li className="flex items-center justify-between bg-muted/40 p-3 rounded-lg border border-border/50" key={item.id || item.title}>
-                      <span className="font-medium text-sm">{item.title || item.product?.title || 'Product'}</span>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-medium text-sm">{item.title || item.product?.title || 'Product'}</span>
+                        {item.selectedSize && (
+                          <span className="text-xs text-muted-foreground">Size: {item.selectedSize}</span>
+                        )}
+                      </div>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span>Qty: {item.quantity}</span>
                         <span className="font-semibold text-foreground">₹{item.price}</span>
                       </div>
                     </li>
                   ))
-                : null}
+                : <li className="text-sm text-muted-foreground text-center py-4">No items found.</li>}
             </ul>
           </div>
         </div>

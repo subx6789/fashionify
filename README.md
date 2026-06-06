@@ -68,8 +68,11 @@ Create a `.env` file in the `backend` directory and add the following required v
 
 ```env
 # Database Credentials
+DATABASE_URL=jdbc:mysql://your_host:your_port/defaultdb?sslMode=REQUIRED&sessionVariables=sql_require_primary_key=0
 DB_USER=your_mysql_username
 DB_PASSWORD=your_mysql_password
+```
+*(Note: If you are using Aiven MySQL or a strict cloud provider, the `&sessionVariables=sql_require_primary_key=0` parameter in the JDBC URL is required so Hibernate can auto-create join tables properly).*
 
 # JWT Authentication
 JWT_SECRET=your_random_secret_string_minimum_256_bits_length

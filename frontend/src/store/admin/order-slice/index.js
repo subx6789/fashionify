@@ -14,7 +14,6 @@ export const getAllOrdersForAdmin = createAsyncThunk(
       `${import.meta.env.VITE_API_URL}/api/admin/orders/get`,
       { withCredentials: true }
     );
-
     return response.data;
   }
 );
@@ -26,7 +25,6 @@ export const getOrderDetailsForAdmin = createAsyncThunk(
       `${import.meta.env.VITE_API_URL}/api/admin/orders/details/${id}`,
       { withCredentials: true }
     );
-
     return response.data;
   }
 );
@@ -39,8 +37,8 @@ export const updateOrderStatus = createAsyncThunk(
       { orderStatus },
       { withCredentials: true }
     );
-
-    return response.data;
+    // Return both the response and the id+status so the reducer can patch in-place
+    return { ...response.data, id, orderStatus };
   }
 );
 
@@ -75,6 +73,19 @@ const adminOrderSlice = createSlice({
       .addCase(getOrderDetailsForAdmin.rejected, (state) => {
         state.isLoading = false;
         state.orderDetails = null;
+      })
+      // BUG5 FIX: Optimistic in-place update — no full re-fetch needed
+      .addCase(updateOrderStatus.fulfilled, (state, action) => {
+        const { id, orderStatus } = action.payload;
+        // Patch the specific order in the list
+        const order = state.orderList.find((o) => o.id === id);
+        if (order) {
+          order.orderStatus = orderStatus;
+        }
+        // Also update orderDetails if it's the same order
+        if (state.orderDetails && state.orderDetails.id === id) {
+          state.orderDetails = { ...state.orderDetails, orderStatus };
+        }
       });
   },
 });
@@ -82,3 +93,4 @@ const adminOrderSlice = createSlice({
 export const { resetOrderDetails } = adminOrderSlice.actions;
 
 export default adminOrderSlice.reducer;
+
