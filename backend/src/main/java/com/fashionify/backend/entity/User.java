@@ -37,6 +37,7 @@ public class User {
     private String preferredStyle;
 
     private String gender;
+    private String dateOfBirth;
     private String weight;
     private String age;
     

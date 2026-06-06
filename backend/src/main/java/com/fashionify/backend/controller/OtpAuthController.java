@@ -30,25 +30,30 @@ public class OtpAuthController {
      */
     @PostMapping("/initiate")
     public ResponseEntity<?> initiateSignup(@RequestBody Map<String, String> body) {
-        String email    = body.get("email");
-        String userName = body.get("userName");
-        String password = body.get("password");
+        String email       = body.get("email");
+        String userName    = body.get("userName");
+        String password    = body.get("password");
+        String dateOfBirth = body.get("dateOfBirth");
+        String gender      = body.get("gender");
 
-        if (email == null || userName == null || password == null ||
-            email.isBlank() || userName.isBlank() || password.isBlank()) {
+        if (email == null || userName == null || password == null || dateOfBirth == null ||
+            email.isBlank() || userName.isBlank() || password.isBlank() || dateOfBirth.isBlank()) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", "email, userName and password are required."));
+                    .body(Map.of("success", false, "message", "Email, Username, Password, and Date of Birth are required."));
         }
 
         try {
-            otpService.initiateSignup(email.trim().toLowerCase(), userName.trim(), password);
+            otpService.initiateSignup(email.trim().toLowerCase(), userName.trim(), password, dateOfBirth.trim(), gender != null ? gender.trim() : "");
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "message", "OTP sent to " + email + ". Valid for 5 minutes."
             ));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("success", false, "message", ex.getMessage()));
         } catch (IllegalStateException ex) {
             String msg = switch (ex.getMessage()) {
-                case "EMAIL_TAKEN"    -> "An account with this email already exists.";
+                case "EMAIL_TAKEN"    -> "email already exists or connected with other account please try a new email";
                 case "USERNAME_TAKEN" -> "This username is already taken.";
                 default               -> ex.getMessage();
             };

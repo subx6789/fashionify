@@ -59,48 +59,7 @@ public class AuthController {
     @Autowired
     WishlistRepository wishlistRepository;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest signUpRequest) {
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse(false, "Error: Email is already in use!"));
-        }
-
-        if (userRepository.existsByUserName(signUpRequest.getUserName())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse(false, "Error: Username is already taken!"));
-        }
-
-        // Backend password strength validation
-        String password = signUpRequest.getPassword();
-        if (password == null || password.length() < 8
-                || !password.matches(".*[A-Z].*")
-                || !password.matches(".*[a-z].*")
-                || !password.matches(".*[0-9].*")
-                || !password.matches(".*[^A-Za-z0-9].*")) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse(false,
-                            "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."));
-        }
-
-        long userCount = userRepository.count();
-        String role = (userCount == 0) ? "admin" : "user";
-
-        // Create new user's account
-        User user = User.builder()
-                .userName(signUpRequest.getUserName())
-                .email(signUpRequest.getEmail())
-                .password(encoder.encode(signUpRequest.getPassword()))
-                .role(role)
-                .build();
-
-        userRepository.save(user);
-
-        return ResponseEntity.ok(new MessageResponse(true, "Registration successful"));
-    }
+    // Legacy /register endpoint removed to enforce OTP signup flow
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {

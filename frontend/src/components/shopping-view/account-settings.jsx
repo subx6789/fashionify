@@ -8,7 +8,7 @@ import { User, Lock, Loader2, AlertTriangle, ArrowLeft } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 
-function AccountSettings({ onBackToProfile }) {
+function AccountSettings({ onBackToProfile, hideHeader }) {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -22,8 +22,6 @@ function AccountSettings({ onBackToProfile }) {
   const [profileData, setProfileData] = useState({
     userName: user?.userName || "",
     gender: user?.gender || "",
-    age: user?.age || "",
-    weight: user?.weight || "",
     avatar: user?.avatar || ""
   });
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
@@ -80,14 +78,16 @@ function AccountSettings({ onBackToProfile }) {
   return (
     <div className="space-y-8">
       {/* Header with Back Button */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-3xl font-extrabold tracking-tight">Account Settings</h2>
-        {onBackToProfile && (
-          <Button variant="outline" onClick={onBackToProfile} className="gap-2 rounded-xl">
-            <ArrowLeft className="w-4 h-4" /> Back to Profile
-          </Button>
-        )}
-      </div>
+      {!hideHeader && (
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-3xl font-extrabold tracking-tight">Account Settings</h2>
+          {onBackToProfile && (
+            <Button variant="outline" onClick={onBackToProfile} className="gap-2 rounded-xl">
+              <ArrowLeft className="w-4 h-4" /> Back to Profile
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Profile Details Section */}
       <motion.div
@@ -131,36 +131,6 @@ function AccountSettings({ onBackToProfile }) {
                       <option value="Female">Female</option>
                       <option value="Other">Other</option>
                     </select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground/80">Age</label>
-                    <input
-                      type="number"
-                      value={profileData.age}
-                      onChange={(e) => setProfileData({ ...profileData, age: e.target.value })}
-                      placeholder="e.g. 25"
-                      className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground/80">Weight (kg)</label>
-                    <input
-                      type="number"
-                      value={profileData.weight}
-                      onChange={(e) => setProfileData({ ...profileData, weight: e.target.value })}
-                      placeholder="e.g. 65"
-                      className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground/80">Avatar URL</label>
-                    <input
-                      type="text"
-                      value={profileData.avatar}
-                      onChange={(e) => setProfileData({ ...profileData, avatar: e.target.value })}
-                      placeholder="Paste image URL here"
-                      className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
-                    />
                   </div>
                 </div>
               </div>

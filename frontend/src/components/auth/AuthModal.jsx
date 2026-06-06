@@ -1,10 +1,14 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Lock, User, Eye, EyeOff, HousePlug, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
-import { loginUser, registerUser, adminLoginUser } from "@/store/auth-slice";
-import { useToast } from "@/components/ui/use-toast";
 import { useAuthModal } from "@/context/AuthModalContext";
+import { useToast } from "@/components/ui/use-toast";
+import { loginUser, registerUser, adminLoginUser, verifyRegisterOtp } from "@/store/auth-slice";
+import { KeyRound } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 /* ─── Password strength ────────────────────────────────────────────────── */
 const PASSWORD_RULES = [
@@ -152,26 +156,37 @@ function LoginForm({ onSwitchToRegister, onClose }) {
 
 /* ─── Register Form ────────────────────────────────────────────────────── */
 function RegisterForm({ onSwitchToLogin, onClose }) {
-  const [formData, setFormData]         = useState({ userName: "", email: "", password: "" });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showStrength, setShowStrength] = useState(false);
-  const dispatch                        = useDispatch();
-  const { toast }                       = useToast();
-  const { isLoading }                   = useSelector((state) => state.auth);
+  const [step, setStep]                         = useState(1);
+  const [formData, setFormData]                 = useState({ userName: "", email: "", password: "", dateOfBirth: "", gender: "" });
+  const [otp, setOtp]                           = useState("");
+  const [showPassword, setShowPassword]         = useState(false);
+  const [showStrength, setShowStrength]         = useState(false);
+  const dispatch                                = useDispatch();
+  const { toast }                               = useToast();
+  const { isLoading }                           = useSelector((state) => state.auth);
 
   const allRulesPassed = PASSWORD_RULES.every((r) => r.test(formData.password));
 
-  async function handleSubmit(e) {
+  async function handleInitiate(e) {
     e.preventDefault();
     if (!allRulesPassed) {
       toast({ title: "Password doesn't meet requirements.", variant: "destructive" });
       setShowStrength(true);
       return;
     }
+    if (!formData.dateOfBirth) {
+      toast({ title: "Please select your date of birth.", variant: "destructive" });
+      return;
+    }
+    if (!formData.gender) {
+      toast({ title: "Please select your gender.", variant: "destructive" });
+      return;
+    }
+    
     const result = await dispatch(registerUser(formData));
     if (result?.payload?.success) {
-      toast({ title: result.payload.message || "Account created! Please sign in." });
-      onSwitchToLogin();
+      toast({ title: result.payload.message || "OTP Sent to your email." });
+      setStep(2);
     } else {
       toast({
         title: result?.payload?.message || "Registration failed. Please try again.",
@@ -180,8 +195,74 @@ function RegisterForm({ onSwitchToLogin, onClose }) {
     }
   }
 
+  async function handleVerify(e) {
+    e.preventDefault();
+    if (!otp || otp.length !== 4) {
+      toast({ title: "Please enter a valid 4-digit OTP.", variant: "destructive" });
+      return;
+    }
+    const result = await dispatch(verifyRegisterOtp({ email: formData.email, otp }));
+    if (result?.payload?.success) {
+      toast({ title: result.payload.message || "Account created successfully! Please sign in." });
+      onSwitchToLogin();
+    } else {
+      toast({
+        title: result?.payload?.message || "Verification failed. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }
+
+  if (step === 2) {
+    return (
+      <form onSubmit={handleVerify} className="space-y-4">
+        <div className="text-center mb-6">
+          <p className="text-sm text-muted-foreground">We've sent a 4-digit code to</p>
+          <p className="font-bold">{formData.email}</p>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-sm font-bold text-foreground" htmlFor="modal-otp">
+            Verification Code
+          </label>
+          <div className="relative">
+            <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <input
+              id="modal-otp"
+              type="text"
+              maxLength={4}
+              placeholder="Enter 4-digit OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+              className="neu-input w-full pl-10 tracking-widest font-mono text-center"
+              required
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="neu-btn-primary w-full py-3.5 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoading ? "Verifying…" : (
+            <>Verify Account <CheckCircle2 className="h-4 w-4 ml-2 inline" /></>
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setStep(1)}
+          className="w-full text-sm text-center text-muted-foreground font-bold hover:text-primary transition-colors mt-2"
+        >
+          Go Back
+        </button>
+      </form>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleInitiate} className="space-y-4">
       {/* Name */}
       <div className="space-y-1.5">
         <label className="text-sm font-bold text-foreground" htmlFor="modal-name">
@@ -192,7 +273,7 @@ function RegisterForm({ onSwitchToLogin, onClose }) {
           <input
             id="modal-name"
             type="text"
-            placeholder="Your name"
+            placeholder="Your name (min 4 characters)"
             value={formData.userName}
             onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
             className="neu-input w-full pl-10"
@@ -204,9 +285,12 @@ function RegisterForm({ onSwitchToLogin, onClose }) {
 
       {/* Email */}
       <div className="space-y-1.5">
-        <label className="text-sm font-bold text-foreground" htmlFor="modal-reg-email">
-          Email Address
-        </label>
+        <div className="flex justify-between items-end">
+          <label className="text-sm font-bold text-foreground" htmlFor="modal-reg-email">
+            Email Address
+          </label>
+          <span className="text-[10px] text-red-500 font-bold uppercase tracking-wider bg-red-500/10 px-2 py-0.5 rounded">Cannot be changed later</span>
+        </div>
         <div className="relative">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <input
@@ -255,17 +339,53 @@ function RegisterForm({ onSwitchToLogin, onClose }) {
         {showStrength && <PasswordStrength password={formData.password} />}
       </div>
 
+      {/* DOB and Gender Grid */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Date of Birth */}
+        <div className="space-y-1.5 flex flex-col">
+          <div className="flex justify-between items-end">
+            <label className="text-sm font-bold text-foreground" htmlFor="modal-dob">Date of Birth</label>
+          </div>
+          <input
+            id="modal-dob"
+            type="date"
+            max={new Date().toISOString().split("T")[0]}
+            value={formData.dateOfBirth}
+            onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+            className="neu-input w-full h-[42px] px-3 font-medium bg-background text-foreground uppercase-date-icon"
+            required
+          />
+          <span className="text-[10px] text-red-500 font-bold tracking-wider leading-tight">Cannot be changed later</span>
+        </div>
+
+        {/* Gender */}
+        <div className="space-y-1.5 flex flex-col">
+          <label className="text-sm font-bold text-foreground">Gender</label>
+          <Select onValueChange={(val) => setFormData({ ...formData, gender: val })}>
+            <SelectTrigger className="w-full neu-input border-2 border-border h-[42px] bg-background">
+              <SelectValue placeholder="Select Gender" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Male">Male</SelectItem>
+              <SelectItem value="Female">Female</SelectItem>
+              <SelectItem value="Other">Other</SelectItem>
+              <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <button
         type="submit"
         disabled={isLoading}
-        className="neu-btn-primary w-full py-3.5 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+        className="neu-btn-primary w-full py-3.5 text-base disabled:opacity-50 disabled:cursor-not-allowed mt-2"
       >
-        {isLoading ? "Creating account…" : (
-          <>Create Account <ArrowRight className="h-4 w-4" /></>
+        {isLoading ? "Processing…" : (
+          <>Continue <ArrowRight className="h-4 w-4 ml-2 inline" /></>
         )}
       </button>
 
-      <p className="text-sm text-center text-muted-foreground">
+      <p className="text-sm text-center text-muted-foreground pt-2">
         Already have an account?{" "}
         <button
           type="button"
@@ -362,32 +482,6 @@ function AdminLoginForm({ onClose }) {
 /* ─── Auth Modal Root ──────────────────────────────────────────────────── */
 export default function AuthModal() {
   const { isOpen, mode, closeAuthModal, switchMode } = useAuthModal();
-  const overlayRef = useRef(null);
-
-  // Keyboard: Escape to close
-  useEffect(() => {
-    if (!isOpen) return;
-    function onKey(e) {
-      if (e.key === "Escape") closeAuthModal();
-    }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [isOpen, closeAuthModal]);
-
-  // Prevent body scroll when open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => { document.body.style.overflow = ""; };
-  }, [isOpen]);
-
-  // Click outside to close
-  function handleOverlayClick(e) {
-    if (e.target === overlayRef.current) closeAuthModal();
-  }
 
   const isLogin = mode === "login";
   const isAdmin = mode === "admin";
@@ -404,110 +498,89 @@ export default function AuthModal() {
   }
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          ref={overlayRef}
-          className="neu-modal-overlay"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          onClick={handleOverlayClick}
-          role="dialog"
-          aria-modal="true"
-          aria-label={title}
-        >
-          <motion.div
-            className="neu-modal w-full max-w-[440px] overflow-hidden"
-            initial={{ opacity: 0, scale: 0.94, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.94, y: 8 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          >
-            {/* Header */}
-            <div className="relative p-6 pb-4 border-b-2 border-border">
-              {/* Accent bar */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-primary" />
+    <Dialog open={isOpen} onOpenChange={closeAuthModal}>
+      <DialogContent className="neu-modal max-w-[440px] p-0 overflow-hidden [&>button]:hidden gap-0 bg-card outline-none border-2 border-border">
+        {/* Header */}
+        <div className="relative p-6 pb-4 border-b-2 border-border">
+          {/* Accent bar */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-primary" />
 
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 border-2 border-border rounded-sm bg-primary text-primary-foreground"
-                       style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}>
-                    <HousePlug className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-black tracking-tight text-foreground">
-                      {title}
-                    </h2>
-                    <p className="text-xs text-muted-foreground mt-0.5 max-w-[260px]">
-                      {subtitle}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={closeAuthModal}
-                  className="p-1.5 border-2 border-border rounded-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                  aria-label="Close dialog"
-                  style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              {/* Mode toggle tabs */}
-              <div className="flex mt-4 border-2 border-border rounded-sm overflow-hidden"
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 border-2 border-border rounded-sm bg-primary text-primary-foreground"
                    style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}>
-                {["login", "register", "admin"].map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => switchMode(m)}
-                    className={`flex-1 py-2 text-xs font-bold transition-all ${
-                      mode === m
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-background text-muted-foreground hover:text-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {m === "login" ? "Sign In" : m === "register" ? "Sign Up" : "Admin"}
-                  </button>
-                ))}
+                <HousePlug className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="text-xl font-black tracking-tight text-foreground">
+                  {title}
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5 max-w-[260px]">
+                  {subtitle}
+                </p>
               </div>
             </div>
 
-            {/* Form body */}
-            <div className="p-6">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={mode}
-                  initial={{ opacity: 0, x: isLogin ? -16 : 16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: isLogin ? 16 : -16 }}
-                  transition={{ duration: 0.18 }}
-                >
-                  {isLogin && (
-                    <LoginForm
-                      onSwitchToRegister={() => switchMode("register")}
-                      onClose={closeAuthModal}
-                    />
-                  )}
-                  {mode === "register" && (
-                    <RegisterForm
-                      onSwitchToLogin={() => switchMode("login")}
-                      onClose={closeAuthModal}
-                    />
-                  )}
-                  {isAdmin && (
-                    <AdminLoginForm onClose={closeAuthModal} />
-                  )}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+            <button
+              type="button"
+              onClick={closeAuthModal}
+              className="p-1.5 border-2 border-border rounded-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              aria-label="Close dialog"
+              style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Mode toggle tabs */}
+          <div className="flex mt-4 border-2 border-border rounded-sm overflow-hidden"
+               style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}>
+            {["login", "register", "admin"].map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => switchMode(m)}
+                className={`flex-1 py-2 text-xs font-bold transition-all ${
+                  mode === m
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-background text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                {m === "login" ? "Sign In" : m === "register" ? "Sign Up" : "Admin"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Form body */}
+        <div className="p-6">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={mode}
+              initial={{ opacity: 0, x: isLogin ? -16 : 16 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: isLogin ? 16 : -16 }}
+              transition={{ duration: 0.18 }}
+            >
+              {isLogin && (
+                <LoginForm
+                  onSwitchToRegister={() => switchMode("register")}
+                  onClose={closeAuthModal}
+                />
+              )}
+              {mode === "register" && (
+                <RegisterForm
+                  onSwitchToLogin={() => switchMode("login")}
+                  onClose={closeAuthModal}
+                />
+              )}
+              {isAdmin && (
+                <AdminLoginForm onClose={closeAuthModal} />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -12,6 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeParseException;
 import java.security.SecureRandom;
 
 @Service
@@ -24,6 +27,9 @@ public class OtpService {
     private final JavaMailSender mailSender;
     private final PasswordEncoder passwordEncoder;
 
+    @org.springframework.beans.factory.annotation.Value("${spring.mail.username:noreply@fashionify.com}")
+    private String senderEmail;
+
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     // ── Step 1: Initiate signup — check uniqueness, generate OTP, send email ──
@@ -32,12 +38,32 @@ public class OtpService {
      * @throws IllegalStateException if email or username is already taken (HTTP 409).
      */
     @Transactional
-    public void initiateSignup(String email, String userName, String rawPassword) {
-        // 1a. Email uniqueness check
+    public void initiateSignup(String email, String userName, String rawPassword, String dateOfBirth, String gender) {
+        // 1a. Username length check
+        if (userName == null || userName.trim().length() <= 3) {
+            throw new IllegalArgumentException("Username must be greater than 3 characters.");
+        }
+        
+        // 1b. Age validation
+        if (dateOfBirth == null || dateOfBirth.isBlank()) {
+            throw new IllegalArgumentException("Date of birth is required.");
+        }
+        int age;
+        try {
+            LocalDate dob = LocalDate.parse(dateOfBirth);
+            age = Period.between(dob, LocalDate.now()).getYears();
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid date format. Expected YYYY-MM-DD.");
+        }
+        if (age < 10) {
+            throw new IllegalArgumentException("You must be at least 10 years old to register.");
+        }
+
+        // 1c. Email uniqueness check
         if (userRepository.existsByEmail(email)) {
             throw new IllegalStateException("EMAIL_TAKEN");
         }
-        // 1b. Username uniqueness check
+        // 1d. Username uniqueness check
         if (userRepository.existsByUserName(userName)) {
             throw new IllegalStateException("USERNAME_TAKEN");
         }
@@ -45,8 +71,8 @@ public class OtpService {
         // 2. Purge stale OTP rows for this email before issuing a new one
         otpRepo.deleteAllByEmail(email);
 
-        // 3. Generate cryptographically secure 6-digit OTP
-        String otp = String.format("%06d", SECURE_RANDOM.nextInt(1_000_000));
+        // 3. Generate cryptographically secure 4-digit OTP
+        String otp = String.format("%04d", SECURE_RANDOM.nextInt(10_000));
 
         // 4. Persist pending signup + OTP
         OtpVerification pending = OtpVerification.builder()
@@ -54,6 +80,8 @@ public class OtpService {
                 .userName(userName)
                 .hashedPassword(passwordEncoder.encode(rawPassword))
                 .otpCode(otp)
+                .dateOfBirth(dateOfBirth)
+                .gender(gender)
                 .build();
         otpRepo.save(pending);
 
@@ -87,11 +115,24 @@ public class OtpService {
             throw new IllegalStateException("EMAIL_TAKEN");
         }
 
+        // Calculate age for final saving
+        String ageStr = null;
+        if (pending.getDateOfBirth() != null && !pending.getDateOfBirth().isBlank()) {
+            try {
+                LocalDate dob = LocalDate.parse(pending.getDateOfBirth());
+                int age = Period.between(dob, LocalDate.now()).getYears();
+                ageStr = String.valueOf(age);
+            } catch (Exception ignored) {}
+        }
+
         // Create verified user
         User user = User.builder()
                 .email(pending.getEmail())
                 .userName(pending.getUserName())
                 .password(pending.getHashedPassword())
+                .dateOfBirth(pending.getDateOfBirth())
+                .gender(pending.getGender())
+                .age(ageStr)
                 .role("user")
                 .build();
         User saved = userRepository.save(user);
@@ -106,6 +147,7 @@ public class OtpService {
 
     private void sendOtpEmail(String toEmail, String userName, String otp) {
         SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(senderEmail);
         message.setTo(toEmail);
         message.setSubject("Fashionify — Your Verification Code");
         message.setText(
@@ -116,6 +158,14 @@ public class OtpService {
                 "If you did not request this, please ignore this email.\n\n" +
                 "— The Fashionify Team"
         );
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+            log.info("OTP email successfully sent to {}", toEmail);
+        } catch (Exception e) {
+            log.error("Failed to send OTP email to {} (SMTP may not be configured). OTP is: {}", toEmail, otp);
+            log.error("Mail Error: {}", e.getMessage());
+            // We swallow the exception here so the transaction doesn't roll back, 
+            // allowing the developer to see the OTP in the console and continue testing.
+        }
     }
 }

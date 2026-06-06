@@ -12,7 +12,25 @@ export const registerUser = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/api/auth/register",
+        import.meta.env.VITE_API_URL + "/api/auth/signup/initiate",
+        formData,
+        {
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: "An error occurred" });
+    }
+  }
+);
+
+export const verifyRegisterOtp = createAsyncThunk(
+  "/auth/verifyOtp",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/api/auth/signup/verify",
         formData,
         {
           withCredentials: true,
@@ -183,6 +201,15 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
+      })
+      .addCase(verifyRegisterOtp.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(verifyRegisterOtp.fulfilled, (state, action) => {
+        state.isLoading = false;
+      })
+      .addCase(verifyRegisterOtp.rejected, (state, action) => {
+        state.isLoading = false;
       })
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;

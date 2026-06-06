@@ -33,6 +33,10 @@ public class OtpVerification {
     @Column(nullable = false)
     private String userName;
 
+    private String dateOfBirth;
+    
+    private String gender;
+
     /** BCrypt-hashed password supplied during signup. */
     @Column(nullable = false, columnDefinition = "TEXT")
     private String hashedPassword;

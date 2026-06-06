@@ -79,7 +79,7 @@ JWT_EXPIRATION_MS=86400000
 
 # Admin Credentials
 ADMIN_EMAIL=admin@gmail.com
-ADMIN_PASSWORD=demo
+ADMIN_PASSWORD=Admin.123
 
 # Cloudinary Config
 CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
