@@ -183,8 +183,6 @@ function ShoppingProductTile({ product, handleGetProductDetails }) {
         )}
       </div>
 
-      {/* Hover indicator strip — Neubrutalism click affordance */}
-      <div className="h-0.5 bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
     </article>
   );
 }

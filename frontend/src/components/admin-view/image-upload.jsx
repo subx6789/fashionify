@@ -3,7 +3,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { useRef } from "react";
 import { Button } from "../ui/button";
-import axios from "axios";
+import { uploadImage } from "@/services/api";
 import { Skeleton } from "../ui/skeleton";
 import { useToast } from "../ui/use-toast";
 
@@ -28,15 +28,19 @@ function ProductImageUpload({
   const { toast } = useToast();
 
   async function uploadImageToCloudinary(file) {
-    const data = new FormData();
-    data.append("my_file", file);
-    const response = await axios.post(
-      import.meta.env.VITE_API_URL + uploadUrl,
-      data,
-      { withCredentials: true }
-    );
-    if (response?.data?.success) {
-      return response.data.result.url;
+    try {
+      const data = new FormData();
+      data.append("my_file", file);
+      const response = await uploadImage(uploadUrl, data);
+      if (response?.data?.success) {
+        return response.data.result.url;
+      }
+    } catch (error) {
+      console.error("Failed to upload image to Cloudinary", error);
+      toast({
+        title: "Image upload failed",
+        variant: "destructive",
+      });
     }
     return null;
   }

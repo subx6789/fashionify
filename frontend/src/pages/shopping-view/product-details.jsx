@@ -14,7 +14,7 @@ import { useParams, Link } from "react-router-dom";
 import { addReview, getReviews, checkRatingEligibility, resetEligibility } from "@/store/shop/review-slice";
 import { addToWishlist, removeFromWishlist, fetchWishlistItems } from "@/store/shop/wishlist-slice";
 import { useAuthModal } from "@/context/AuthModalContext";
-import axios from "axios";
+import { joinWaitlist } from "@/services/api";
 
 function ShoppingProductDetails() {
   const { id } = useParams();
@@ -175,7 +175,7 @@ function ShoppingProductDetails() {
 
     setIsWaitlisting(true);
     try {
-      const response = await axios.post(import.meta.env.VITE_API_URL + "/api/waitlist", {
+      const response = await joinWaitlist({
         email: user?.email,
         productId: productDetails?.id,
         size: selectedSize || "One Size"

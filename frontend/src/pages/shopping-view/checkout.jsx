@@ -9,7 +9,7 @@ import { fetchCartItems } from "@/store/shop/cart-slice";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { ShoppingBag, MapPin, Loader2, CheckCircle, Gift, Truck, Tag } from "lucide-react";
-import axios from "axios";
+import { applyPromoCode } from "@/services/api";
 
 function ShoppingCheckout() {
   const { cartItems } = useSelector((state) => state.shopCart);
@@ -58,7 +58,7 @@ function ShoppingCheckout() {
     setIsApplyingPromo(true);
     setPromoMessage({ text: "", isError: false });
     try {
-      const response = await axios.post(import.meta.env.VITE_API_URL + "/api/shop/order/apply-promo", { 
+      const response = await applyPromoCode({ 
         promoCode,
         userId: user?.id,
         cartTotal: totalCartAmount
@@ -306,7 +306,7 @@ function ShoppingCheckout() {
               <Button
                 onClick={handlePlaceOrder}
                 disabled={isProcessing || isLoading || !itemCount}
-                className="w-full h-14 text-base font-bold bg-gradient-brand text-primary-foreground hover:from-primary hover:to-primary-dark text-primary-foreground rounded-xl shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
+                className="w-full h-14 text-base font-bold bg-gradient-brand text-primary-foreground hover:from-primary hover:to-primary-dark rounded-xl shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
               >
                 {isProcessing || isLoading ? (
                   <>

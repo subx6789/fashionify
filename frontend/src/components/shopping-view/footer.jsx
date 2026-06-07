@@ -3,7 +3,7 @@ import { Facebook, Twitter, Instagram, Youtube, Send } from "lucide-react";
 import BrandLogo from "@/components/common/BrandLogo";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import axios from "axios";
+import { subscribeNewsletter } from "@/services/api";
 
 function ShoppingFooter() {
   const [email, setEmail] = useState("");
@@ -16,7 +16,7 @@ function ShoppingFooter() {
     
     setIsSubmitting(true);
     try {
-      const res = await axios.post((import.meta.env.VITE_API_URL || "") + "/api/newsletter/subscribe", { email });
+      const res = await subscribeNewsletter({ email });
       if (res.data.success) {
         toast({ title: "Success", description: res.data.message });
         setEmail("");

@@ -8,6 +8,7 @@ const PUBLIC_SHOP_PREFIXES = [
   "/shop/about",
   "/shop/contact",
   "/shop/product/", // product detail pages are fully public
+  "/shop/collection/", // collection detail pages are fully public
 ];
 
 function isPublicShopRoute(pathname) {

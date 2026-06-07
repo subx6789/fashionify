@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import axios from "axios";
+import { initiateSignup, verifyOtp } from "@/services/api";
 import { useNavigate } from "react-router-dom";
 import { Loader2, CheckCircle2, Mail, ArrowRight } from "lucide-react";
 
@@ -71,10 +71,7 @@ function OtpVerification() {
     setError("");
     setBusy(true);
     try {
-      const { data } = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/auth/signup/initiate`,
-        form
-      );
+      const { data } = await initiateSignup(form);
       if (data.success) {
         setStep(2);
         setCountdown(60);
@@ -95,10 +92,7 @@ function OtpVerification() {
     setError("");
     setBusy(true);
     try {
-      const { data } = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/auth/signup/initiate`,
-        form
-      );
+      const { data } = await initiateSignup(form);
       if (data.success) {
         setOtp(["", "", "", "", "", ""]);
         setCountdown(60);
@@ -123,10 +117,7 @@ function OtpVerification() {
     setError("");
     setBusy(true);
     try {
-      const { data } = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/auth/signup/verify`,
-        { email: form.email, otp: otpString }
-      );
+      const { data } = await verifyOtp({ email: form.email, otp: otpString });
       if (data.success) {
         setStep(3);
         setTimeout(() => navigate("/login"), 2_500);

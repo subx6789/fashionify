@@ -4,7 +4,7 @@ import { Search } from "lucide-react";
 import { Label } from "../ui/label";
 import { Checkbox } from "../ui/checkbox";
 import { Separator } from "../ui/separator";
-import axios from "axios";
+import { getPriceRange } from "@/services/api";
 
 function ProductFilter({ filters, handleFilter }) {
   const [filterCounts, setFilterCounts] = useState({});
@@ -15,7 +15,7 @@ function ProductFilter({ filters, handleFilter }) {
   useEffect(() => {
     async function fetchFilterCounts() {
       try {
-        const res = await axios.get(import.meta.env.VITE_API_URL + "/api/shop/products/price-range");
+        const res = await getPriceRange();
         if (res.data.success) {
           setFilterCounts(res.data.data);
         }
@@ -132,10 +132,10 @@ function ProductFilter({ filters, handleFilter }) {
 
         {/* Price Range Checkboxes */}
         <div className="pb-4">
-          <h3 className="text-base font-bold mb-3">Price</h3>
-          <div className="grid gap-2 mt-2">
+          <h3 className="text-base font-bold uppercase tracking-wider mb-3">Price</h3>
+          <div className="grid gap-3">
             {priceRangeOptions.map((option) => (
-              <Label key={option.id} className="flex font-medium items-center gap-2 ">
+              <Label key={option.id} className="flex font-medium items-center gap-3 cursor-pointer group">
                 <Checkbox
                   checked={
                     filters &&
@@ -144,8 +144,14 @@ function ProductFilter({ filters, handleFilter }) {
                     filters["priceRanges"].indexOf(option.id) > -1
                   }
                   onCheckedChange={() => handleFilter("priceRanges", option.id)}
+                  className="w-5 h-5 rounded-sm"
                 />
-                {option.label} ({filterCounts[option.id] || 0})
+                <span className="text-sm group-hover:text-primary transition-colors">
+                  {option.label}
+                </span>
+                <span className="text-xs text-muted-foreground ml-auto">
+                  ({filterCounts[option.id] || 0})
+                </span>
               </Label>
             ))}
           </div>

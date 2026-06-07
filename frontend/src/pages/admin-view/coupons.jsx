@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { getCoupons, createCoupon, deleteCoupon } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,7 +26,7 @@ function AdminCoupons() {
 
   const fetchCoupons = async () => {
     try {
-      const res = await axios.get(import.meta.env.VITE_API_URL + "/api/coupons");
+      const res = await getCoupons();
       if (res.data.success) {
         setCoupons(res.data.data);
       }
@@ -66,7 +66,7 @@ function AdminCoupons() {
         expiryDate: formData.expiryDate ? new Date(formData.expiryDate).toISOString() : null,
       };
 
-      const res = await axios.post(import.meta.env.VITE_API_URL + "/api/coupons", payload);
+      const res = await createCoupon(payload);
       if (res.data.success) {
         toast({ title: "Coupon created successfully!" });
         setFormData({
@@ -91,7 +91,7 @@ function AdminCoupons() {
 
   const handleDeleteCoupon = async (id) => {
     try {
-      const res = await axios.delete(`${import.meta.env.VITE_API_URL}/api/coupons/${id}`);
+      const res = await deleteCoupon(id);
       if (res.data.success) {
         toast({ title: "Coupon deleted" });
         fetchCoupons();

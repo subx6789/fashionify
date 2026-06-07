@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { getCollectionById } from "@/services/api";
 import { ChevronLeft, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -21,7 +21,7 @@ function ShoppingCollectionDetails() {
   useEffect(() => {
     const fetchCollectionDetails = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/collections/${id}`);
+        const res = await getCollectionById(id);
         if (res.data.success) {
           setCollection(res.data.data);
         }

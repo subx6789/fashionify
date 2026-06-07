@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, MessageSquare } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import axios from "axios";
+import { submitContactForm } from "@/services/api";
 
 const CONTACT_INFO = [
   {
@@ -43,10 +43,7 @@ function ShoppingContact() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await axios.post(
-        (import.meta.env.VITE_API_URL || "") + "/api/contact",
-        formData
-      );
+      const res = await submitContactForm(formData);
       if (res.data?.success) {
         toast({
           title: "Message Sent!",

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { getCollections, getAdminProducts, createCollection, deleteCollection } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,7 +26,7 @@ function AdminCollections() {
 
   const fetchCollections = async () => {
     try {
-      const res = await axios.get(import.meta.env.VITE_API_URL + "/api/collections");
+      const res = await getCollections();
       if (res.data.success) {
         setCollections(res.data.data);
       }
@@ -37,7 +37,7 @@ function AdminCollections() {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get(import.meta.env.VITE_API_URL + "/api/admin/products/get");
+      const res = await getAdminProducts();
       if (res.data.success) {
         setProducts(res.data.data);
       }
@@ -70,7 +70,7 @@ function AdminCollections() {
     
     setLoading(true);
     try {
-      const res = await axios.post(import.meta.env.VITE_API_URL + "/api/collections", {
+      const res = await createCollection({
         name,
         description,
         imageUrl: finalImageUrl,
@@ -95,7 +95,7 @@ function AdminCollections() {
 
   const handleDeleteCollection = async (id) => {
     try {
-      const res = await axios.delete(`${import.meta.env.VITE_API_URL}/api/collections/${id}`);
+      const res = await deleteCollection(id);
       if (res.data.success) {
         toast({ title: "Collection deleted" });
         fetchCollections();

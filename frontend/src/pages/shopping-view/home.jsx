@@ -32,7 +32,7 @@ import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/components/ui/use-toast";
 import { getFeatureImages } from "@/store/common-slice";
 import { useAuthModal } from "@/context/AuthModalContext";
-import axios from "axios";
+import { getLatestReviews, getCollections } from "@/services/api";
 
 const categoriesWithIcon = [
   { id: "men", label: "Men", icon: ShirtIcon },
@@ -72,7 +72,7 @@ function ShoppingHome() {
   useEffect(() => {
     const fetchLatestReviews = async () => {
       try {
-        const res = await axios.get(import.meta.env.VITE_API_URL + "/api/shop/review/latest");
+        const res = await getLatestReviews();
         if (res.data.success) {
           setLatestReviews(res.data.data);
         }
@@ -86,7 +86,7 @@ function ShoppingHome() {
   useEffect(() => {
     const fetchCollections = async () => {
       try {
-        const res = await axios.get(import.meta.env.VITE_API_URL + "/api/collections");
+        const res = await getCollections();
         if (res.data.success) {
           setCollections(res.data.data);
         }
@@ -262,71 +262,68 @@ function ShoppingHome() {
       {collections.length > 0 && (
         <section className="py-16 bg-muted/20">
           <div className="container mx-auto px-4">
-            <h2 className="text-4xl font-extrabold text-center mb-4 uppercase tracking-tight text-foreground">
+            <h2 className="text-4xl font-extrabold text-center mb-4 uppercase tracking-tight dark:text-primary">
               Shop by Collections
             </h2>
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Curated collections by our expert stylists. Click a collection to discover the perfect look.
-            </p>
             <div className="relative group/carousel">
               <div ref={collectionsScrollRef} className="flex items-stretch overflow-x-auto snap-x snap-mandatory pt-4 pb-8 gap-6 px-4 hide-scrollbar scroll-smooth">
                 {collections.map((collection) => (
-                <div
-                  key={collection.id}
-                  onClick={() => navigate(`/shop/collection/${collection.id}`)}
-                  className="product-card flex-none w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[30vw] snap-center flex flex-col group cursor-pointer"
-                >
-                  <div className="h-80 relative overflow-hidden bg-muted border-b-2 border-border">
-                    <img
-                      src={collection.imageUrl}
-                      alt={collection.name}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-                    />
-                    {/* Hover indicator strip inside image area like product cards */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <div className="p-6 flex flex-col flex-1 bg-card">
-                    <h3 className="text-2xl font-black mb-2 tracking-tight line-clamp-1 text-foreground">{collection.name}</h3>
-                    <p className="text-muted-foreground text-sm font-bold mb-4">{collection.description}</p>
-                    <div className="mt-auto">
-                      <div className="flex -space-x-3 overflow-hidden p-1 pt-2">
-                        {collection.products?.map((p, i) => (
-                          <img
-                            key={p.id}
-                            src={p.image || p.images?.[0]}
-                            alt={p.title}
-                            title={p.title}
-                            className={`inline-block h-12 w-12 rounded-full border-2 border-border object-cover`}
-                            style={{ zIndex: 10 - i }}
-                          />
-                        ))}
+                  <div
+                    key={collection.id}
+                    onClick={() => navigate(`/shop/collection/${collection.id}`)}
+                    className="product-card flex-none w-[85vw] sm:w-[60vw] md:w-[45vw] lg:w-[30vw] snap-center flex flex-col group cursor-pointer"
+                  >
+                    <div className="h-80 relative overflow-hidden bg-muted border-b-2 border-border">
+                      <img
+                        src={collection.imageUrl}
+                        alt={collection.name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                      />
+                      {/* Hover indicator strip inside image area like product cards */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="p-6 flex flex-col flex-1 bg-card">
+                      <h3 className="text-2xl font-black mb-2 tracking-tight line-clamp-1 text-foreground">{collection.name}</h3>
+                      <p className="text-muted-foreground text-sm font-bold mb-4">{collection.description}</p>
+                      <div className="mt-auto">
+                        <div className="flex -space-x-3 overflow-hidden p-1 pt-2">
+                          {collection.products?.map((p, i) => (
+                            <img
+                              key={p.id}
+                              src={p.image || p.images?.[0]}
+                              alt={p.title}
+                              title={p.title}
+                              className={`inline-block h-12 w-12 rounded-full border-2 border-border object-cover`}
+                              style={{ zIndex: 10 - i }}
+                            />
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-            
-            {collections.length > 2 && (
-              <>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => scrollCollections('left')}
-                  className="absolute top-1/2 -translate-y-1/2 -left-4 md:-left-6 w-12 h-12 rounded-full bg-card border-2 border-border shadow-[4px_4px_0px_0px_hsl(var(--neu-black))] hover:bg-muted opacity-0 group-hover/carousel:opacity-100 transition-opacity z-10 hidden md:flex"
-                >
-                  <ChevronLeftIcon className="w-6 h-6" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => scrollCollections('right')}
-                  className="absolute top-1/2 -translate-y-1/2 -right-4 md:-right-6 w-12 h-12 rounded-full bg-card border-2 border-border shadow-[4px_4px_0px_0px_hsl(var(--neu-black))] hover:bg-muted opacity-0 group-hover/carousel:opacity-100 transition-opacity z-10 hidden md:flex"
-                >
-                  <ChevronRightIcon className="w-6 h-6" />
-                </Button>
-              </>
-            )}
+                ))}
+              </div>
+
+              {collections.length > 2 && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => scrollCollections('left')}
+                    className="absolute top-1/2 -translate-y-1/2 -left-4 md:-left-6 w-12 h-12 rounded-full bg-card border-2 border-border shadow-[4px_4px_0px_0px_hsl(var(--neu-black))] hover:bg-muted opacity-0 group-hover/carousel:opacity-100 transition-opacity z-10 hidden md:flex"
+                  >
+                    <ChevronLeftIcon className="w-6 h-6" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => scrollCollections('right')}
+                    className="absolute top-1/2 -translate-y-1/2 -right-4 md:-right-6 w-12 h-12 rounded-full bg-card border-2 border-border shadow-[4px_4px_0px_0px_hsl(var(--neu-black))] hover:bg-muted opacity-0 group-hover/carousel:opacity-100 transition-opacity z-10 hidden md:flex"
+                  >
+                    <ChevronRightIcon className="w-6 h-6" />
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </section>
