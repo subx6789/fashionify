@@ -24,8 +24,8 @@ const STATUS_STYLES = {
   rejected: "bg-red-600",
   pending_payment: "bg-amber-500",
   pending: "bg-amber-500",
-  processing: "bg-blue-500",
-  shipped: "bg-primary",
+  inProcess: "bg-blue-500",
+  inShipping: "bg-purple-600",
   delivered: "bg-green-700",
 };
 
@@ -81,55 +81,45 @@ function AdminOrdersView() {
               <TableBody>
                 {orderList && orderList.length > 0
                   ? orderList.map((orderItem) => (
-                      <TableRow key={orderItem?.id}>
-                        <TableCell className="font-mono text-xs">#{orderItem?.id}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="font-medium text-sm">
-                              {orderItem?.user?.userName || "—"}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {orderItem?.user?.email || ""}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm">{formatDate(orderItem?.orderDate)}</TableCell>
-                        <TableCell>
-                          <Badge
-                            className={`py-1 px-3 text-white ${
-                              STATUS_STYLES[orderItem?.orderStatus] || "bg-slate-500"
-                            }`}
-                          >
-                            {orderItem?.orderStatus?.replace(/_/g, " ")}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-xs bg-muted px-2 py-1 rounded-full">
-                            {orderItem?.paymentMethod?.replace(/_/g, " ") || "—"}
+                    <TableRow key={orderItem?.id}>
+                      <TableCell className="font-mono text-xs">#{orderItem?.id}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-sm">
+                            {orderItem?.user?.userName || "—"}
                           </span>
-                        </TableCell>
-                        <TableCell className="font-semibold">
-                          ₹{orderItem?.totalAmount}
-                        </TableCell>
-                        <TableCell>
-                          <Dialog
-                            open={openDetailsDialog}
-                            onOpenChange={() => {
-                              setOpenDetailsDialog(false);
-                              dispatch(resetOrderDetails());
-                            }}
-                          >
-                            <Button
-                              size="sm"
-                              onClick={() => handleFetchOrderDetails(orderItem?.id)}
-                            >
-                              View Details
-                            </Button>
-                            <AdminOrderDetailsView orderDetails={orderDetails} />
-                          </Dialog>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                          <span className="text-xs text-muted-foreground">
+                            {orderItem?.user?.email || ""}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm">{formatDate(orderItem?.orderDate)}</TableCell>
+                      <TableCell>
+                        <Badge
+                          className={`py-1 px-3 text-white ${STATUS_STYLES[orderItem?.orderStatus] || "bg-slate-500"
+                            }`}
+                        >
+                          {orderItem?.orderStatus?.replace(/_/g, " ")}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-xs bg-muted px-2 py-1 rounded-full">
+                          {orderItem?.paymentMethod?.replace(/_/g, " ") || "—"}
+                        </span>
+                      </TableCell>
+                      <TableCell className="font-semibold">
+                        ₹{orderItem?.totalAmount}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          onClick={() => handleFetchOrderDetails(orderItem?.id)}
+                        >
+                          View Details
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
                   : (
                     <TableRow>
                       <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
@@ -141,6 +131,17 @@ function AdminOrdersView() {
             </Table>
           </div>
         )}
+        <Dialog
+          open={openDetailsDialog}
+          onOpenChange={(open) => {
+            if (!open) {
+              setOpenDetailsDialog(false);
+              dispatch(resetOrderDetails());
+            }
+          }}
+        >
+          <AdminOrderDetailsView orderDetails={orderDetails} />
+        </Dialog>
       </CardContent>
     </Card>
   );

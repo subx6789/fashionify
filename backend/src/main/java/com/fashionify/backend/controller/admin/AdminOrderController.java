@@ -42,6 +42,9 @@ public class AdminOrderController {
         if (optionalOrder.isPresent()) {
             Order order = optionalOrder.get();
             String newStatus = statusMap.get("orderStatus");
+            if (newStatus == null || newStatus.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Order status cannot be empty"));
+            }
             order.setOrderStatus(newStatus);
             order.setOrderUpdateDate(LocalDateTime.now());
             orderRepository.save(order);
@@ -54,7 +57,7 @@ public class AdminOrderController {
                               "We hope you love your new items!\n\n" +
                               "Thank you for shopping with Fashionify!";
                 emailService.sendSimpleEmail(order.getUser().getEmail(), subject, text);
-            } else if ("shipped".equalsIgnoreCase(newStatus) || "in transit".equalsIgnoreCase(newStatus)) {
+            } else if ("shipped".equalsIgnoreCase(newStatus) || "inShipping".equalsIgnoreCase(newStatus) || "in transit".equalsIgnoreCase(newStatus)) {
                 String subject = "Your Fashionify Order is on its way!";
                 String text = "Hi " + order.getUser().getUserName() + ",\n\n" +
                               "Good news! Your order #" + order.getId() + " has been shipped and is currently on its way to you.\n\n" +
