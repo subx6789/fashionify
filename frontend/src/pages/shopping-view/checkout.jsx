@@ -74,7 +74,7 @@ function ShoppingCheckout() {
         setAppliedPromo(null);
         setPromoMessage({ text: response.data.message || "Invalid promo code", isError: true });
       }
-    } catch (error) {
+    } catch {
       setAppliedPromo(null);
       setPromoMessage({ text: "Error applying promo code", isError: true });
     } finally {
@@ -106,7 +106,10 @@ function ShoppingCheckout() {
       orderItems: cartItems.items.map((singleCartItem) => ({
         productId: singleCartItem?.product?.id,
         title: singleCartItem?.product?.title,
-        image: singleCartItem?.product?.image,
+        image:
+          singleCartItem?.product?.images?.[0] ||
+          singleCartItem?.product?.image ||
+          "",
         price:
           singleCartItem?.product?.salePrice > 0
             ? singleCartItem?.product?.salePrice

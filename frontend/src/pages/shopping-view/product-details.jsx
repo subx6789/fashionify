@@ -10,7 +10,7 @@ import { fetchProductDetails } from "@/store/shop/products-slice";
 import { Label } from "@/components/ui/label";
 import StarRatingComponent from "@/components/common/star-rating";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { addReview, getReviews, checkRatingEligibility, resetEligibility } from "@/store/shop/review-slice";
 import { addToWishlist, removeFromWishlist, fetchWishlistItems } from "@/store/shop/wishlist-slice";
 import { useAuthModal } from "@/context/AuthModalContext";
@@ -32,7 +32,6 @@ function ShoppingProductDetails() {
   const { wishlistItems } = useSelector((state) => state.shopWishlist);
   const { reviews, eligibility } = useSelector((state) => state.shopReview);
   const { productDetails, isLoading } = useSelector((state) => state.shopProducts);
-  const navigate = useNavigate();
   const { toast } = useToast();
   const { openAuthModal } = useAuthModal();
 
@@ -246,11 +245,6 @@ function ShoppingProductDetails() {
     );
   }
 
-  let getCartItems = cartItems?.items || [];
-  const existingItem = getCartItems.find(
-    (item) => String(item.productId) === String(productDetails?.id) && item.selectedSize === selectedSize
-  );
-
   const isWishlisted = wishlistItems?.some(item => String(item.id) === String(productDetails?.id));
 
   function handleWishlist() {
@@ -288,10 +282,13 @@ function ShoppingProductDetails() {
       </div>
 
       <div className="container mx-auto px-4 py-12 lg:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 lg:items-start">
 
-          {/* ── Image Gallery ─────────────────────────────────────── */}
-          <div className="flex flex-col lg:flex-row gap-4 lg:items-start lg:sticky lg:top-28">
+          {/* ── Left Side: Gallery & Reviews List ─────────────────── */}
+          <div className="flex flex-col gap-12">
+            
+            {/* ── Image Gallery ─────────────────────────────────────── */}
+            <div className="flex flex-col lg:flex-row gap-4 lg:items-start">
 
             {/* Thumbnail strip (Left on Desktop, Bottom on Mobile) */}
             {images.length > 1 && (
@@ -364,8 +361,73 @@ function ShoppingProductDetails() {
               )}
             </div>
           </div>
+            
+          {/* ── Customer Reviews List ──────────────────────────────── */}
+          <div className="space-y-6 pt-4 lg:pt-10">
+              <h2 className="text-2xl font-bold flex items-center gap-2 mb-6 text-foreground">
+                Customer Reviews
+                <span className="text-muted-foreground text-sm font-medium bg-muted px-2.5 py-0.5 rounded-full border border-border">
+                  {reviews?.length || 0}
+                </span>
+              </h2>
 
-          {/* ── Product Details ────────────────────────────────────── */}
+              {reviews && reviews.length > 0 ? (
+                <div className="space-y-6 max-h-[800px] overflow-y-auto pr-2 scrollbar-thin pb-4">
+                  {reviews.map((reviewItem, idx) => (
+                    <div key={idx} className="bg-card border border-border rounded-xl p-6 flex gap-4 shadow-sm">
+                      <Avatar className="w-10 h-10 border border-border rounded-full flex-none">
+                        <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
+                          {reviewItem?.userName[0].toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <h3 className="font-semibold text-foreground text-sm">{reviewItem?.userName}</h3>
+                          {reviewItem?.verifiedPurchase && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] bg-green-500/10 text-green-700 dark:text-green-400 font-semibold border border-green-500/20">
+                              <BadgeCheck className="w-3.5 h-3.5" />
+                              Verified Purchase
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <div className="flex items-center gap-1.5">
+                            <StarRatingComponent rating={reviewItem?.reviewValue} />
+                            <span className="text-xs font-medium text-muted-foreground ml-1">
+                              {reviewItem?.reviewValue} / 5 </span>
+                          </div>
+                          {reviewItem?.fitFeedback && (
+                            <span className="text-[11px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border">
+                              Fit: {reviewItem.fitFeedback}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-muted-foreground text-sm leading-relaxed pt-1">
+                          &ldquo;{reviewItem.reviewMessage}&rdquo;
+                        </p>
+                        {reviewItem?.imageUrl && (
+                          <div className="mt-3 max-w-[120px] rounded-lg overflow-hidden border border-border shadow-sm">
+                            <img src={reviewItem.imageUrl} alt="Customer photo" className="w-full h-auto object-cover hover:scale-105 transition-transform" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-8 text-center flex flex-col items-center justify-center min-h-[200px] bg-muted/20 border border-dashed border-border rounded-xl">
+                  <div className="w-12 h-12 bg-muted/50 rounded-full mb-3 flex items-center justify-center">
+                    <StarIcon className="w-6 h-6 text-muted-foreground" />
+                  </div>
+                  <p className="text-foreground font-semibold text-base mb-1">No reviews yet</p>
+                  <p className="text-sm text-muted-foreground">Be the first to share your experience!</p>
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          {/* ── Right Side: Product Details & Form ─────────────────── */}
           <div className="flex flex-col space-y-6">
             <div className="space-y-4">
               <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
@@ -586,82 +648,36 @@ function ShoppingProductDetails() {
 
             <Separator />
 
-            {/* ── Reviews Section ─────────────────────────────────── */}
-            <div className="space-y-8 pt-2">
-              <h2 className="text-2xl font-bold flex items-center gap-2">
-                Customer Reviews{" "}
-                <span className="text-muted-foreground text-lg font-medium">
-                  ({reviews?.length || 0})
-                </span>
-              </h2>
-
-              <div className="grid gap-6">
-                {reviews && reviews.length > 0 ? (
-                  <div className="space-y-6 max-h-[500px] overflow-y-auto pr-4">
-                    {reviews.map((reviewItem, idx) => (
-                      <div key={idx} className="flex gap-4 p-4 rounded-xl bg-muted/30 border border-border">
-                        <Avatar className="w-12 h-12 border-2 border-primary/20">
-                          <AvatarFallback className="bg-gradient-brand text-primary-foreground font-bold">
-                            {reviewItem?.userName[0].toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center justify-between flex-wrap gap-1">
-                            <h3 className="font-bold text-foreground">{reviewItem?.userName}</h3>
-                            {reviewItem?.verifiedPurchase && (
-                              <span className="inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400 font-semibold">
-                                <BadgeCheck className="w-4 h-4" />
-                                Verified Purchase
-                              </span>
-                            )}
-                          </div>
-                          <StarRatingComponent rating={reviewItem?.reviewValue} />
-                          {reviewItem?.fitFeedback && (
-                            <p className="text-xs font-semibold text-muted-foreground/80 mt-1 uppercase tracking-wider">
-                              Fit: {reviewItem.fitFeedback}
-                            </p>
-                          )}
-                          <p className="text-muted-foreground leading-relaxed mt-2">
-                            "{reviewItem.reviewMessage}"
-                          </p>
-                          {reviewItem?.imageUrl && (
-                            <div className="mt-3 max-w-[120px] rounded-lg overflow-hidden border border-border shadow-sm">
-                              <img src={reviewItem.imageUrl} alt="Customer photo" className="w-full h-auto object-cover hover:scale-105 transition-transform" />
-                            </div>
+            {/* ── Write a Review Form ──────────────────────────────── */}
+            <div className="pt-6">
+              {isAuthenticated ? (
+                eligibility.isChecking ? (
+                  <div className="p-6 animate-pulse bg-muted/30 border border-border rounded-xl">
+                    <p className="text-sm font-medium text-muted-foreground text-center">Checking eligibility…</p>
+                  </div>
+                ) : eligibility.eligible ? (
+                  <div className="border border-border/80 rounded-xl p-6 bg-card shadow-sm">
+                    <h3 className="text-lg font-bold text-foreground mb-4">Write a review</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 bg-muted/30 p-3.5 rounded-xl border border-border flex-wrap">
+                        <span className="text-sm font-semibold text-foreground">Your Rating:</span>
+                        <div className="flex items-center gap-2">
+                          <StarRatingComponent rating={rating} handleRatingChange={handleRatingChange} />
+                          {rating > 0 && (
+                            <span className="text-xs font-semibold text-muted-foreground ml-1">
+                              {rating} out of 5
+                            </span>
                           )}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-8 text-center rounded-xl bg-muted/30 border border-border border-dashed">
-                    <p className="text-muted-foreground mb-2">No reviews yet.</p>
-                    <p className="text-sm">Be the first to review this product!</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Add Review Form — only shown when eligible */}
-              {isAuthenticated ? (
-                eligibility.isChecking ? (
-                  <div className="p-4 rounded-xl border border-border bg-card/50 text-sm text-muted-foreground animate-pulse">
-                    Checking eligibility…
-                  </div>
-                ) : eligibility.eligible ? (
-                  <div className="p-6 rounded-xl border border-border bg-card shadow-sm">
-                    <Label className="text-lg font-bold mb-4 block">Write a review</Label>
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-4">
-                        <span className="text-sm font-medium">Your Rating:</span>
-                        <StarRatingComponent rating={rating} handleRatingChange={handleRatingChange} />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Fit Feedback (Optional)</Label>
+                      
+                      <div className="grid gap-4">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Fit Feedback (Optional)</Label>
                           <select
                             value={fitFeedback}
                             onChange={(e) => setFitFeedback(e.target.value)}
-                            className="w-full h-11 rounded-xl border border-input bg-background/50 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                            className="w-full rounded-xl border border-input bg-background px-3.5 py-2.5 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer transition-colors"
                           >
                             <option value="">Select fit...</option>
                             <option value="Runs Small">Runs Small</option>
@@ -669,28 +685,33 @@ function ShoppingProductDetails() {
                             <option value="Runs Large">Runs Large</option>
                           </select>
                         </div>
-                        <div className="space-y-2">
-                          <Label className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Photo URL (Optional)</Label>
+                        
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Photo URL (Optional)</Label>
                           <Input
                             value={imageUrl}
                             onChange={(e) => setImageUrl(e.target.value)}
                             placeholder="Paste image URL..."
-                            className="h-11 rounded-xl"
+                            className="rounded-xl border border-input bg-background px-3.5 py-2.5 text-sm focus:ring-primary"
                           />
                         </div>
                       </div>
-                      <div className="flex gap-4 pt-2">
-                        <Input
-                          name="reviewMsg"
-                          value={reviewMsg}
-                          onChange={(e) => setReviewMsg(e.target.value)}
-                          placeholder="Share your thoughts about this product..."
-                          className="h-12 rounded-xl flex-1"
-                        />
+                      
+                      <div className="space-y-4 pt-4 border-t border-border/60">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Review Message</Label>
+                          <textarea
+                            name="reviewMsg"
+                            value={reviewMsg}
+                            onChange={(e) => setReviewMsg(e.target.value)}
+                            placeholder="Share your thoughts about this product..."
+                            className="w-full min-h-[100px] rounded-xl border border-input bg-background px-3.5 py-2.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y transition-colors"
+                          />
+                        </div>
                         <Button
                           onClick={handleAddReview}
                           disabled={reviewMsg.trim() === "" || rating === 0}
-                          className="h-12 px-8 rounded-xl font-bold"
+                          className="w-full h-12 text-sm font-semibold rounded-xl"
                         >
                           Post Review
                         </Button>
@@ -698,20 +719,32 @@ function ShoppingProductDetails() {
                     </div>
                   </div>
                 ) : (
-                  <div className="p-6 rounded-xl border border-border bg-card shadow-sm flex items-start gap-4">
-                    <BadgeCheck className="w-6 h-6 text-muted-foreground flex-none mt-0.5" />
-                    <div>
-                      <p className="text-base font-bold text-foreground">Write a Review</p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {eligibility.reason || "You must purchase and receive this product before you can leave a review. This helps us ensure all reviews are authentic."}
-                      </p>
+                  <div className="p-6 bg-muted/30 border border-border rounded-xl">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-none">
+                        <BadgeCheck className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="text-base font-bold text-foreground">Verified Purchase Required</h4>
+                        <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                          {eligibility.reason || "You must purchase and receive this product before you can leave a review. This helps us ensure all reviews are authentic."}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 )
               ) : (
-                <div className="p-5 rounded-sm border-2 border-border bg-muted/30 text-sm text-muted-foreground flex items-center gap-3">
-                  <StarIcon className="w-5 h-5 flex-none" />
-                  <span><button onClick={() => openAuthModal("login")} className="text-primary hover:underline font-bold">Login</button> to leave a review after purchasing.</span>
+                <div className="p-8 text-center bg-card border border-border/80 rounded-xl shadow-sm">
+                  <div className="w-12 h-12 bg-primary/10 text-primary mx-auto rounded-full mb-4 flex items-center justify-center">
+                    <StarIcon className="w-6 h-6 fill-primary" />
+                  </div>
+                  <h3 className="text-lg font-bold text-foreground mb-1">Have your say!</h3>
+                  <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
+                    Login to leave a review and let others know what you think of this product.
+                  </p>
+                  <Button onClick={() => openAuthModal("login")} className="w-full h-11 text-sm font-semibold rounded-xl">
+                    Login to Review
+                  </Button>
                 </div>
               )}
             </div>
