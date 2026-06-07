@@ -5,7 +5,6 @@ import com.fashionify.backend.dto.LoginRequest;
 import com.fashionify.backend.dto.MessageResponse;
 import com.fashionify.backend.security.JwtUtils;
 import com.fashionify.backend.security.UserDetailsImpl;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

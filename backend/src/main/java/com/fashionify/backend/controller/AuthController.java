@@ -13,7 +13,6 @@ import com.fashionify.backend.repository.OrderRepository;
 import com.fashionify.backend.repository.ReviewRepository;
 import com.fashionify.backend.repository.WishlistRepository;
 import org.springframework.transaction.annotation.Transactional;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
