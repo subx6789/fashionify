@@ -89,6 +89,13 @@ CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 # Razorpay Config (Use Test Mode Keys)
 RAZORPAY_KEY_ID=rzp_test_yourkeyid
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+
+# Resend Email Config (Replaced SMTP)
+RESEND_API_KEY=re_your_api_key
+RESEND_FROM_EMAIL=Fashionify <onboarding@resend.dev>
+
+# CORS (Comma-separated allowed origins)
+ALLOWED_ORIGINS=http://localhost:5173
 ```
 
 Start the Spring Boot server using the bundled Maven Wrapper (no global Maven installation required):

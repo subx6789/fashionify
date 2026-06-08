@@ -6,8 +6,7 @@ import com.fashionify.backend.repository.OtpVerificationRepository;
 import com.fashionify.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,11 +23,8 @@ public class OtpService {
 
     private final OtpVerificationRepository otpRepo;
     private final UserRepository userRepository;
-    private final JavaMailSender mailSender;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
-
-    @org.springframework.beans.factory.annotation.Value("${spring.mail.username:noreply@fashionify.com}")
-    private String senderEmail;
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
@@ -146,23 +142,18 @@ public class OtpService {
     // ── Private helpers ───────────────────────────────────────────────────────
 
     private void sendOtpEmail(String toEmail, String userName, String otp) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(senderEmail);
-        message.setTo(toEmail);
-        message.setSubject("Fashionify — Your Verification Code");
-        message.setText(
-                "Hi " + userName + ",\n\n" +
+        String subject = "Fashionify — Your Verification Code";
+        String body = "Hi " + userName + ",\n\n" +
                 "Your one-time verification code is:\n\n" +
                 "  " + otp + "\n\n" +
                 "This code expires in 5 minutes.\n\n" +
                 "If you did not request this, please ignore this email.\n\n" +
-                "— The Fashionify Team"
-        );
+                "— The Fashionify Team";
         try {
-            mailSender.send(message);
+            emailService.sendSimpleEmail(toEmail, subject, body);
             log.info("OTP email successfully sent to {}", toEmail);
         } catch (Exception e) {
-            log.error("Failed to send OTP email to {} (SMTP may not be configured). OTP is: {}", toEmail, otp);
+            log.error("Failed to send OTP email to {} (Resend may not be configured). OTP is: {}", toEmail, otp);
             log.error("Mail Error: {}", e.getMessage());
             // We swallow the exception here so the transaction doesn't roll back, 
             // allowing the developer to see the OTP in the console and continue testing.
