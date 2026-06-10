@@ -38,6 +38,7 @@ application-secret.properties
 .factorypath
 .springBeans
 .sts4-cache
+.metadata/
 
 # ==========================================
 # OS Generated Files & Logs
