@@ -40,9 +40,13 @@ public class NewsletterController {
         newsletterRepository.save(subscription);
 
         // Send a welcome email
-        String subject = "Welcome to Fashionify Newsletter!";
-        String text = "Thank you for subscribing to the Fashionify Newsletter. You will now receive our latest deals, exclusive offers, and fashion tips right in your inbox!";
-        emailService.sendSimpleEmail(email, subject, text);
+        try {
+            String subject = "Welcome to Fashionify Newsletter!";
+            String text = "Thank you for subscribing to the Fashionify Newsletter. You will now receive our latest deals, exclusive offers, and fashion tips right in your inbox!";
+            emailService.sendSimpleEmail(email, subject, text);
+        } catch (Exception e) {
+            System.err.println("Failed to send welcome newsletter email to " + email + ": " + e.getMessage());
+        }
 
         return ResponseEntity.ok(Map.of("success", true, "message", "Successfully subscribed to newsletter!"));
     }

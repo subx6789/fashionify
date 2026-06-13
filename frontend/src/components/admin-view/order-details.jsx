@@ -274,7 +274,7 @@ AdminOrderDetailsView.propTypes = {
         id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         title: PropTypes.string,
         quantity: PropTypes.number,
-        price: PropTypes.number,
+        price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         productId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         image: PropTypes.string,
         product: PropTypes.shape({

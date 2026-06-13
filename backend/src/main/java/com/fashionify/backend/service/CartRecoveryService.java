@@ -43,11 +43,15 @@ public class CartRecoveryService {
                     abandonedCount++;
                     
                     // Send email using EmailService
-                    logger.info("Sending automated recovery email to {}", cart.getUser().getEmail());
-                    String subject = "You left something behind! Complete your order with 10% off";
-                    String text = String.format("Hey %s, you left %d items in your cart. Come back and use code RECOVER10 to finish your purchase!", 
-                                cart.getUser().getUserName(), cart.getItems().size());
-                    emailService.sendSimpleEmail(cart.getUser().getEmail(), subject, text);
+                    try {
+                        logger.info("Sending automated recovery email to {}", cart.getUser().getEmail());
+                        String subject = "You left something behind! Complete your order with 10% off";
+                        String text = String.format("Hey %s, you left %d items in your cart. Come back and use code RECOVER10 to finish your purchase!", 
+                                    cart.getUser().getUserName(), cart.getItems().size());
+                        emailService.sendSimpleEmail(cart.getUser().getEmail(), subject, text);
+                    } catch (Exception e) {
+                        logger.error("Failed to send automated recovery email to {}: {}", cart.getUser().getEmail(), e.getMessage());
+                    }
                     
                     // You might also want to mark that an email was sent for this cart update
                     // so you don't spam them every hour. For a complete implementation, 

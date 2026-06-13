@@ -142,11 +142,14 @@ public class AdminProductController {
                         for (Waitlist wl : waitlistedUsers) {
                             wl.setIsNotified(true);
                             waitlistRepository.save(wl);
-                            // Send an email here!
-                            System.out.println("NOTIFYING " + wl.getEmail() + " THAT " + saved.getTitle() + " SIZE " + size + " IS BACK IN STOCK!");
-                            String subject = "Your waitlisted item is back in stock!";
-                            String text = String.format("Good news! The item %s (Size: %s) is now back in stock. Grab it before it's gone!", saved.getTitle(), size);
-                            emailService.sendSimpleEmail(wl.getEmail(), subject, text);
+                            try {
+                                System.out.println("NOTIFYING " + wl.getEmail() + " THAT " + saved.getTitle() + " SIZE " + size + " IS BACK IN STOCK!");
+                                String subject = "Your waitlisted item is back in stock!";
+                                String text = String.format("Good news! The item %s (Size: %s) is now back in stock. Grab it before it's gone!", saved.getTitle(), size);
+                                emailService.sendSimpleEmail(wl.getEmail(), subject, text);
+                            } catch (Exception e) {
+                                System.err.println("Failed to send waitlist back-in-stock notification email to " + wl.getEmail() + ": " + e.getMessage());
+                            }
                         }
                     }
                 }
