@@ -14,7 +14,7 @@ import { checkAuth } from "./store/auth-slice";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy-loaded page components for bundle splitting
-const AdminLogin = lazy(() => import("./pages/admin-view/admin-login"));
+
 const AdminDashboard = lazy(() => import("./pages/admin-view/dashboard"));
 const AdminProducts = lazy(() => import("./pages/admin-view/products"));
 const AdminOrders = lazy(() => import("./pages/admin-view/orders"));
@@ -103,17 +103,7 @@ function App() {
               }
             />
 
-            {/* Admin auth — dedicated page (not modal) */}
-            <Route
-              path="/admin-auth"
-              element={
-                <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-                  <AuthLayout />
-                </CheckAuth>
-              }
-            >
-              <Route path="login" element={<AdminLogin />} />
-            </Route>
+
 
             {/* Admin panel */}
             <Route

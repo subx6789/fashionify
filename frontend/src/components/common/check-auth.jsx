@@ -24,18 +24,11 @@ function CheckAuth({ isAuthenticated, user, children }) {
     return <Navigate to="/shop/home" replace />;
   }
 
-  // Admin login — always public
-  if (pathname.startsWith("/admin-auth")) {
-    if (isAuthenticated && user?.role === "admin") {
-      return <Navigate to="/admin/dashboard" replace />;
-    }
-    return <>{children}</>;
-  }
-
-  // Admin routes — must be authenticated admin
+  // Admin routes — must be authenticated admin, otherwise redirect to shop home
   if (pathname.startsWith("/admin")) {
-    if (!isAuthenticated) return <Navigate to="/admin-auth/login" replace />;
-    if (user?.role !== "admin") return <Navigate to="/unauth-page" replace />;
+    if (!isAuthenticated || user?.role !== "admin") {
+      return <Navigate to="/shop/home" replace />;
+    }
     return <>{children}</>;
   }
 
