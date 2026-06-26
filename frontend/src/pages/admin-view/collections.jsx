@@ -22,9 +22,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Trash2, Plus, Shirt, CheckCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { Skeleton, SkeletonRepeater } from "@/components/ui/skeleton";
+import {  SkeletonRepeater } from "@/components/ui/skeleton";
 import ProductImageUpload from "@/components/admin-view/image-upload";
 import { ConfirmDeleteDialog } from "@/components/common/confirm-delete-dialog";
+import { getOptimizedImageUrl } from "@/lib/utils";
 
 function AdminCollections() {
   const [collections, setCollections] = useState([]);
@@ -212,7 +213,7 @@ function AdminCollections() {
                       onClick={() => toggleProduct(product.id)}
                       className={`relative flex items-center gap-3 p-2 rounded-lg cursor-pointer border-2 transition-all ${isSelected ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 bg-background'}`}
                     >
-                      <img src={product.image || product.images?.[0]} alt={product.title} className="w-12 h-12 object-cover rounded-md" />
+                      <img src={getOptimizedImageUrl(product.image || product.images?.[0], 100)} alt={product.title} className="w-12 h-12 object-cover rounded-md" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold truncate">{product.title}</p>
                         <p className="text-xs text-muted-foreground">₹{product.price}</p>
@@ -245,7 +246,7 @@ function AdminCollections() {
               {collections.map(collection => (
                 <div key={collection.id} className="border rounded-xl overflow-hidden bg-background">
                   <div className="h-48 w-full overflow-hidden relative">
-                    <img src={collection.imageUrl} alt={collection.name} className="w-full h-full object-cover" />
+                    <img src={getOptimizedImageUrl(collection.imageUrl, 400)} alt={collection.name} className="w-full h-full object-cover" />
                     <Button 
                       variant="destructive" 
                       size="icon" 
@@ -261,7 +262,7 @@ function AdminCollections() {
                     <div className="flex gap-2 items-center flex-wrap pt-2">
                       {collection.products?.map(p => (
                         <div key={p.id} className="w-8 h-8 rounded-full border-2 border-background overflow-hidden -ml-2 first:ml-0" title={p.title}>
-                          <img src={p.imageUrl || p.images?.[0] || p.image} alt={p.title} className="w-full h-full object-cover" />
+                          <img src={getOptimizedImageUrl(p.imageUrl || p.images?.[0] || p.image, 100)} alt={p.title} className="w-full h-full object-cover" />
                         </div>
                       ))}
                       <span className="text-xs font-semibold text-muted-foreground ml-2">{collection.products?.length} items</span>

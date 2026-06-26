@@ -92,6 +92,7 @@ public class SecurityConfig {
                             .requestMatchers("/api/shop/review/**").permitAll()
                             .requestMatchers("/api/admin/products/upload-image").permitAll()
                             // Public endpoints — no auth required
+                            .requestMatchers("/api/health").permitAll()
                             .requestMatchers("/api/contact", "/api/contact/**").permitAll()
                             .requestMatchers("/api/newsletter", "/api/newsletter/**").permitAll()
                             .requestMatchers("/error").permitAll()

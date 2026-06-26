@@ -18,6 +18,7 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 import { useDispatch, useSelector }        from "react-redux";
 import { deleteCartItem, updateCartQuantity } from "@/store/shop/cart-slice";
 import { useToast }                         from "../ui/use-toast";
+import { getOptimizedImageUrl } from "@/lib/utils";
 
 /**
  * CartItemsContent — Neubrutalist item row used inside CartDialog.
@@ -110,11 +111,12 @@ function UserCartItemsContent({ cartItem }) {
         style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}
       >
         <img
-          src={
+          src={getOptimizedImageUrl(
             cartItem?.product?.images?.[0] ||
             cartItem?.product?.image ||
-            "https://placehold.co/72x72/png?text=N/A"
-          }
+            "https://placehold.co/72x72/png?text=N/A",
+            150
+          )}
           alt={cartItem?.product?.title}
           onError={(e) => {
             e.target.src = "https://placehold.co/72x72/png?text=N/A";
