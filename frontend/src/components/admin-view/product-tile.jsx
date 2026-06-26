@@ -18,6 +18,7 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { AlertTriangle, Package } from "lucide-react";
+import { getOptimizedImageUrl } from "@/lib/utils";
 
 function AdminProductTile({
   product,
@@ -26,8 +27,9 @@ function AdminProductTile({
   setCurrentEditedId,
   handleDelete,
 }) {
-  const coverImage =
+  const rawCoverImage =
     product?.images?.[0] || product?.image || "/placeholder.png";
+  const coverImage = getOptimizedImageUrl(rawCoverImage, 400);
 
   const totalStock = product?.totalStock ?? 0;
   const hasLowStock = product?.hasLowStock || false;

@@ -31,6 +31,7 @@ import { addReview, getReviews, checkRatingEligibility, resetEligibility } from 
 import { addToWishlist, removeFromWishlist, fetchWishlistItems } from "@/store/shop/wishlist-slice";
 import { useAuthModal } from "@/context/AuthModalContext";
 import { joinWaitlist } from "@/services/api";
+import { getOptimizedImageUrl } from "@/lib/utils";
 
 function ShoppingProductDetails() {
   const { id } = useParams();
@@ -318,7 +319,7 @@ function ShoppingProductDetails() {
                       : "border-transparent opacity-60 hover:opacity-100"
                       }`}
                   >
-                    <img src={url} alt={`View ${i + 1}`} onError={(e) => { e.target.src = "https://placehold.co/600x600/png?text=No+Image"; }} className="w-full h-full object-cover" />
+                    <img src={getOptimizedImageUrl(url, 150)} alt={`View ${i + 1}`} onError={(e) => { e.target.src = "https://placehold.co/600x600/png?text=No+Image"; }} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -329,7 +330,7 @@ function ShoppingProductDetails() {
               {images.length > 0 ? (
                 <img
                   key={activeImageIndex}
-                  src={images[activeImageIndex]}
+                  src={getOptimizedImageUrl(images[activeImageIndex], 800)}
                   alt={productDetails?.title}
                   onError={(e) => { e.target.src = "https://placehold.co/600x600/png?text=No+Image"; }}
                   className="w-full h-full object-contain p-2 transition-opacity duration-300"
@@ -423,7 +424,7 @@ function ShoppingProductDetails() {
                         </p>
                         {reviewItem?.imageUrl && (
                           <div className="mt-3 max-w-[120px] rounded-lg overflow-hidden border border-border shadow-sm">
-                            <img src={reviewItem.imageUrl} alt="Customer photo" className="w-full h-auto object-cover hover:scale-105 transition-transform" />
+                            <img src={getOptimizedImageUrl(reviewItem.imageUrl, 300)} alt="Customer photo" className="w-full h-auto object-cover hover:scale-105 transition-transform" />
                           </div>
                         )}
                       </div>
