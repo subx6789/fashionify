@@ -1,3 +1,19 @@
+/**
+ * ============================================================================
+ * File Purpose Documentation
+ * ============================================================================
+ * File: cart-items-content.jsx
+ * Purpose: Feature-specific React component to encapsulate UI logic.
+ * Functions/Methods: 7
+ * 
+ * Description: 
+ * This file is part of the Fashionify e-commerce platform. It encapsulates 
+ * specific logic related to its domain (Frontend UI/State or Backend Logic).
+ * Beginners should read through the functions below to understand how data 
+ * flows through this specific module.
+ * ============================================================================
+ */
+
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useDispatch, useSelector }        from "react-redux";
 import { deleteCartItem, updateCartQuantity } from "@/store/shop/cart-slice";

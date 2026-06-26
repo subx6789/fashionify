@@ -1,3 +1,19 @@
+/**
+ * ============================================================================
+ * File Purpose Documentation
+ * ============================================================================
+ * File: use-toast.js
+ * Purpose: Reusable UI component (Shadcn/Custom) for consistent design.
+ * Functions/Methods: 10
+ * 
+ * Description: 
+ * This file is part of the Fashionify e-commerce platform. It encapsulates 
+ * specific logic related to its domain (Frontend UI/State or Backend Logic).
+ * Beginners should read through the functions below to understand how data 
+ * flows through this specific module.
+ * ============================================================================
+ */
+
 // Inspired by react-hot-toast library
 import * as React from "react"
 

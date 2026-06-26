@@ -1,3 +1,19 @@
+/**
+ * ============================================================================
+ * File Purpose Documentation
+ * ============================================================================
+ * File: sheet.jsx
+ * Purpose: Reusable UI component (Shadcn/Custom) for consistent design.
+ * Functions/Methods: 5
+ * 
+ * Description: 
+ * This file is part of the Fashionify e-commerce platform. It encapsulates 
+ * specific logic related to its domain (Frontend UI/State or Backend Logic).
+ * Beginners should read through the functions below to understand how data 
+ * flows through this specific module.
+ * ============================================================================
+ */
+
 import * as React from "react"
 import * as SheetPrimitive from "@radix-ui/react-dialog"
 import { cva } from "class-variance-authority";

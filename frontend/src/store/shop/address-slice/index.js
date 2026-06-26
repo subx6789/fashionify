@@ -1,3 +1,19 @@
+/**
+ * ============================================================================
+ * File Purpose Documentation
+ * ============================================================================
+ * File: index.js
+ * Purpose: Redux slice/store configuration for managing global application state.
+ * Functions/Methods: 5
+ * 
+ * Description: 
+ * This file is part of the Fashionify e-commerce platform. It encapsulates 
+ * specific logic related to its domain (Frontend UI/State or Backend Logic).
+ * Beginners should read through the functions below to understand how data 
+ * flows through this specific module.
+ * ============================================================================
+ */
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@/services/api";
 

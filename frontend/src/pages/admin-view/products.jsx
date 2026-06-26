@@ -1,3 +1,19 @@
+/**
+ * ============================================================================
+ * File Purpose Documentation
+ * ============================================================================
+ * File: products.jsx
+ * Purpose: Full page React view rendering a distinct route in the application.
+ * Functions/Methods: 23
+ * 
+ * Description: 
+ * This file is part of the Fashionify e-commerce platform. It encapsulates 
+ * specific logic related to its domain (Frontend UI/State or Backend Logic).
+ * Beginners should read through the functions below to understand how data 
+ * flows through this specific module.
+ * ============================================================================
+ */
+
 import ProductImageUpload from "@/components/admin-view/image-upload";
 import AdminProductTile   from "@/components/admin-view/product-tile";
 import CommonForm         from "@/components/common/form";

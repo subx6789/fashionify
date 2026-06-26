@@ -1,3 +1,19 @@
+/**
+ * ============================================================================
+ * File Purpose Documentation
+ * ============================================================================
+ * File: ShopReviewController.java
+ * Purpose: Spring Boot REST Controller handling incoming HTTP requests and routing.
+ * Functions/Methods: 0
+ * 
+ * Description: 
+ * This file is part of the Fashionify e-commerce platform. It encapsulates 
+ * specific logic related to its domain (Frontend UI/State or Backend Logic).
+ * Beginners should read through the functions below to understand how data 
+ * flows through this specific module.
+ * ============================================================================
+ */
+
 package com.fashionify.backend.controller.shop;
 
 import com.fashionify.backend.entity.Product;

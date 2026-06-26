@@ -1,3 +1,19 @@
+/**
+ * ============================================================================
+ * File Purpose Documentation
+ * ============================================================================
+ * File: checkout.jsx
+ * Purpose: Full page React view rendering a distinct route in the application.
+ * Functions/Methods: 5
+ * 
+ * Description: 
+ * This file is part of the Fashionify e-commerce platform. It encapsulates 
+ * specific logic related to its domain (Frontend UI/State or Backend Logic).
+ * Beginners should read through the functions below to understand how data 
+ * flows through this specific module.
+ * ============================================================================
+ */
+
 import Address from "@/components/shopping-view/address";
 import img from "../../assets/account.jpg";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,6 +45,13 @@ function ShoppingCheckout() {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
+  // ============================================================================
+  // CART CALCULATION LOGIC
+  // ============================================================================
+  // We use React's useMemo hook here so that the total amount is only 
+  // recalculated when the `cartItems` array changes. This saves performance 
+  // by preventing unnecessary math calculations on every re-render.
+  // ============================================================================
   const totalCartAmount = useMemo(() => {
     if (!cartItems?.items?.length) return 0;
     return cartItems.items.reduce(
@@ -42,6 +65,12 @@ function ShoppingCheckout() {
     );
   }, [cartItems]);
 
+  // ============================================================================
+  // DYNAMIC PRICING VARIABLES
+  // ============================================================================
+  // Calculate extra costs (shipping and gift wrapping) based on user selection.
+  // We also calculate discounts dynamically if a promo code is active.
+  // ============================================================================
   const shippingCost = shippingMethod === "express" ? 100 : shippingMethod === "next-day" ? 250 : 0;
   const giftWrapCost = isGiftWrapped ? 50 : 0;
   const discountAmount = appliedPromo?.discountType === "PERCENTAGE" 
@@ -51,6 +80,8 @@ function ShoppingCheckout() {
       : appliedPromo?.discountType === "FREE_SHIPPING"
       ? shippingCost
       : 0;
+      
+  // Math.max(0, ...) ensures the final total never goes below zero.
   const finalTotalAmount = Math.max(0, totalCartAmount + shippingCost + giftWrapCost - discountAmount);
 
   async function handleApplyPromo() {

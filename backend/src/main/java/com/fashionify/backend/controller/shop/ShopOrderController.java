@@ -1,3 +1,19 @@
+/**
+ * ============================================================================
+ * File Purpose Documentation
+ * ============================================================================
+ * File: ShopOrderController.java
+ * Purpose: Spring Boot REST Controller handling incoming HTTP requests and routing.
+ * Functions/Methods: 0
+ * 
+ * Description: 
+ * This file is part of the Fashionify e-commerce platform. It encapsulates 
+ * specific logic related to its domain (Frontend UI/State or Backend Logic).
+ * Beginners should read through the functions below to understand how data 
+ * flows through this specific module.
+ * ============================================================================
+ */
+
 package com.fashionify.backend.controller.shop;
 
 import com.fashionify.backend.entity.Cart;
@@ -29,6 +45,14 @@ import java.util.Optional;
 @RequestMapping("/api/shop/order")
 public class ShopOrderController {
 
+    // ============================================================================
+    // DEPENDENCY INJECTION (Spring Beans)
+    // ============================================================================
+    // @Autowired tells Spring Boot to automatically inject the correct repository 
+    // instances so we can securely access the database without manually opening 
+    // connections.
+    // ============================================================================
+
     @Autowired
     private OrderRepository orderRepository;
 
@@ -58,7 +82,15 @@ public class ShopOrderController {
     @Value("${app.payment.mode:simulated}")
     private String paymentMode;
 
+    // ============================================================================
+    // CREATE NEW ORDER ENDPOINT
+    // ============================================================================
+    // Accepts a JSON payload from the React frontend, validates the user, creates 
+    // an Order record, links all OrderItems, and saves it to the DB.
+    // @CacheEvict clears the admin orders cache so the new order appears instantly.
+    // ============================================================================
     @PostMapping("/create")
+    @CacheEvict(value = "orders", allEntries = true)
     public ResponseEntity<?> createOrder(@RequestBody Order orderDetails) {
         Optional<User> userOpt = userRepository.findById(orderDetails.getUser().getId());
         if (userOpt.isEmpty()) {

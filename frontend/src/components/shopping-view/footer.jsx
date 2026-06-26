@@ -1,3 +1,19 @@
+/**
+ * ============================================================================
+ * File Purpose Documentation
+ * ============================================================================
+ * File: footer.jsx
+ * Purpose: Feature-specific React component to encapsulate UI logic.
+ * Functions/Methods: 2
+ * 
+ * Description: 
+ * This file is part of the Fashionify e-commerce platform. It encapsulates 
+ * specific logic related to its domain (Frontend UI/State or Backend Logic).
+ * Beginners should read through the functions below to understand how data 
+ * flows through this specific module.
+ * ============================================================================
+ */
+
 import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Youtube, Send } from "lucide-react";
 import BrandLogo from "@/components/common/BrandLogo";

@@ -1,3 +1,19 @@
+/**
+ * ============================================================================
+ * File Purpose Documentation
+ * ============================================================================
+ * File: CancelOrderButton.jsx
+ * Purpose: Feature-specific React component to encapsulate UI logic.
+ * Functions/Methods: 4
+ * 
+ * Description: 
+ * This file is part of the Fashionify e-commerce platform. It encapsulates 
+ * specific logic related to its domain (Frontend UI/State or Backend Logic).
+ * Beginners should read through the functions below to understand how data 
+ * flows through this specific module.
+ * ============================================================================
+ */
+
 import { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { cancelOrder, getAllOrdersByUserId } from "@/store/shop/order-slice";
