@@ -136,7 +136,7 @@ public class ShopOrderController {
      * In Razorpay mode this would verify the payment signature.
      */
     @PostMapping("/confirm-simulated")
-    @CacheEvict(value = "shopProducts", allEntries = true)
+    @CacheEvict(value = {"shopProducts", "adminProducts", "lowStockProducts", "coupons", "activeCoupons", "analytics"}, allEntries = true)
     public ResponseEntity<?> confirmSimulatedOrder(@RequestBody Map<String, Object> payload) {
         Object orderIdObj = payload.get("orderId");
         if (orderIdObj == null) {
@@ -321,6 +321,7 @@ public class ShopOrderController {
      * Guard: cannot cancel orders that are already delivered or cancelled.
      */
     @PatchMapping("/{id}/cancel")
+    @CacheEvict(value = {"shopProducts", "adminProducts", "lowStockProducts", "coupons", "activeCoupons", "analytics"}, allEntries = true)
     public ResponseEntity<?> cancelOrder(
             @PathVariable Long id,
             @RequestBody Map<String, Object> body) {

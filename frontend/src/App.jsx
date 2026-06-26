@@ -4,7 +4,6 @@ import { AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 
 // Layout & core auth components (static import to keep container framing immediate)
-import AuthLayout from "./components/auth/layout";
 import AdminLayout from "./components/admin-view/layout";
 import ShoppingLayout from "./components/shopping-view/layout";
 import CheckAuth from "./components/common/check-auth";
@@ -14,7 +13,6 @@ import { checkAuth } from "./store/auth-slice";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy-loaded page components for bundle splitting
-const AdminLogin = lazy(() => import("./pages/admin-view/admin-login"));
 const AdminDashboard = lazy(() => import("./pages/admin-view/dashboard"));
 const AdminProducts = lazy(() => import("./pages/admin-view/products"));
 const AdminOrders = lazy(() => import("./pages/admin-view/orders"));
@@ -29,7 +27,6 @@ const ShoppingCheckout = lazy(() => import("./pages/shopping-view/checkout"));
 const ShoppingProductDetails = lazy(() => import("./pages/shopping-view/product-details"));
 const ShoppingAccount = lazy(() => import("./pages/shopping-view/account"));
 const ShoppingCollectionDetails = lazy(() => import("./pages/shopping-view/collection-details"));
-const PaypalReturnPage = lazy(() => import("./pages/shopping-view/paypal-return"));
 const PaymentSuccessPage = lazy(() => import("./pages/shopping-view/payment-success"));
 const SearchProducts = lazy(() => import("./pages/shopping-view/search"));
 const ShoppingAbout = lazy(() => import("./pages/shopping-view/about"));
@@ -103,17 +100,6 @@ function App() {
               }
             />
 
-            {/* Admin auth — dedicated page (not modal) */}
-            <Route
-              path="/admin-auth"
-              element={
-                <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-                  <AuthLayout />
-                </CheckAuth>
-              }
-            >
-              <Route path="login" element={<AdminLogin />} />
-            </Route>
 
             {/* Admin panel */}
             <Route
@@ -152,7 +138,6 @@ function App() {
               <Route path="account"         element={<ShoppingAccount />} />
               <Route path="collection/:id"      element={<ShoppingCollectionDetails />} />
               <Route path="wishlist"        element={<ShoppingWishlist />} />
-              <Route path="paypal-return"   element={<PaypalReturnPage />} />
               <Route path="payment-success" element={<PaymentSuccessPage />} />
             </Route>
 

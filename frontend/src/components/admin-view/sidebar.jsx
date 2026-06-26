@@ -5,6 +5,7 @@ import {
   Tag,
   Shirt,
   MessageSquare,
+  LogOut,
 } from "lucide-react";
 import { Fragment, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -12,6 +13,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import BrandLogo from "@/components/common/BrandLogo";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUnreadCount } from "@/store/admin/messages-slice";
+import { logoutUser } from "@/store/auth-slice";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 const adminSidebarMenuItems = [
   {
@@ -108,37 +111,75 @@ function MenuItems({ setOpen }) {
 function AdminSideBar({ open, setOpen }) {
   const navigate  = useNavigate();
   const dispatch  = useDispatch();
+  const { user }  = useSelector((state) => state.auth);
 
   // Fetch unread count on mount so sidebar badge stays accurate
   useEffect(() => {
     dispatch(fetchUnreadCount());
   }, [dispatch]);
 
+  function handleLogout() {
+    dispatch(logoutUser());
+  }
+
+  const UserProfileBlock = (
+    <div className="mt-auto p-5 border-t-2 border-border bg-muted/10">
+      <div className="flex items-center gap-3">
+        <Avatar className="border-2 border-border w-10 h-10 shadow-[2px_2px_0px_0px_hsl(var(--neu-black))]">
+          <AvatarImage
+            src={`https://api.dicebear.com/9.x/micah/svg?seed=${user?.avatar || user?.userName || "Fashion"}&backgroundColor=transparent`}
+            alt="User Avatar"
+          />
+          <AvatarFallback className="bg-primary text-primary-foreground font-black">
+            {user?.userName?.[0]?.toUpperCase() || "A"}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col flex-1 min-w-0">
+          <span className="text-sm font-black truncate text-foreground">{user?.userName || "Admin"}</span>
+          <span className="text-[10px] font-bold text-muted-foreground truncate">{user?.email || "admin@example.com"}</span>
+        </div>
+      </div>
+      <button 
+        onClick={handleLogout}
+        className="w-full mt-4 flex items-center justify-center gap-2 py-2 text-sm font-black border-2 border-border bg-background rounded-sm hover:bg-destructive hover:text-destructive-foreground hover:border-destructive transition-colors shadow-[2px_2px_0px_0px_hsl(var(--neu-black))] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_hsl(var(--neu-black))]"
+      >
+        <LogOut className="w-4 h-4" />
+        Logout
+      </button>
+    </div>
+  );
+
   return (
     <Fragment>
       {/* Mobile sheet */}
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="left" className="w-64" aria-describedby={undefined}>
+        <SheetContent side="left" className="w-64 p-0" aria-describedby={undefined}>
           <div className="flex flex-col h-full">
-            <SheetHeader className="border-b">
-              <SheetTitle className="flex mt-5 mb-5 items-center justify-center">
+            <SheetHeader className="border-b-2 border-border px-4 py-5">
+              <SheetTitle className="flex items-center justify-center">
                 <BrandLogo showText={true} />
               </SheetTitle>
             </SheetHeader>
-            <MenuItems setOpen={setOpen} />
+            <div className="flex-1 overflow-y-auto">
+              <MenuItems setOpen={setOpen} />
+            </div>
+            {UserProfileBlock}
           </div>
         </SheetContent>
       </Sheet>
 
       {/* Desktop sidebar */}
-      <aside className="hidden w-[280px] flex-col border-r border-border bg-card py-8 lg:flex">
+      <aside className="hidden w-[280px] flex-col border-r-2 border-border bg-card lg:flex h-screen sticky top-0">
         <div
           onClick={() => navigate("/admin/dashboard")}
-          className="flex cursor-pointer items-center justify-center mb-6"
+          className="flex cursor-pointer items-center justify-center py-6 border-b-2 border-border"
         >
           <BrandLogo showText={true} />
         </div>
-        <MenuItems />
+        <div className="flex-1 overflow-y-auto">
+          <MenuItems />
+        </div>
+        {UserProfileBlock}
       </aside>
     </Fragment>
   );

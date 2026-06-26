@@ -1,13 +1,24 @@
 import ProductImageUpload from "@/components/admin-view/image-upload";
 import AdminProductTile   from "@/components/admin-view/product-tile";
 import CommonForm         from "@/components/common/form";
+import { Button }         from "@/components/ui/button";
 import { Input }          from "@/components/ui/input";
 import { Label }          from "@/components/ui/label";
+import { Skeleton, SkeletonRepeater }       from "@/components/ui/skeleton";
 import { useToast }       from "@/components/ui/use-toast";
+import { ConfirmDeleteDialog } from "@/components/common/confirm-delete-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   addProductBasicInfoElements,
   sizeOptionsByCategory,
   tagsByCategory,
+  filterOptions,
 } from "@/config";
 import {
   addNewProduct,
@@ -16,7 +27,7 @@ import {
   fetchAllProducts,
   fetchLowStockProducts,
 } from "@/store/admin/products-slice";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState, useMemo } from "react";
 import { useDispatch, useSelector }               from "react-redux";
 import {
   AlertTriangle,
@@ -83,8 +94,15 @@ function AdminProducts() {
   const [submitAttempted, setSubmitAttempted]   = useState(false);
   const [currentEditedId, setCurrentEditedId]   = useState(null);
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
+  const [productToDelete, setProductToDelete]   = useState(null);
 
-  const { productList, lowStockProducts } = useSelector((s) => s.adminProducts);
+  const [isSubmitting, setIsSubmitting]         = useState(false);
+
+  const [searchTerm, setSearchTerm]             = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [filterCategory, setFilterCategory]     = useState("all");
+
+  const { productList, lowStockProducts, isLoading } = useSelector((s) => s.adminProducts);
   const dispatch  = useDispatch();
   const { toast } = useToast();
   const dialogRef = useRef(null);
@@ -94,6 +112,13 @@ function AdminProducts() {
     dispatch(fetchAllProducts());
     dispatch(fetchLowStockProducts());
   }, [dispatch]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   function refreshAll() {
     dispatch(fetchAllProducts());
@@ -241,6 +266,7 @@ function AdminProducts() {
     }
     if (!isFormValid()) return;
 
+    setIsSubmitting(true);
     const payload = {
       ...formData,
       images:       uploadedImageUrls,
@@ -254,6 +280,7 @@ function AdminProducts() {
 
     if (currentEditedId !== null) {
       dispatch(editProduct({ id: currentEditedId, formData: payload })).then((data) => {
+        setIsSubmitting(false);
         if (data?.payload?.success) {
           refreshAll();
           closeDialog();
@@ -262,6 +289,7 @@ function AdminProducts() {
       });
     } else {
       dispatch(addNewProduct(payload)).then((data) => {
+        setIsSubmitting(false);
         if (data?.payload?.success) {
           refreshAll();
           closeDialog();
@@ -271,13 +299,49 @@ function AdminProducts() {
     }
   }
 
-  function handleDelete(id) {
-    dispatch(deleteProduct(id)).then((data) => {
+  function handleDeleteClick(id) {
+    setProductToDelete(id);
+  }
+
+  function confirmDelete() {
+    if (!productToDelete) return;
+    dispatch(deleteProduct(productToDelete)).then((data) => {
       if (data?.payload?.success) refreshAll();
+      setProductToDelete(null);
     });
   }
 
   const displayList   = showLowStockOnly ? (lowStockProducts || []) : (productList || []);
+  
+  const filteredProducts = useMemo(() => {
+    let list = [...displayList];
+
+    if (debouncedSearchTerm.trim()) {
+      const q = debouncedSearchTerm.toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.title?.toLowerCase().includes(q) ||
+          p.description?.toLowerCase().includes(q) ||
+          p.brand?.toLowerCase().includes(q) ||
+          String(p.id).includes(q)
+      );
+    }
+
+    if (filterCategory !== "all") {
+      list = list.filter((p) => p.category === filterCategory);
+    }
+
+    // Sort by newest first (descending by ID if no createdAt available, or by updateDate)
+    list.sort((a, b) => {
+      const dateA = new Date(a.updateDate || a.createDate || 0).getTime();
+      const dateB = new Date(b.updateDate || b.createDate || 0).getTime();
+      if (dateA && dateB && dateA !== dateB) return dateB - dateA;
+      return (b.id || 0) - (a.id || 0);
+    });
+
+    return list;
+  }, [displayList, debouncedSearchTerm, filterCategory]);
+
   const lowStockCount = (lowStockProducts || []).length;
   const tagCount      = selectedTags.length;
   const tagCountColor =
@@ -315,17 +379,44 @@ function AdminProducts() {
         </button>
       </div>
 
+      {/* ── Filters bar ──────────────────────────────────────────────────── */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-3">
+        <Input
+          placeholder="Search products by name, ID, or brand..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full sm:w-[300px] border-2 border-border rounded-sm focus-visible:ring-0 focus-visible:border-primary neu-input"
+          style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}
+        />
+        <Select value={filterCategory} onValueChange={setFilterCategory}>
+          <SelectTrigger
+            className="w-full sm:w-[200px] border-2 border-border rounded-sm font-black focus:ring-0 focus:border-primary bg-background"
+            style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}
+          >
+            <SelectValue placeholder="Filter Category" />
+          </SelectTrigger>
+          <SelectContent className="border-2 border-border rounded-sm font-bold shadow-[4px_4px_0px_0px_hsl(var(--neu-black))] cursor-pointer">
+            <SelectItem className="cursor-pointer" value="all">All Categories</SelectItem>
+            {filterOptions.category.map((cat) => (
+              <SelectItem className="cursor-pointer" key={cat.id} value={cat.id}>{cat.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* ── Product grid ─────────────────────────────────────────────────── */}
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
-        {displayList.length > 0
-          ? displayList.map((productItem) => (
+        {isLoading ? (
+          <SkeletonRepeater count={8} className="h-[420px] w-full rounded-sm border-2 border-border" />
+        ) : filteredProducts.length > 0
+          ? filteredProducts.map((productItem) => (
               <AdminProductTile
                 key={productItem.id}
                 setFormData={(p) => openDialogFor(p)}
                 setOpenCreateProductsDialog={setOpenDialog}
                 setCurrentEditedId={setCurrentEditedId}
                 product={productItem}
-                handleDelete={handleDelete}
+                handleDelete={handleDeleteClick}
               />
             ))
           : (
@@ -695,23 +786,29 @@ function AdminProducts() {
               >
                 Cancel
               </button>
-              <button
+              <Button
                 onClick={onSubmit}
-                disabled={imageLoadingState}
-                className={`neu-btn-primary flex-1 py-2.5 text-sm transition-opacity ${
-                  imageLoadingState ? "opacity-60 cursor-not-allowed" : ""
-                }`}
+                isLoading={imageLoadingState || isSubmitting}
+                className="neu-btn-primary flex-1 py-2.5 h-auto text-sm transition-opacity"
               >
                 {imageLoadingState
                   ? "Uploading images…"
                   : currentEditedId !== null
                   ? "Update Product"
                   : "Add Product"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
       )}
+
+      <ConfirmDeleteDialog
+        isOpen={!!productToDelete}
+        onClose={() => setProductToDelete(null)}
+        onConfirm={confirmDelete}
+        title="Delete Product?"
+        warningText="Deleting this product will automatically CANCEL all active user orders containing it. It will also be permanently removed from all user carts, wishlists, and active collections. This action cannot be undone."
+      />
     </Fragment>
   );
 }

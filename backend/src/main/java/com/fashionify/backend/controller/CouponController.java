@@ -5,6 +5,8 @@ import com.fashionify.backend.repository.CouponRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +21,7 @@ public class CouponController {
     private CouponRepository couponRepository;
 
     @GetMapping
+    @Cacheable("coupons")
     public ResponseEntity<?> getAllCoupons() {
         try {
             List<Coupon> coupons = couponRepository.findAllByDeletedAtIsNull();
@@ -29,6 +32,7 @@ public class CouponController {
     }
 
     @PostMapping
+    @CacheEvict(value = "coupons", allEntries = true)
     public ResponseEntity<?> createCoupon(@RequestBody Coupon coupon) {
         try {
             if (coupon.getIsActive() == null) {
@@ -49,6 +53,7 @@ public class CouponController {
     }
 
     @PutMapping("/{id}")
+    @CacheEvict(value = "coupons", allEntries = true)
     public ResponseEntity<?> updateCoupon(@PathVariable Long id, @RequestBody Coupon couponDetails) {
         try {
             Optional<Coupon> opt = couponRepository.findById(id);
@@ -76,6 +81,7 @@ public class CouponController {
     }
 
     @DeleteMapping("/{id}")
+    @CacheEvict(value = "coupons", allEntries = true)
     public ResponseEntity<?> deleteCoupon(@PathVariable Long id) {
         try {
             Optional<Coupon> opt = couponRepository.findById(id);

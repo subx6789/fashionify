@@ -5,6 +5,8 @@ import com.fashionify.backend.repository.FeatureRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.util.List;
 import java.util.Map;
@@ -17,18 +19,21 @@ public class FeatureController {
     private FeatureRepository featureRepository;
 
     @PostMapping("/add")
+    @CacheEvict(value = "features", allEntries = true)
     public ResponseEntity<?> addFeatureImage(@RequestBody Feature feature) {
         Feature savedFeature = featureRepository.save(feature);
         return ResponseEntity.ok(Map.of("success", true, "data", savedFeature));
     }
 
     @GetMapping("/get")
+    @Cacheable("features")
     public ResponseEntity<?> getFeatureImages() {
         List<Feature> features = featureRepository.findAll();
         return ResponseEntity.ok(Map.of("success", true, "data", features));
     }
 
     @PutMapping("/edit/{id}")
+    @CacheEvict(value = "features", allEntries = true)
     public ResponseEntity<?> editFeatureImage(@PathVariable Long id, @RequestBody Feature featureDetails) {
         Feature feature = featureRepository.findById(id).orElse(null);
         if (feature == null) {
@@ -48,6 +53,7 @@ public class FeatureController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @CacheEvict(value = "features", allEntries = true)
     public ResponseEntity<?> deleteFeatureImage(@PathVariable Long id) {
         Feature feature = featureRepository.findById(id).orElse(null);
         if (feature == null) {

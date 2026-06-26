@@ -5,11 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Trash2, Plus, Tag, RefreshCcw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { SkeletonRepeater } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ConfirmDeleteDialog } from "@/components/common/confirm-delete-dialog";
 
 function AdminCoupons() {
   const [coupons, setCoupons] = useState([]);
+  const [isFetchingCoupons, setIsFetchingCoupons] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [couponToDelete, setCouponToDelete] = useState(null);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -26,12 +30,15 @@ function AdminCoupons() {
 
   const fetchCoupons = async () => {
     try {
+      setIsFetchingCoupons(true);
       const res = await getCoupons();
       if (res.data.success) {
         setCoupons(res.data.data);
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsFetchingCoupons(false);
     }
   };
 
@@ -89,15 +96,18 @@ function AdminCoupons() {
     }
   };
 
-  const handleDeleteCoupon = async (id) => {
+  const confirmDelete = async () => {
+    if (!couponToDelete) return;
     try {
-      const res = await deleteCoupon(id);
+      const res = await deleteCoupon(couponToDelete);
       if (res.data.success) {
         toast({ title: "Coupon deleted" });
         fetchCoupons();
       }
     } catch (err) {
       toast({ title: "Error deleting coupon", variant: "destructive" });
+    } finally {
+      setCouponToDelete(null);
     }
   };
 
@@ -219,8 +229,8 @@ function AdminCoupons() {
           </div>
           
           <div className="lg:col-span-3 flex justify-end mt-4">
-            <Button type="submit" disabled={loading} className="neu-btn-primary w-full md:w-auto h-12 text-lg">
-              <Plus className="w-5 h-5 mr-2" /> {loading ? "Creating..." : "Create Coupon"}
+            <Button type="submit" isLoading={loading} className="neu-btn-primary w-full md:w-auto h-12 text-lg">
+              {!loading && <Plus className="w-5 h-5 mr-2" />} {loading ? "Creating..." : "Create Coupon"}
             </Button>
           </div>
         </form>
@@ -228,7 +238,11 @@ function AdminCoupons() {
 
       <div className="neu-card p-6 bg-card">
         <h2 className="text-2xl font-black mb-6 border-b-2 border-border pb-2">Active Coupons</h2>
-        {coupons.length === 0 ? (
+        {isFetchingCoupons ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <SkeletonRepeater count={3} className="h-48 w-full rounded-xl" />
+          </div>
+        ) : coupons.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
             <Tag className="w-16 h-16 mb-4 opacity-50" />
             <p className="font-bold text-xl">No active coupons</p>
@@ -238,7 +252,7 @@ function AdminCoupons() {
             {coupons.map(coupon => (
               <div key={coupon.id} className="relative border-2 border-black rounded-lg p-5 bg-[hsl(var(--neu-yellow)/0.1)] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
                 <div className="absolute -top-3 -right-3">
-                  <Button variant="ghost" size="icon" onClick={() => handleDeleteCoupon(coupon.id)} className="rounded-full bg-red-500 hover:bg-red-600 text-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                  <Button variant="ghost" size="icon" onClick={() => setCouponToDelete(coupon.id)} className="rounded-full bg-red-500 hover:bg-red-600 text-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -268,6 +282,14 @@ function AdminCoupons() {
           </div>
         )}
       </div>
+
+      <ConfirmDeleteDialog
+        isOpen={!!couponToDelete}
+        onClose={() => setCouponToDelete(null)}
+        onConfirm={confirmDelete}
+        title="Delete Coupon?"
+        warningText="Deleting this coupon will immediately prevent any further redemptions. Existing orders that used this coupon will not be affected. This action cannot be undone."
+      />
     </div>
   );
 }

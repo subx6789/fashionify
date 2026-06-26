@@ -4,6 +4,7 @@ import com.fashionify.backend.entity.Product;
 import com.fashionify.backend.entity.ProductSizeVariant;
 import com.fashionify.backend.repository.ProductRepository;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import com.fashionify.backend.util.ProductMapper;
 import com.fashionify.backend.repository.ProductSizeVariantRepository;
 import com.fashionify.backend.repository.WaitlistRepository;
@@ -11,9 +12,11 @@ import com.fashionify.backend.repository.CartRepository;
 import com.fashionify.backend.repository.ReviewRepository;
 import com.fashionify.backend.repository.WishlistRepository;
 import com.fashionify.backend.repository.FashionCollectionRepository;
+import com.fashionify.backend.repository.OrderRepository;
 import com.fashionify.backend.entity.Waitlist;
 import com.fashionify.backend.entity.Cart;
 import com.fashionify.backend.entity.FashionCollection;
+import com.fashionify.backend.entity.Order;
 import com.fashionify.backend.service.CloudinaryService;
 import com.fashionify.backend.service.EmailService;
 import com.fashionify.backend.service.TagMigrationService;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,6 +57,9 @@ public class AdminProductController {
     private FashionCollectionRepository collectionRepository;
 
     @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
     private CloudinaryService cloudinaryService;
 
     @Autowired
@@ -78,7 +85,7 @@ public class AdminProductController {
 
     // ── Add Product ──────────────────────────────────────────────────────────
     @PostMapping("/add")
-    @CacheEvict(value = "shopProducts", allEntries = true)
+    @CacheEvict(value = {"shopProducts", "adminProducts", "lowStockProducts", "collections", "analytics"}, allEntries = true)
     public ResponseEntity<?> addProduct(@RequestBody Map<String, Object> payload) {
         // Validate tags before persisting — minimum 1, maximum 5
         ResponseEntity<?> tagError = validateTagsInPayload(payload);
@@ -92,6 +99,7 @@ public class AdminProductController {
 
     // ── Get All Products ──────────────────────────────────────────────────────
     @GetMapping("/get")
+    @Cacheable("adminProducts")
     public ResponseEntity<?> fetchAllProducts() {
         List<Map<String, Object>> enriched = productRepository.findAll()
                 .stream().map(ProductMapper::toResponseMap).collect(Collectors.toList());
@@ -100,6 +108,7 @@ public class AdminProductController {
 
     // ── Low-Stock Alert Endpoint (any size stock ≤ 5) ────────────────────────
     @GetMapping("/low-stock")
+    @Cacheable("lowStockProducts")
     public ResponseEntity<?> getLowStockProducts() {
         List<Map<String, Object>> lowStock = productRepository.findAll().stream()
                 .filter(p -> p.getSizeVariants().stream().anyMatch(v -> v.getStock() <= 5))
@@ -111,7 +120,7 @@ public class AdminProductController {
     // ── Edit Product ─────────────────────────────────────────────────────────
     @SuppressWarnings("unchecked")
     @PutMapping("/edit/{id}")
-    @CacheEvict(value = "shopProducts", allEntries = true)
+    @CacheEvict(value = {"shopProducts", "adminProducts", "lowStockProducts", "collections", "analytics"}, allEntries = true)
     public ResponseEntity<?> editProduct(@PathVariable Long id,
             @RequestBody Map<String, Object> payload) {
         // Validate tags before persisting — minimum 1, maximum 5
@@ -164,7 +173,7 @@ public class AdminProductController {
     // ── Delete Product ────────────────────────────────────────────────────────
     @Transactional
     @DeleteMapping("/delete/{id}")
-    @CacheEvict(value = "shopProducts", allEntries = true)
+    @CacheEvict(value = {"shopProducts", "adminProducts", "lowStockProducts", "collections", "analytics"}, allEntries = true)
     public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
         if (productRepository.existsById(id)) {
             // Remove from carts
@@ -181,6 +190,27 @@ public class AdminProductController {
                 if (removed) collectionRepository.save(collection);
             }
 
+            // Cancel active orders containing this product
+            List<Order> activeOrders = orderRepository.findActiveOrdersByProductId(String.valueOf(id));
+            for (Order order : activeOrders) {
+                order.setOrderStatus("CANCELLED");
+                order.setOrderUpdateDate(LocalDateTime.now());
+                orderRepository.save(order);
+
+                // Notify user
+                try {
+                    String subject = "Important: Update regarding your Order #" + order.getId();
+                    String text = "Hi " + order.getUser().getUserName() + ",\n\n" +
+                                  "We sincerely apologize, but an item in your order #" + order.getId() + 
+                                  " is no longer available in our catalogue. As a result, your order has been automatically cancelled.\n\n" +
+                                  "Any payments made will be refunded shortly. We apologize for the inconvenience.\n\n" +
+                                  "Thank you for shopping with Fashionify!";
+                    emailService.sendSimpleEmail(order.getUser().getEmail(), subject, text);
+                } catch (Exception e) {
+                    System.err.println("Failed to send cancellation email to " + order.getUser().getEmail() + ": " + e.getMessage());
+                }
+            }
+
             // Delete reviews, waitlists, and wishlists associated with the product
             reviewRepository.deleteByProductId(id);
             waitlistRepository.deleteByProductId(id);
@@ -195,6 +225,7 @@ public class AdminProductController {
 
     // ── Tag Migration ─────────────────────────────────────────────────────────
     @PostMapping("/tags/migrate")
+    @CacheEvict(value = {"shopProducts", "adminProducts", "lowStockProducts", "collections", "analytics"}, allEntries = true)
     public ResponseEntity<?> migrateTags(@RequestBody Map<String, Object> payload) {
         boolean previewOnly = Boolean.TRUE.equals(payload.get("previewOnly"));
         boolean forceOverwrite = Boolean.TRUE.equals(payload.get("forceOverwrite"));

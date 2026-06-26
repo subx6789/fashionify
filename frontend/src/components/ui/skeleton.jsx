@@ -7,4 +7,14 @@ function Skeleton({
   return (<div className={cn("animate-pulse rounded-md bg-muted", className)} {...props} />);
 }
 
-export { Skeleton }
+function SkeletonRepeater({ count = 1, className, children }) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        typeof children === "function" ? children(i) : <Skeleton key={i} className={className} />
+      ))}
+    </>
+  );
+}
+
+export { Skeleton, SkeletonRepeater }

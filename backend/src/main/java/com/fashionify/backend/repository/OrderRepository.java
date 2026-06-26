@@ -14,6 +14,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByUserId(Long userId);
     void deleteByUserId(Long userId);
 
+    @Query("""
+        SELECT o FROM Order o
+        JOIN o.orderItems oi
+        WHERE oi.productId = :productId
+        AND o.orderStatus NOT IN ('delivered', 'CANCELLED')
+        """)
+    List<Order> findActiveOrdersByProductId(@Param("productId") String productId);
+
     // Used by verified-purchase rating check
     @Query("""
         SELECT COUNT(o) > 0 FROM Order o

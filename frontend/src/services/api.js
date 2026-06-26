@@ -38,6 +38,6 @@ export const createCollection = (payload) => api.post("/api/collections", payloa
 export const deleteCollection = (id) => api.delete(`/api/collections/${id}`);
 export const uploadProductImage = (data) => api.post("/api/admin/products/upload-image", data);
 export const uploadCollectionImage = (data) => api.post("/api/collections/upload-image", data);
-export const uploadImage = (url, data) => api.post(url, data);
+export const uploadImage = (url, data, config) => api.post(url, data, config);
 
 export default api;

@@ -210,6 +210,7 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password/initiate")
+    @Transactional
     public ResponseEntity<?> initiateForgotPassword(@RequestBody Map<String, String> payload) {
         String email = payload.get("email");
         if (email == null || email.isBlank()) {

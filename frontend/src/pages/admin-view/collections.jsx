@@ -6,16 +6,21 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Trash2, Plus, Shirt, CheckCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { Skeleton, SkeletonRepeater } from "@/components/ui/skeleton";
 import ProductImageUpload from "@/components/admin-view/image-upload";
+import { ConfirmDeleteDialog } from "@/components/common/confirm-delete-dialog";
 
 function AdminCollections() {
   const [collections, setCollections] = useState([]);
+  const [isFetchingCollections, setIsFetchingCollections] = useState(true);
   const [products, setProducts] = useState([]);
+  const [isFetchingProducts, setIsFetchingProducts] = useState(true);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [selectedProductIds, setSelectedProductIds] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [collectionToDelete, setCollectionToDelete] = useState(null);
   
   // Image Upload State
   const [imageFiles, setImageFiles] = useState([]);
@@ -26,23 +31,29 @@ function AdminCollections() {
 
   const fetchCollections = async () => {
     try {
+      setIsFetchingCollections(true);
       const res = await getCollections();
       if (res.data.success) {
         setCollections(res.data.data);
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsFetchingCollections(false);
     }
   };
 
   const fetchProducts = async () => {
     try {
+      setIsFetchingProducts(true);
       const res = await getAdminProducts();
       if (res.data.success) {
         setProducts(res.data.data);
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsFetchingProducts(false);
     }
   };
 
@@ -93,15 +104,18 @@ function AdminCollections() {
     }
   };
 
-  const handleDeleteCollection = async (id) => {
+  const confirmDelete = async () => {
+    if (!collectionToDelete) return;
     try {
-      const res = await deleteCollection(id);
+      const res = await deleteCollection(collectionToDelete);
       if (res.data.success) {
         toast({ title: "Collection deleted" });
         fetchCollections();
       }
     } catch (err) {
       toast({ title: "Error deleting collection", variant: "destructive" });
+    } finally {
+      setCollectionToDelete(null);
     }
   };
 
@@ -172,7 +186,9 @@ function AdminCollections() {
             <Label>Select Products for this Collection ({selectedProductIds.length} selected)</Label>
             <div className="border rounded-xl p-4 max-h-[300px] overflow-y-auto bg-muted/20">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                {products.map(product => {
+                {isFetchingProducts ? (
+                  <SkeletonRepeater count={6} className="h-16 w-full rounded-lg" />
+                ) : products.map(product => {
                   const isSelected = selectedProductIds.includes(product.id);
                   return (
                     <div 
@@ -193,8 +209,8 @@ function AdminCollections() {
             </div>
           </div>
           
-          <Button type="submit" disabled={loading} className="w-full font-bold h-12 text-lg">
-            <Plus className="w-5 h-5 mr-2" /> Save Collection
+          <Button type="submit" isLoading={loading || imageLoadingState} className="w-full font-bold h-12 text-lg">
+            {!loading && !imageLoadingState && <Plus className="w-5 h-5 mr-2" />} Save Collection
           </Button>
         </form>
       </div>
@@ -202,7 +218,11 @@ function AdminCollections() {
       <div className="bg-card rounded-2xl border shadow-sm overflow-hidden">
         <div className="p-6">
           <h2 className="text-xl font-bold mb-4">Existing Collections</h2>
-          {collections.length === 0 ? (
+          {isFetchingCollections ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <SkeletonRepeater count={3} className="h-72 w-full rounded-xl" />
+            </div>
+          ) : collections.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">No collections created yet.</p>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -214,7 +234,7 @@ function AdminCollections() {
                       variant="destructive" 
                       size="icon" 
                       className="absolute top-2 right-2 rounded-full shadow-lg"
-                      onClick={() => handleDeleteCollection(collection.id)}
+                      onClick={() => setCollectionToDelete(collection.id)}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -237,6 +257,14 @@ function AdminCollections() {
           )}
         </div>
       </div>
+
+      <ConfirmDeleteDialog
+        isOpen={!!collectionToDelete}
+        onClose={() => setCollectionToDelete(null)}
+        onConfirm={confirmDelete}
+        title="Delete Collection?"
+        warningText="Deleting this collection will permanently remove the grouping, but the underlying products will remain safe. This action cannot be undone."
+      />
     </div>
   );
 }

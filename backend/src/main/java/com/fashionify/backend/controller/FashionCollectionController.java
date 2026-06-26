@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import com.fashionify.backend.service.CloudinaryService;
 import java.io.IOException;
 
@@ -40,6 +42,7 @@ public class FashionCollectionController {
     }
 
     @GetMapping
+    @Cacheable("collections")
     public ResponseEntity<?> getAllCollections() {
         try {
             List<FashionCollection> collections = collectionRepository.findAll();
@@ -56,6 +59,7 @@ public class FashionCollectionController {
     }
 
     @GetMapping("/{id}")
+    @Cacheable(value = "collections", key = "#id")
     public ResponseEntity<?> getCollectionById(@PathVariable Long id) {
         try {
             FashionCollection collection = collectionRepository.findById(id)
@@ -73,6 +77,7 @@ public class FashionCollectionController {
     }
 
     @PostMapping
+    @CacheEvict(value = "collections", allEntries = true)
     public ResponseEntity<?> createCollection(@RequestBody FashionCollectionRequest request) {
         try {
             FashionCollection collection = new FashionCollection();
@@ -99,6 +104,7 @@ public class FashionCollectionController {
     }
 
     @DeleteMapping("/{id}")
+    @CacheEvict(value = "collections", allEntries = true)
     public ResponseEntity<?> deleteCollection(@PathVariable Long id) {
         try {
             collectionRepository.deleteById(id);

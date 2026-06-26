@@ -11,7 +11,9 @@ import { AlertTriangle, Package, TrendingUp, ShoppingBag, IndianRupee, Heart, Ba
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton, SkeletonRepeater } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
+import { ConfirmDeleteDialog } from "@/components/common/confirm-delete-dialog";
 import {
   LineChart,
   Line,
@@ -121,6 +123,7 @@ function AdminDashboard() {
 
   const [editingSlide, setEditingSlide] = useState(null);
   const [editDates, setEditDates] = useState({ startDate: "", endDate: "", linkUrl: "" });
+  const [slideToDelete, setSlideToDelete] = useState(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -160,12 +163,12 @@ function AdminDashboard() {
     });
   }
 
-  function handleDeleteSlide(id) {
-    if (window.confirm("Are you sure you want to delete this slide?")) {
-      dispatch(deleteFeatureImage(id)).then(() => {
-        dispatch(getFeatureImages());
-      });
-    }
+  function confirmDeleteSlide() {
+    if (!slideToDelete) return;
+    dispatch(deleteFeatureImage(slideToDelete)).then(() => {
+      dispatch(getFeatureImages());
+      setSlideToDelete(null);
+    });
   }
 
   function handleEditSlide() {
@@ -286,9 +289,13 @@ function AdminDashboard() {
 
       {/* KPI Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
-        {statCards.map((s, i) => (
-          <StatCard key={s.title} {...s} delay={i * 0.07} />
-        ))}
+        {analyticsLoading ? (
+          <SkeletonRepeater count={6} className="h-28 w-full rounded-xl" />
+        ) : (
+          statCards.map((s, i) => (
+            <StatCard key={s.title} {...s} delay={i * 0.07} />
+          ))
+        )}
       </div>
 
       {/* Charts Row */}
@@ -301,9 +308,7 @@ function AdminDashboard() {
             </CardHeader>
             <CardContent>
               {analyticsLoading ? (
-                <div className="h-[240px] flex items-center justify-center">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                </div>
+                <Skeleton className="w-full h-[240px] rounded-md" />
               ) : analytics?.revenueByDay?.length ? (
                 <ResponsiveContainer width="100%" height={240}>
                   <LineChart data={analytics.revenueByDay} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
@@ -344,9 +349,7 @@ function AdminDashboard() {
             </CardHeader>
             <CardContent>
               {analyticsLoading ? (
-                <div className="h-[240px] flex items-center justify-center">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                </div>
+                <Skeleton className="w-full h-[240px] rounded-md" />
               ) : analytics?.ordersByDay?.length ? (
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart data={analytics.ordersByDay} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
@@ -479,7 +482,7 @@ function AdminDashboard() {
                       <Button
                         size="icon"
                         variant="destructive"
-                        onClick={() => handleDeleteSlide(featureImgItem.id)}
+                        onClick={() => setSlideToDelete(featureImgItem.id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -539,6 +542,14 @@ function AdminDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDeleteDialog
+        isOpen={!!slideToDelete}
+        onClose={() => setSlideToDelete(null)}
+        onConfirm={confirmDeleteSlide}
+        title="Delete Feature Image?"
+        warningText="Deleting this feature image will instantly remove it from the homepage carousel. This action cannot be undone."
+      />
     </div>
   );
 }

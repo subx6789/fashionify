@@ -88,10 +88,10 @@ function CommonForm({
             <SelectContent>
               {getControlItem.options && getControlItem.options.length > 0
                 ? getControlItem.options.map((optionItem) => (
-                    <SelectItem key={optionItem.id} value={optionItem.id}>
-                      {optionItem.label}
-                    </SelectItem>
-                  ))
+                  <SelectItem key={optionItem.id} value={optionItem.id}>
+                    {optionItem.label}
+                  </SelectItem>
+                ))
                 : null}
             </SelectContent>
           </Select>
@@ -147,13 +147,15 @@ function CommonForm({
           </div>
         ))}
       </div>
-      <Button
-        disabled={isBtnDisabled || isLoading}
-        type="submit"
-        className="mt-5 w-full bg-gradient-brand text-primary-foreground hover:from-primary hover:via-primary hover:to-primary-dark border-0 text-primary-foreground rounded-xl py-6 font-bold shadow-lg shadow-primary/25 hover:scale-[1.01] active:scale-[0.99] transition-all"
-      >
-        {isLoading ? "Please wait…" : buttonText || "Submit"}
-      </Button>
+      {buttonText !== null && (
+        <Button
+          disabled={isBtnDisabled || isLoading}
+          type="submit"
+          className="mt-5 w-full bg-gradient-brand text-primary-foreground hover:from-primary hover:via-primary hover:to-primary-dark border-0 rounded-xl py-6 font-bold shadow-lg shadow-primary/25 hover:scale-[1.01] active:scale-[0.99] transition-all"
+        >
+          {isLoading ? "Please wait…" : buttonText || "Submit"}
+        </Button>
+      )}
     </form>
   );
 }

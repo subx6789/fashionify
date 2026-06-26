@@ -12,6 +12,7 @@ import {
 import { fetchAllProducts } from "@/store/admin/products-slice";
 import { useToast } from "../ui/use-toast";
 import { Calendar, CreditCard, Package, MapPin, ClipboardList } from "lucide-react";
+import ORDER_STATUSES from "@/config/order-status.json";
 
 const initialFormData = {
   status: "",
@@ -239,13 +240,7 @@ function AdminOrderDetailsView({ orderDetails }) {
                     label: "Select Status",
                     name: "status",
                     componentType: "select",
-                    options: [
-                      { id: "pending", label: "Pending" },
-                      { id: "inProcess", label: "In Process" },
-                      { id: "inShipping", label: "In Shipping" },
-                      { id: "delivered", label: "Delivered" },
-                      { id: "rejected", label: "Rejected" },
-                    ],
+                    options: ORDER_STATUSES.filter(status => status.adminSelectable),
                   },
                 ]}
                 formData={formData}

@@ -1,0 +1,9 @@
+[
+  { "id": "pending", "label": "Pending", "adminSelectable": false },
+  { "id": "confirmed", "label": "Confirmed", "adminSelectable": true },
+  { "id": "inProcess", "label": "In Process", "adminSelectable": true },
+  { "id": "inShipping", "label": "In Shipping", "adminSelectable": true },
+  { "id": "delivered", "label": "Delivered", "adminSelectable": true },
+  { "id": "rejected", "label": "Rejected", "adminSelectable": true },
+  { "id": "CANCELLED", "label": "Cancelled", "adminSelectable": false }
+]

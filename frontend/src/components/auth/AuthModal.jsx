@@ -141,15 +141,13 @@ function LoginForm({ onSwitchToRegister, onClose }) {
         </div>
       </div>
 
-      <button
+      <Button
         type="submit"
-        disabled={isLoading}
-        className="neu-btn-primary w-full py-3.5 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+        isLoading={isLoading}
+        className="neu-btn-primary w-full py-3.5 h-auto text-base"
       >
-        {isLoading ? "Signing in…" : (
-          <>Sign In <ArrowRight className="h-4 w-4" /></>
-        )}
-      </button>
+        Sign In <ArrowRight className="h-4 w-4 ml-2 inline" />
+      </Button>
 
       <p className="text-sm text-center text-muted-foreground">
         Don&apos;t have an account?{" "}
@@ -251,15 +249,13 @@ function RegisterForm({ onSwitchToLogin, onClose }) {
           </div>
         </div>
 
-        <button
+        <Button
           type="submit"
-          disabled={isLoading}
-          className="neu-btn-primary w-full py-3.5 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+          isLoading={isLoading}
+          className="neu-btn-primary w-full py-3.5 h-auto text-base"
         >
-          {isLoading ? "Verifying…" : (
-            <>Verify Account <CheckCircle2 className="h-4 w-4 ml-2 inline" /></>
-          )}
-        </button>
+          Verify Account <CheckCircle2 className="h-4 w-4 ml-2 inline" />
+        </Button>
 
         <button
           type="button"
@@ -386,15 +382,13 @@ function RegisterForm({ onSwitchToLogin, onClose }) {
         </div>
       </div>
 
-      <button
+      <Button
         type="submit"
-        disabled={isLoading}
-        className="neu-btn-primary w-full py-3.5 text-base disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+        isLoading={isLoading}
+        className="neu-btn-primary w-full py-3.5 h-auto text-base mt-2"
       >
-        {isLoading ? "Processing…" : (
-          <>Continue <ArrowRight className="h-4 w-4 ml-2 inline" /></>
-        )}
-      </button>
+        Continue <ArrowRight className="h-4 w-4 ml-2 inline" />
+      </Button>
 
       <p className="text-sm text-center text-muted-foreground pt-2">
         Already have an account?{" "}
@@ -477,15 +471,13 @@ function AdminLoginForm({ onClose }) {
         </div>
       </div>
 
-      <button
+      <Button
         type="submit"
-        disabled={isLoading}
-        className="neu-btn-primary w-full py-3.5 text-base disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+        isLoading={isLoading}
+        className="neu-btn-primary w-full py-3.5 h-auto text-base mt-2"
       >
-        {isLoading ? "Authenticating…" : (
-          <>Access Dashboard <ArrowRight className="h-4 w-4" /></>
-        )}
-      </button>
+        Access Dashboard <ArrowRight className="h-4 w-4 ml-2 inline" />
+      </Button>
     </form>
   );
 }
@@ -661,15 +653,13 @@ function ForgotPasswordForm({ onSwitchToLogin }) {
           </div>
         </div>
 
-        <button
+        <Button
           type="submit"
-          disabled={loading}
-          className="neu-btn-primary w-full py-3.5 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+          isLoading={loading}
+          className="neu-btn-primary w-full py-3.5 h-auto text-base"
         >
-          {loading ? "Resetting…" : (
-            <>Reset Password <CheckCircle2 className="h-4 w-4 ml-2 inline animate-pulse" /></>
-          )}
-        </button>
+          Reset Password <CheckCircle2 className="h-4 w-4 ml-2 inline animate-pulse" />
+        </Button>
 
         <button
           type="button"
@@ -703,15 +693,13 @@ function ForgotPasswordForm({ onSwitchToLogin }) {
         </div>
       </div>
 
-      <button
+      <Button
         type="submit"
-        disabled={loading}
-        className="neu-btn-primary w-full py-3.5 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+        isLoading={loading}
+        className="neu-btn-primary w-full py-3.5 h-auto text-base"
       >
-        {loading ? "Sending…" : (
-          <>Send Verification Code <ArrowRight className="h-4 w-4 ml-2 inline" /></>
-        )}
-      </button>
+        Send Verification Code <ArrowRight className="h-4 w-4 ml-2 inline" />
+      </Button>
 
       <p className="text-sm text-center text-muted-foreground pt-2">
         Remembered your password?{" "}
