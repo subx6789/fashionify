@@ -50,6 +50,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { getFeatureImages } from "@/store/common-slice";
 import { useAuthModal } from "@/context/AuthModalContext";
 import { getLatestReviews, getCollections } from "@/services/api";
+import { getOptimizedImageUrl } from "@/lib/utils";
 
 const categoriesWithIcon = [
   { id: "men", label: "Men", icon: User2Icon },
@@ -217,7 +218,7 @@ function ShoppingHome() {
                     className="absolute top-0 left-0 w-full h-full"
                   >
                     <img
-                      src={slides[currentSlide]?.image}
+                      src={getOptimizedImageUrl(slides[currentSlide]?.image, 1400)}
                       alt="Banner"
                       className={`w-full h-full object-cover ${slides[currentSlide]?.linkUrl ? 'cursor-pointer' : ''}`}
                       onClick={() => {
@@ -274,7 +275,7 @@ function ShoppingHome() {
                     >
                       <div className="h-80 relative overflow-hidden bg-muted border-b-2 border-border">
                         <img
-                          src={collection.imageUrl}
+                          src={getOptimizedImageUrl(collection.imageUrl, 500)}
                           alt={collection.name}
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
                         />
@@ -289,7 +290,7 @@ function ShoppingHome() {
                             {collection.products?.map((p, i) => (
                               <img
                                 key={p.id}
-                                src={p.image || p.images?.[0]}
+                                src={getOptimizedImageUrl(p.image || p.images?.[0], 100)}
                                 alt={p.title}
                                 title={p.title}
                                 className={`inline-block h-12 w-12 rounded-full border-2 border-border object-cover`}
@@ -447,7 +448,7 @@ function ShoppingHome() {
                       {review.productId && (
                         <div className="flex items-center gap-3 mb-4 bg-background/50 p-2 rounded-lg cursor-pointer hover:bg-background/80 transition-colors" onClick={() => navigate(`/shop/product/${review.productId}`)}>
                           {review.productImage ? (
-                            <img src={review.productImage} alt={review.productTitle} className="w-10 h-10 object-cover rounded-md" />
+                            <img src={getOptimizedImageUrl(review.productImage, 100)} alt={review.productTitle} className="w-10 h-10 object-cover rounded-md" />
                           ) : (
                             <div className="w-10 h-10 bg-muted rounded-md flex items-center justify-center"><ShoppingBasket className="w-5 h-5 text-muted-foreground" /></div>
                           )}

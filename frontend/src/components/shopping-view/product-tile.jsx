@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addToWishlist, removeFromWishlist } from "@/store/shop/wishlist-slice";
 import { useToast } from "../ui/use-toast";
 import { useAuthModal } from "@/context/AuthModalContext";
+import { getOptimizedImageUrl } from "@/lib/utils";
 
 /**
  * ShoppingProductTile — fully clickable product card.
@@ -36,7 +37,8 @@ function ShoppingProductTile({ product, handleGetProductDetails }) {
   const { openAuthModal } = useAuthModal();
 
   const isWishlisted = wishlistItems?.some((item) => item.id === product?.id);
-  const coverImage   = product?.images?.[0] || product?.image || "https://placehold.co/600x600/png?text=No+Image";
+  const rawCoverImage = product?.images?.[0] || product?.image || "https://placehold.co/600x600/png?text=No+Image";
+  const coverImage   = getOptimizedImageUrl(rawCoverImage, 400);
   const totalStock   = product?.totalStock ?? 0;
 
   function handleWishlistToggle(e) {

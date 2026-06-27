@@ -30,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton, SkeletonRepeater } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
 import { ConfirmDeleteDialog } from "@/components/common/confirm-delete-dialog";
+import { getOptimizedImageUrl } from "@/lib/utils";
 import {
   LineChart,
   Line,
@@ -475,7 +476,7 @@ function AdminDashboard() {
                   key={idx}
                 >
                   <img
-                    src={featureImgItem.image}
+                    src={getOptimizedImageUrl(featureImgItem.image, 400)}
                     className="w-full h-[200px] object-cover transition-transform duration-300 group-hover:scale-105"
                     alt={`Feature ${idx + 1}`}
                   />

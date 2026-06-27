@@ -23,6 +23,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
+import { getOptimizedImageUrl } from "@/lib/utils";
 
 function ShoppingCollectionDetails() {
   const { id } = useParams();
@@ -100,7 +101,7 @@ function ShoppingCollectionDetails() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
         <div className="rounded-3xl overflow-hidden shadow-2xl relative h-[600px]">
           <img 
-            src={collection.imageUrl} 
+            src={getOptimizedImageUrl(collection.imageUrl, 800)} 
             alt={collection.name} 
             className="w-full h-full object-cover"
           />
