@@ -109,7 +109,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         System.out.println("[CORS Configuration] Raw Allowed Origins: " + allowedOrigins);
         java.util.List<String> origins = Arrays.stream(allowedOrigins.split(","))
-                .map(String::trim)
+                .map(s -> s.trim())
                 .map(origin -> origin.endsWith("/") ? origin.substring(0, origin.length() - 1) : origin)
                 .map(origin -> (!origin.startsWith("http://") && !origin.startsWith("https://")) ? "https://" + origin : origin)
                 .collect(java.util.stream.Collectors.toList());

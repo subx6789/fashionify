@@ -59,7 +59,7 @@ public class ShopSearchController {
 
         // Merge: title/desc results first (maintains sort), then tag matches not already included
         Set<Long> primaryIds = titleDescResults.getContent().stream()
-                .map(Product::getId)
+                .map(p -> p.getId())
                 .collect(Collectors.toSet());
 
         List<Map<String, Object>> merged = new ArrayList<>();

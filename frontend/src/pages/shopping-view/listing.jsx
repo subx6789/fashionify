@@ -28,14 +28,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
 import { sortOptions } from "@/config";
-import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
-import {
-  fetchAllFilteredProducts,
-  fetchProductDetails,
-} from "@/store/shop/products-slice";
+
 import { ArrowUpDownIcon } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import useShopCartStore from "@/store/useShopCartStore";
+import useShopProductsStore from "@/store/useShopProductsStore";
+import useAuthStore from "@/store/useAuthStore";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuthModal } from "@/context/AuthModalContext";
@@ -53,12 +51,19 @@ function createSearchParamsHelper(filterParams) {
 }
 
 function ShoppingListing() {
-  const dispatch = useDispatch();
-  const { productList, isLoading, currentPage, totalPages, totalProducts } = useSelector(
-    (state) => state.shopProducts
-  );
-  const { cartItems } = useSelector((state) => state.shopCart);
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const productList = useShopProductsStore((state) => state.productList);
+  const isLoading = useShopProductsStore((state) => state.isLoading);
+  const currentPage = useShopProductsStore((state) => state.currentPage);
+  const totalPages = useShopProductsStore((state) => state.totalPages);
+  const totalProducts = useShopProductsStore((state) => state.totalProducts);
+  const fetchAllFilteredProducts = useShopProductsStore((state) => state.fetchAllFilteredProducts);
+  
+  const cartItems = useShopCartStore((state) => state.cartItems);
+  const addToCart = useShopCartStore((state) => state.addToCart);
+  const fetchCartItems = useShopCartStore((state) => state.fetchCartItems);
+  
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [filters, setFilters] = useState({});
   const [sort, setSort] = useState(null);
   const [page, setPage] = useState(0);
@@ -139,10 +144,10 @@ function ShoppingListing() {
       }
     }
 
-    dispatch(addToCart({ userId: user?.id, productId: getCurrentProductId, quantity: 1 }))
+    addToCart({ userId: user?.id, productId: getCurrentProductId, quantity: 1 })
       .then((data) => {
         if (data?.payload?.success) {
-          dispatch(fetchCartItems(user?.id));
+          fetchCartItems(user?.id);
           toast({ title: "Product is added to cart" });
         }
       });
@@ -163,9 +168,9 @@ function ShoppingListing() {
 
   useEffect(() => {
     if (filters !== null && sort !== null) {
-      dispatch(fetchAllFilteredProducts({ filterParams: filters, sortParams: sort, page, size: 8 }));
+      fetchAllFilteredProducts({ filterParams: filters, sortParams: sort, page, size: 8 });
     }
-  }, [dispatch, sort, filters, page]);
+  }, [fetchAllFilteredProducts, sort, filters, page]);
 
   return (
     <motion.div

@@ -16,8 +16,8 @@
 
 import { brandOptionsMap, categoryOptionsMap } from "@/config";
 import { Heart, Flame } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-import { addToWishlist, removeFromWishlist } from "@/store/shop/wishlist-slice";
+import useShopWishlistStore from "@/store/useShopWishlistStore";
+import useAuthStore from "@/store/useAuthStore";
 import { useToast } from "../ui/use-toast";
 import { useAuthModal } from "@/context/AuthModalContext";
 import { getOptimizedImageUrl } from "@/lib/utils";
@@ -30,9 +30,10 @@ import { getOptimizedImageUrl } from "@/lib/utils";
  * Hover affordance: card lifts by 3px with stronger shadow (Neubrutalism convention).
  */
 function ShoppingProductTile({ product, handleGetProductDetails }) {
-  const dispatch          = useDispatch();
-  const { user }          = useSelector((state) => state.auth);
-  const { wishlistItems } = useSelector((state) => state.shopWishlist);
+  const user = useAuthStore((state) => state.user);
+  const wishlistItems = useShopWishlistStore((state) => state.wishlistItems);
+  const addToWishlist = useShopWishlistStore((state) => state.addToWishlist);
+  const removeFromWishlist = useShopWishlistStore((state) => state.removeFromWishlist);
   const { toast }         = useToast();
   const { openAuthModal } = useAuthModal();
 
@@ -48,10 +49,10 @@ function ShoppingProductTile({ product, handleGetProductDetails }) {
       return;
     }
     if (isWishlisted) {
-      dispatch(removeFromWishlist({ userId: user?.id, productId: product?.id }));
+      removeFromWishlist({ userId: user?.id, productId: product?.id });
       toast({ title: "Removed from wishlist" });
     } else {
-      dispatch(addToWishlist({ userId: user?.id, productId: product?.id }));
+      addToWishlist({ userId: user?.id, productId: product?.id });
       toast({ title: "Added to wishlist" });
     }
   }

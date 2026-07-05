@@ -16,21 +16,24 @@
 
 import Address from "@/components/shopping-view/address";
 import img from "../../assets/account.jpg";
-import { useDispatch, useSelector } from "react-redux";
 import UserCartItemsContent from "@/components/shopping-view/cart-items-content";
 import { Button } from "@/components/ui/button";
 import { useMemo, useState } from "react";
-import { createNewOrder, confirmSimulatedOrder } from "@/store/shop/order-slice";
-import { fetchCartItems } from "@/store/shop/cart-slice";
+import useShopOrderStore from "@/store/useShopOrderStore";
+import useShopCartStore from "@/store/useShopCartStore";
+import useAuthStore from "@/store/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { ShoppingBag, MapPin, Loader2, CheckCircle, Gift, Truck, Tag } from "lucide-react";
 import { applyPromoCode } from "@/services/api";
 
 function ShoppingCheckout() {
-  const { cartItems } = useSelector((state) => state.shopCart);
-  const { user } = useSelector((state) => state.auth);
-  const { isLoading } = useSelector((state) => state.shopOrder);
+  const cartItems = useShopCartStore((state) => state.cartItems);
+  const fetchCartItems = useShopCartStore((state) => state.fetchCartItems);
+  const user = useAuthStore((state) => state.user);
+  const isLoading = useShopOrderStore((state) => state.isLoading);
+  const createNewOrder = useShopOrderStore((state) => state.createNewOrder);
+  const confirmSimulatedOrder = useShopOrderStore((state) => state.confirmSimulatedOrder);
   const navigate = useNavigate();
   const [currentSelectedAddress, setCurrentSelectedAddress] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -42,7 +45,6 @@ function ShoppingCheckout() {
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
   const [promoMessage, setPromoMessage] = useState({ text: "", isError: false });
 
-  const dispatch = useDispatch();
   const { toast } = useToast();
 
   // ============================================================================
@@ -171,7 +173,7 @@ function ShoppingCheckout() {
       payerId: "",
     };
 
-    const createResult = await dispatch(createNewOrder(orderData));
+    const createResult = await createNewOrder(orderData);
     if (!createResult?.payload?.success) {
       toast({ title: "Failed to create order. Please try again.", variant: "destructive" });
       setIsProcessing(false);
@@ -179,10 +181,10 @@ function ShoppingCheckout() {
     }
 
     const orderId = createResult.payload.orderId;
-    const confirmResult = await dispatch(confirmSimulatedOrder(orderId));
+    const confirmResult = await confirmSimulatedOrder(orderId);
     if (confirmResult?.payload?.success) {
       // Sync the Redux cart state — backend has cleared the cart DB record
-      dispatch(fetchCartItems(user?.id));
+      fetchCartItems(user?.id);
       toast({ title: "🎉 Order placed successfully!" });
       navigate("/shop/payment-success");
     } else {

@@ -102,10 +102,10 @@ public class ShopProductController {
                 comparator = Comparator.comparing(p -> p.getSalePrice() != null && p.getSalePrice() > 0 ? p.getSalePrice() : p.getPrice(), Comparator.reverseOrder());
                 break;
             case "title-atoz":
-                comparator = Comparator.comparing(Product::getTitle);
+                comparator = Comparator.comparing(p -> p.getTitle());
                 break;
             case "title-ztoa":
-                comparator = Comparator.comparing(Product::getTitle, Comparator.reverseOrder());
+                comparator = Comparator.comparing(p -> p.getTitle(), Comparator.reverseOrder());
                 break;
             case "price-lowtohigh":
             default:

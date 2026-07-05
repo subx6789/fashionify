@@ -15,8 +15,7 @@
  */
 
 import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { updatePassword, updateProfile, deleteAccount, logoutUser } from "@/store/auth-slice";
+import useAuthStore from "@/store/useAuthStore";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,8 +24,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useToast } from "@/components/ui/use-toast";
 
 function AccountSettings({ onBackToProfile, hideHeader }) {
-  const { user } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
+  const user = useAuthStore((state) => state.user);
+  const updatePassword = useAuthStore((state) => state.updatePassword);
+  const updateProfile = useAuthStore((state) => state.updateProfile);
+  const deleteAccount = useAuthStore((state) => state.deleteAccount);
+  const logoutUser = useAuthStore((state) => state.logoutUser);
   const { toast } = useToast();
 
   const [passwordData, setPasswordData] = useState({
@@ -48,7 +50,7 @@ function AccountSettings({ onBackToProfile, hideHeader }) {
   async function handleUpdatePassword(e) {
     e.preventDefault();
     setIsUpdatingPassword(true);
-    const result = await dispatch(updatePassword(passwordData));
+    const result = await updatePassword(passwordData);
 
     if (result?.payload?.success) {
       toast({
@@ -69,7 +71,7 @@ function AccountSettings({ onBackToProfile, hideHeader }) {
   async function handleUpdateProfile(e) {
     e.preventDefault();
     setIsUpdatingProfile(true);
-    const result = await dispatch(updateProfile(profileData));
+    const result = await updateProfile(profileData);
     if (result?.payload?.success) {
       toast({ title: "Profile Updated", description: "Your username has been updated successfully." });
     } else {
@@ -80,10 +82,10 @@ function AccountSettings({ onBackToProfile, hideHeader }) {
 
   async function handleDeleteAccount() {
     setIsDeleting(true);
-    const result = await dispatch(deleteAccount());
+    const result = await deleteAccount();
     if (result?.payload?.success) {
       toast({ title: "Account Deleted", description: "Your account has been permanently deleted." });
-      dispatch(logoutUser());
+      logoutUser();
     } else {
       toast({ title: "Error", description: result?.payload?.message || "Failed to delete account", variant: "destructive" });
     }

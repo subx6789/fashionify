@@ -19,16 +19,16 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { useDispatch, useSelector } from "react-redux";
-import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/components/ui/use-toast";
-import { fetchProductDetails } from "@/store/shop/products-slice";
 import { Label } from "@/components/ui/label";
 import StarRatingComponent from "@/components/common/star-rating";
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { addReview, getReviews, checkRatingEligibility, resetEligibility } from "@/store/shop/review-slice";
-import { addToWishlist, removeFromWishlist, fetchWishlistItems } from "@/store/shop/wishlist-slice";
+import useShopCartStore from "@/store/useShopCartStore";
+import useShopProductsStore from "@/store/useShopProductsStore";
+import useShopReviewStore from "@/store/useShopReviewStore";
+import useShopWishlistStore from "@/store/useShopWishlistStore";
+import useAuthStore from "@/store/useAuthStore";
 import { useAuthModal } from "@/context/AuthModalContext";
 import { joinWaitlist } from "@/services/api";
 import { getOptimizedImageUrl } from "@/lib/utils";
@@ -43,30 +43,42 @@ function ShoppingProductDetails() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isWaitlisting, setIsWaitlisting] = useState(false);
 
-  const dispatch = useDispatch();
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
-  const { cartItems } = useSelector((state) => state.shopCart);
-  const { wishlistItems } = useSelector((state) => state.shopWishlist);
-  const { reviews, eligibility } = useSelector((state) => state.shopReview);
-  const { productDetails, isLoading } = useSelector((state) => state.shopProducts);
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const cartItems = useShopCartStore((state) => state.cartItems);
+  const addToCart = useShopCartStore((state) => state.addToCart);
+  const fetchCartItems = useShopCartStore((state) => state.fetchCartItems);
+  const wishlistItems = useShopWishlistStore((state) => state.wishlistItems);
+  const addToWishlist = useShopWishlistStore((state) => state.addToWishlist);
+  const removeFromWishlist = useShopWishlistStore((state) => state.removeFromWishlist);
+  const fetchWishlistItems = useShopWishlistStore((state) => state.fetchWishlistItems);
+  const reviews = useShopReviewStore((state) => state.reviews);
+  const eligibility = useShopReviewStore((state) => state.eligibility);
+  const addReview = useShopReviewStore((state) => state.addReview);
+  const getReviews = useShopReviewStore((state) => state.getReviews);
+  const checkRatingEligibility = useShopReviewStore((state) => state.checkRatingEligibility);
+  const resetEligibility = useShopReviewStore((state) => state.resetEligibility);
+  const productDetails = useShopProductsStore((state) => state.productDetails);
+  const isLoading = useShopProductsStore((state) => state.isLoading);
+  const fetchProductDetails = useShopProductsStore((state) => state.fetchProductDetails);
+  
   const { toast } = useToast();
   const { openAuthModal } = useAuthModal();
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchProductDetails(id));
-      dispatch(getReviews(id));
-      dispatch(resetEligibility());
+      fetchProductDetails(id);
+      getReviews(id);
+      resetEligibility();
     }
-  }, [id, dispatch]);
+  }, [id, fetchProductDetails, getReviews, resetEligibility]);
 
-  // Check review eligibility and wishlist for authenticated users
   useEffect(() => {
     if (isAuthenticated && user?.id && id) {
-      dispatch(checkRatingEligibility({ productId: id, userId: user.id }));
-      dispatch(fetchWishlistItems(user.id));
+      checkRatingEligibility({ productId: id, userId: user.id });
+      fetchWishlistItems(user.id);
     }
-  }, [isAuthenticated, user?.id, id, dispatch]);
+  }, [isAuthenticated, user?.id, id, checkRatingEligibility, fetchWishlistItems]);
 
   // Reset selected size when product changes
   useEffect(() => {
@@ -165,16 +177,14 @@ function ShoppingProductDetails() {
       }
     }
 
-    dispatch(
-      addToCart({
-        userId: user?.id,
-        productId: productDetails?.id,
-        quantity: 1,
-        selectedSize: selectedSize || null,
-      })
-    ).then((data) => {
+    addToCart({
+      userId: user?.id,
+      productId: productDetails?.id,
+      quantity: 1,
+      selectedSize: selectedSize || null,
+    }).then((data) => {
       if (data?.payload?.success) {
-        dispatch(fetchCartItems(user?.id));
+        fetchCartItems(user?.id);
         toast({ title: `Added to cart${selectedSize ? ` — Size: ${selectedSize}` : ""}` });
       }
     });
@@ -213,25 +223,23 @@ function ShoppingProductDetails() {
   }
 
   function handleAddReview() {
-    dispatch(
-      addReview({
-        productId: productDetails?.id,
-        userId: user?.id,
-        userName: user?.userName,
-        reviewMessage: reviewMsg,
-        reviewValue: rating,
-        fitFeedback: fitFeedback,
-        imageUrl: imageUrl,
-      })
-    ).then((data) => {
+    addReview({
+      productId: productDetails?.id,
+      userId: user?.id,
+      userName: user?.userName,
+      reviewMessage: reviewMsg,
+      reviewValue: rating,
+      fitFeedback: fitFeedback,
+      imageUrl: imageUrl,
+    }).then((data) => {
       if (data.payload.success) {
         setRating(0);
         setReviewMsg("");
         setFitFeedback("");
         setImageUrl("");
-        dispatch(getReviews(productDetails?.id));
+        getReviews(productDetails?.id);
         // Re-check eligibility — user has now reviewed, so eligible becomes false
-        dispatch(checkRatingEligibility({ productId: id, userId: user.id }));
+        checkRatingEligibility({ productId: id, userId: user.id });
         toast({ title: "Review added successfully!" });
       }
     });
@@ -270,11 +278,11 @@ function ShoppingProductDetails() {
       return;
     }
     if (isWishlisted) {
-      dispatch(removeFromWishlist({ userId: user?.id, productId: productDetails?.id })).then(() => {
+      removeFromWishlist({ userId: user?.id, productId: productDetails?.id }).then(() => {
         toast({ title: "Removed from wishlist" });
       });
     } else {
-      dispatch(addToWishlist({ userId: user?.id, productId: productDetails?.id })).then(() => {
+      addToWishlist({ userId: user?.id, productId: productDetails?.id }).then(() => {
         toast({ title: "Added to wishlist" });
       });
     }

@@ -27,28 +27,27 @@ import {
   TableRow,
 } from "../ui/table";
 import ShoppingOrderDetailsView from "./order-details";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getAllOrdersByUserId,
-  getOrderDetails,
-  resetOrderDetails,
-} from "@/store/shop/order-slice";
+import useShopOrderStore from "@/store/useShopOrderStore";
+import useAuthStore from "@/store/useAuthStore";
 import { Badge } from "../ui/badge";
 import CancelOrderButton from "./CancelOrderButton";
 
 function ShoppingOrders() {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
-  const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
-  const { orderList, orderDetails } = useSelector((state) => state.shopOrder);
+  const user = useAuthStore((state) => state.user);
+  const orderList = useShopOrderStore((state) => state.orderList);
+  const orderDetails = useShopOrderStore((state) => state.orderDetails);
+  const getOrderDetails = useShopOrderStore((state) => state.getOrderDetails);
+  const getAllOrdersByUserId = useShopOrderStore((state) => state.getAllOrdersByUserId);
+  const resetOrderDetails = useShopOrderStore((state) => state.resetOrderDetails);
 
   function handleFetchOrderDetails(getId) {
-    dispatch(getOrderDetails(getId));
+    getOrderDetails(getId);
   }
 
   useEffect(() => {
-    if (user?.id) dispatch(getAllOrdersByUserId(user.id));
-  }, [dispatch, user?.id]);
+    if (user?.id) getAllOrdersByUserId(user.id);
+  }, [getAllOrdersByUserId, user?.id]);
 
   useEffect(() => {
     if (orderDetails !== null) setOpenDetailsDialog(true);
@@ -66,7 +65,7 @@ function ShoppingOrders() {
           open={openDetailsDialog}
           onOpenChange={() => {
             setOpenDetailsDialog(false);
-            dispatch(resetOrderDetails());
+            resetOrderDetails();
           }}
         >
           <ShoppingOrderDetailsView orderDetails={orderDetails} />

@@ -17,7 +17,7 @@
 package com.fashionify.backend.util;
 
 import com.fashionify.backend.entity.Product;
-import com.fashionify.backend.entity.ProductSizeVariant;
+
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -73,7 +73,7 @@ public class ProductMapper {
         map.put("sizeVariants", variants);
 
         // Computed stock totals and alerts
-        int totalStock = product.getSizeVariants().stream().mapToInt(ProductSizeVariant::getStock).sum();
+        int totalStock = product.getSizeVariants().stream().mapToInt(v -> v.getStock()).sum();
         map.put("totalStock", totalStock);
         
         boolean hasLowStock = product.getSizeVariants().stream().anyMatch(v -> v.getStock() <= 5 && v.getStock() > 0);

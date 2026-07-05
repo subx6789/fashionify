@@ -17,10 +17,10 @@
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 
 import { useToast } from "@/components/ui/use-toast";
-import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
-import { getSearchResults, resetSearchResults } from "@/store/shop/search-slice";
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import useShopCartStore from "@/store/useShopCartStore";
+import useShopSearchStore from "@/store/useShopSearchStore";
+import useAuthStore from "@/store/useAuthStore";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Search } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,22 +35,28 @@ const POPULAR_TAG_SUGGESTIONS = [
 function SearchProducts() {
   const [searchParams] = useSearchParams();
   const keyword = searchParams.get("keyword") || "";
-  const dispatch = useDispatch();
-  const { searchResults, isLoading } = useSelector((state) => state.shopSearch);
-  const { user } = useSelector((state) => state.auth);
-  const { cartItems } = useSelector((state) => state.shopCart);
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const searchResults = useShopSearchStore((state) => state.searchResults);
+  const isLoading = useShopSearchStore((state) => state.isLoading);
+  const getSearchResults = useShopSearchStore((state) => state.getSearchResults);
+  const resetSearchResults = useShopSearchStore((state) => state.resetSearchResults);
+  
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  
+  const cartItems = useShopCartStore((state) => state.cartItems);
+  const addToCart = useShopCartStore((state) => state.addToCart);
+  const fetchCartItems = useShopCartStore((state) => state.fetchCartItems);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { openAuthModal } = useAuthModal();
 
   useEffect(() => {
     if (keyword && keyword.trim() !== "") {
-      dispatch(getSearchResults(keyword));
+      getSearchResults(keyword);
     } else {
-      dispatch(resetSearchResults());
+      resetSearchResults();
     }
-  }, [keyword, dispatch]);
+  }, [keyword, getSearchResults, resetSearchResults]);
 
   function handleAddtoCart(getCurrentProductId, getTotalStock) {
     if (!isAuthenticated) {
@@ -75,11 +81,10 @@ function SearchProducts() {
       }
     }
 
-    dispatch(
-      addToCart({ userId: user?.id, productId: getCurrentProductId, quantity: 1 })
-    ).then((data) => {
+    addToCart({ userId: user?.id, productId: getCurrentProductId, quantity: 1 })
+    .then((data) => {
       if (data?.payload?.success) {
-        dispatch(fetchCartItems(user?.id));
+        fetchCartItems(user?.id);
         toast({ title: "Product is added to cart" });
       }
     });

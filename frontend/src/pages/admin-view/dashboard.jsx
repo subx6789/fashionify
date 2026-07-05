@@ -17,11 +17,10 @@
 import ProductImageUpload from "@/components/admin-view/image-upload";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { addFeatureImage, getFeatureImages, deleteFeatureImage, editFeatureImage } from "@/store/common-slice";
-import { fetchLowStockProducts } from "@/store/admin/products-slice";
-import { fetchAnalytics } from "@/store/admin/analytics-slice";
+import useCommonFeatureStore from "@/store/useCommonFeatureStore";
+import useAdminProductsStore from "@/store/useAdminProductsStore";
+import useAdminAnalyticsStore from "@/store/useAdminAnalyticsStore";
 import { useEffect, useState, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import { AlertTriangle, Package, TrendingUp, ShoppingBag, IndianRupee, Heart, BarChart3, Loader2, Calendar, Edit2, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -142,11 +141,18 @@ function AdminDashboard() {
   const [editDates, setEditDates] = useState({ startDate: "", endDate: "", linkUrl: "" });
   const [slideToDelete, setSlideToDelete] = useState(null);
 
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { featureImageList } = useSelector((state) => state.commonFeature);
-  const { lowStockProducts } = useSelector((state) => state.adminProducts);
-  const { data: analytics, isLoading: analyticsLoading } = useSelector((state) => state.adminAnalytics);
+  const featureImageList = useCommonFeatureStore((state) => state.featureImageList);
+  const getFeatureImages = useCommonFeatureStore((state) => state.getFeatureImages);
+  const addFeatureImage = useCommonFeatureStore((state) => state.addFeatureImage);
+  const deleteFeatureImage = useCommonFeatureStore((state) => state.deleteFeatureImage);
+  const editFeatureImage = useCommonFeatureStore((state) => state.editFeatureImage);
+
+  const lowStockProducts = useAdminProductsStore((state) => state.lowStockProducts);
+  const fetchLowStockProducts = useAdminProductsStore((state) => state.fetchLowStockProducts);
+
+  const analytics = useAdminAnalyticsStore((state) => state.data);
+  const analyticsLoading = useAdminAnalyticsStore((state) => state.isLoading);
+  const fetchAnalytics = useAdminAnalyticsStore((state) => state.fetchAnalytics);
 
   const { start, end } = useMemo(() => {
     if (activePreset === "custom") {
@@ -158,22 +164,22 @@ function AdminDashboard() {
   }, [activePreset, customRange]);
 
   useEffect(() => {
-    dispatch(getFeatureImages());
-    dispatch(fetchLowStockProducts());
-  }, [dispatch]);
+    getFeatureImages();
+    fetchLowStockProducts();
+  }, [getFeatureImages, fetchLowStockProducts]);
 
   useEffect(() => {
     if (start && end) {
-      dispatch(fetchAnalytics({ startDate: start, endDate: end }));
+      fetchAnalytics({ startDate: start, endDate: end });
     }
-  }, [dispatch, start, end]);
+  }, [fetchAnalytics, start, end]);
 
   function handleUploadFeatureImage() {
     const url = uploadedImageUrls[0];
     if (!url) return;
-    dispatch(addFeatureImage(url)).then((data) => {
+    addFeatureImage(url).then((data) => {
       if (data?.payload?.success) {
-        dispatch(getFeatureImages());
+        getFeatureImages();
         setImageFiles([]);
         setUploadedImageUrls([]);
       }
@@ -182,16 +188,16 @@ function AdminDashboard() {
 
   function confirmDeleteSlide() {
     if (!slideToDelete) return;
-    dispatch(deleteFeatureImage(slideToDelete)).then(() => {
-      dispatch(getFeatureImages());
+    deleteFeatureImage(slideToDelete).then(() => {
+      getFeatureImages();
       setSlideToDelete(null);
     });
   }
 
   function handleEditSlide() {
     if (!editingSlide) return;
-    dispatch(editFeatureImage({ id: editingSlide.id, ...editDates })).then(() => {
-      dispatch(getFeatureImages());
+    editFeatureImage({ id: editingSlide.id, ...editDates }).then(() => {
+      getFeatureImages();
       setEditingSlide(null);
     });
   }

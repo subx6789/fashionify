@@ -20,12 +20,9 @@ import CommonForm from "../common/form";
 import { DialogContent, DialogTitle, DialogDescription } from "../ui/dialog";
 import { Separator } from "../ui/separator";
 import { Badge } from "../ui/badge";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getOrderDetailsForAdmin,
-  updateOrderStatus,
-} from "@/store/admin/order-slice";
-import { fetchAllProducts } from "@/store/admin/products-slice";
+import useAuthStore from "@/store/useAuthStore";
+import useAdminProductsStore from "@/store/useAdminProductsStore";
+import useAdminOrderStore from "@/store/useAdminOrderStore";
 import { useToast } from "../ui/use-toast";
 import { Calendar, CreditCard, Package, MapPin, ClipboardList } from "lucide-react";
 import ORDER_STATUSES from "@/config/order-status.json";
@@ -36,16 +33,19 @@ const initialFormData = {
 
 function AdminOrderDetailsView({ orderDetails }) {
   const [formData, setFormData] = useState(initialFormData);
-  const { user } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
   const { toast } = useToast();
-  const { productList } = useSelector((state) => state.adminProducts);
+  
+  const user = useAuthStore((state) => state.user);
+  const productList = useAdminProductsStore((state) => state.productList);
+  const fetchAllProducts = useAdminProductsStore((state) => state.fetchAllProducts);
+  const updateOrderStatus = useAdminOrderStore((state) => state.updateOrderStatus);
+  const getOrderDetailsForAdmin = useAdminOrderStore((state) => state.getOrderDetailsForAdmin);
 
   useEffect(() => {
     if (orderDetails && (!productList || productList.length === 0)) {
-      dispatch(fetchAllProducts());
+      fetchAllProducts();
     }
-  }, [dispatch, orderDetails, productList]);
+  }, [fetchAllProducts, orderDetails, productList]);
 
   useEffect(() => {
     if (orderDetails?.orderStatus) {
@@ -75,11 +75,12 @@ function AdminOrderDetailsView({ orderDetails }) {
       return;
     }
 
-    dispatch(
-      updateOrderStatus({ id: orderDetails?.id, orderStatus: status })
-    ).then((data) => {
+    updateOrderStatus({
+      id: orderDetails?._id || orderDetails?.id,
+      orderStatus: status,
+    }).then((data) => {
       if (data?.payload?.success) {
-        dispatch(getOrderDetailsForAdmin(orderDetails?.id));
+        getOrderDetailsForAdmin(orderDetails?.id);
         toast({
           title: data?.payload?.message || "Order status updated!",
         });

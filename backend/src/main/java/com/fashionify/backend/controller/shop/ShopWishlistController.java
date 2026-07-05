@@ -93,7 +93,7 @@ public class ShopWishlistController {
 
     private List<Product> fetchWishlistProducts(Long userId) {
         List<Wishlist> wishlists = wishlistRepository.findByUserId(userId);
-        List<Long> productIds = wishlists.stream().map(Wishlist::getProductId).collect(Collectors.toList());
+        List<Long> productIds = wishlists.stream().map(w -> w.getProductId()).collect(Collectors.toList());
         return productRepository.findAllById(productIds);
     }
 }

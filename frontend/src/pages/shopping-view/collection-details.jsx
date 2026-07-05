@@ -20,8 +20,8 @@ import { getCollectionById } from "@/services/api";
 import { ChevronLeft, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { useDispatch, useSelector } from "react-redux";
-import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
+import useShopCartStore from "@/store/useShopCartStore";
+import useAuthStore from "@/store/useAuthStore";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { getOptimizedImageUrl } from "@/lib/utils";
 
@@ -29,8 +29,9 @@ function ShoppingCollectionDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  const user = useAuthStore((state) => state.user);
+  const addToCart = useShopCartStore((state) => state.addToCart);
+  const fetchCartItems = useShopCartStore((state) => state.fetchCartItems);
 
   const [collection, setCollection] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -64,15 +65,13 @@ function ShoppingCollectionDetails() {
       toast({ title: "Please login to add to cart", variant: "destructive" });
       return;
     }
-    dispatch(
-      addToCart({
-        userId: user?.id,
-        productId: getCurrentProductId,
-        quantity: 1,
-      })
-    ).then((data) => {
+    addToCart({
+      userId: user?.id,
+      productId: getCurrentProductId,
+      quantity: 1,
+    }).then((data) => {
       if (data?.payload?.success) {
-        dispatch(fetchCartItems(user?.id));
+        fetchCartItems(user?.id);
         toast({
           title: "Product is added to cart",
         });

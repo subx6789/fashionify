@@ -16,7 +16,7 @@
 
 import { useNavigate }            from "react-router-dom";
 import UserCartItemsContent       from "./cart-items-content";
-import { useSelector }            from "react-redux";
+import useAuthStore from "@/store/useAuthStore";
 import { useAuthModal }           from "@/context/AuthModalContext";
 import { ShoppingBag, X, ArrowRight, ShoppingCart } from "lucide-react";
 import { useEffect, useRef }      from "react";
@@ -34,7 +34,7 @@ import { useEffect, useRef }      from "react";
  */
 function CartDialog({ open, onClose, cartItems }) {
   const navigate            = useNavigate();
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { openAuthModal }   = useAuthModal();
   const overlayRef          = useRef(null);
   const dialogRef           = useRef(null);

@@ -23,7 +23,7 @@ import {
 } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "../ui/sheet";
 import { Button } from "../ui/button";
-import { useDispatch, useSelector } from "react-redux";
+import { Input } from "../ui/input";
 import { shoppingViewHeaderMenuItems } from "@/config";
 import {
   DropdownMenu,
@@ -34,14 +34,13 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { logoutUser } from "@/store/auth-slice";
 import CartDialog from "./cart-dialog";
 import { useEffect, useRef, useState } from "react";
-import { fetchCartItems } from "@/store/shop/cart-slice";
-import { fetchWishlistItems } from "@/store/shop/wishlist-slice";
-import { Input } from "../ui/input";
 import { useTheme } from "@/components/theme-provider";
-import { resetSearchResults } from "@/store/shop/search-slice";
+import useShopSearchStore from "@/store/useShopSearchStore";
+import useShopCartStore from "@/store/useShopCartStore";
+import useShopWishlistStore from "@/store/useShopWishlistStore";
+import useAuthStore from "@/store/useAuthStore";
 import { useAuthModal } from "@/context/AuthModalContext";
 import BrandLogo from "@/components/common/BrandLogo";
 
@@ -51,7 +50,7 @@ function SearchBar({ isMobile }) {
   const navigate              = useNavigate();
   const location              = useLocation();
   const debounceRef           = useRef(null);
-  const dispatch              = useDispatch();
+  const resetSearchResults    = useShopSearchStore((state) => state.resetSearchResults);
 
   useEffect(() => {
     if (location.pathname === "/shop/search") {
@@ -67,7 +66,7 @@ function SearchBar({ isMobile }) {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (!keyword.trim()) {
       if (location.pathname === "/shop/search") {
-        dispatch(resetSearchResults());
+        resetSearchResults();
         navigate("/shop/search", { replace: true });
       }
       return;
@@ -76,11 +75,11 @@ function SearchBar({ isMobile }) {
       navigate(`/shop/search?keyword=${encodeURIComponent(keyword)}`);
     }, 500);
     return () => clearTimeout(debounceRef.current);
-  }, [keyword, navigate, location.pathname, dispatch]);
+  }, [keyword, navigate, location.pathname, resetSearchResults]);
 
   function handleClear() {
     setKeyword("");
-    dispatch(resetSearchResults());
+    resetSearchResults();
     if (location.pathname === "/shop/search") {
       navigate("/shop/search", { replace: true });
     }
@@ -160,25 +159,28 @@ function MenuItems() {
 }
 
 function HeaderRightContent() {
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
-  const { cartItems }             = useSelector((state) => state.shopCart);
-  const { wishlistItems }         = useSelector((state) => state.shopWishlist);
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const logoutUser = useAuthStore((state) => state.logoutUser);
+  const cartItems = useShopCartStore((state) => state.cartItems);
+  const fetchCartItems = useShopCartStore((state) => state.fetchCartItems);
+  const wishlistItems = useShopWishlistStore((state) => state.wishlistItems);
+  const fetchWishlistItems = useShopWishlistStore((state) => state.fetchWishlistItems);
   const [openCartSheet, setOpenCartSheet] = useState(false);
   const navigate                  = useNavigate();
-  const dispatch                  = useDispatch();
   const { theme, setTheme }       = useTheme();
   const { openAuthModal }         = useAuthModal();
 
   function handleLogout() {
-    dispatch(logoutUser());
+    logoutUser();
   }
 
   useEffect(() => {
     if (isAuthenticated && user?.id) {
-      dispatch(fetchCartItems(user?.id));
-      dispatch(fetchWishlistItems(user?.id));
+      fetchCartItems(user?.id);
+      fetchWishlistItems(user?.id);
     }
-  }, [dispatch, isAuthenticated, user?.id]);
+  }, [fetchCartItems, fetchWishlistItems, isAuthenticated, user?.id]);
 
   const isDark = theme === "dark";
 

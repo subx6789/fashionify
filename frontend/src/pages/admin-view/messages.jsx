@@ -15,14 +15,7 @@
  */
 
 import { useEffect, useState, useMemo } from "react";
-import { useDispatch, useSelector }      from "react-redux";
-import {
-  fetchMessages,
-  fetchUnreadCount,
-  markMessageRead,
-  markMessageResolved,
-  deleteMessage,
-} from "@/store/admin/messages-slice";
+import useAdminMessagesStore from "@/store/useAdminMessagesStore";
 import {
   Mail,
   MailOpen,
@@ -200,8 +193,14 @@ function MessageRow({ msg, onRead, onResolve, onDelete }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 function AdminMessages() {
-  const dispatch                    = useDispatch();
-  const { messages, unreadCount, isLoading } = useSelector((s) => s.adminMessages);
+  const messages = useAdminMessagesStore((s) => s.messages);
+  const unreadCount = useAdminMessagesStore((s) => s.unreadCount);
+  const isLoading = useAdminMessagesStore((s) => s.isLoading);
+  const fetchMessages = useAdminMessagesStore((s) => s.fetchMessages);
+  const fetchUnreadCount = useAdminMessagesStore((s) => s.fetchUnreadCount);
+  const markMessageRead = useAdminMessagesStore((s) => s.markMessageRead);
+  const markMessageResolved = useAdminMessagesStore((s) => s.markMessageResolved);
+  const deleteMessage = useAdminMessagesStore((s) => s.deleteMessage);
   const { toast }                   = useToast();
 
   const [activeFilter, setActiveFilter] = useState("all");
@@ -211,13 +210,13 @@ function AdminMessages() {
 
   // Fetch messages when filter changes
   useEffect(() => {
-    dispatch(fetchMessages(activeFilter));
-  }, [dispatch, activeFilter]);
+    fetchMessages(activeFilter);
+  }, [fetchMessages, activeFilter]);
 
   // Fetch unread count on mount (for sidebar badge sync)
   useEffect(() => {
-    dispatch(fetchUnreadCount());
-  }, [dispatch]);
+    fetchUnreadCount();
+  }, [fetchUnreadCount]);
 
   // ── Client-side search + sort ─────────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -246,14 +245,14 @@ function AdminMessages() {
 
   // ── Handlers ─────────────────────────────────────────────────────────────
   function handleRead(id, read) {
-    dispatch(markMessageRead({ id, read })).then(() => {
-      dispatch(fetchUnreadCount());
+    markMessageRead({ id, read }).then(() => {
+      fetchUnreadCount();
     });
   }
 
   function handleResolve(id, resolved) {
-    dispatch(markMessageResolved({ id, resolved })).then(() => {
-      dispatch(fetchUnreadCount());
+    markMessageResolved({ id, resolved }).then(() => {
+      fetchUnreadCount();
     });
   }
 
@@ -263,9 +262,10 @@ function AdminMessages() {
 
   function confirmDelete() {
     if (!messageToDelete) return;
-    dispatch(deleteMessage(messageToDelete)).then(() => {
-      toast({ title: "Message deleted" });
-      dispatch(fetchUnreadCount());
+    deleteMessage(messageToDelete).then(() => {
+      if (activeFilter === "deleted") {
+        fetchUnreadCount();
+      }
       setMessageToDelete(null);
     });
   }

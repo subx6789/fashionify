@@ -15,8 +15,7 @@
  */
 
 import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { setAvatar } from "@/store/auth-slice";
+import useAuthStore from "@/store/useAuthStore";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,8 +23,9 @@ import { RefreshCw, Settings, User } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 function UserProfile() {
-  const { user, isLoading } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
+  const user = useAuthStore((state) => state.user);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const setAvatar = useAuthStore((state) => state.setAvatar);
   const { toast } = useToast();
   const [avatarSeed, setAvatarSeed] = useState(user?.avatar || user?.userName || "Fashion");
 
@@ -34,7 +34,7 @@ function UserProfile() {
   function handleGenerateNewAvatar() {
     const randomSeed = Math.random().toString(36).substring(7);
     setAvatarSeed(randomSeed);
-    dispatch(setAvatar(randomSeed));
+    setAvatar(randomSeed);
     toast({
       title: "Avatar Generated!",
       description: "A new fresh look has been applied to your profile and navbar.",

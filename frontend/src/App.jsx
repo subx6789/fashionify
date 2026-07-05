@@ -17,13 +17,12 @@
 import { lazy, Suspense, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import { useDispatch, useSelector } from "react-redux";
 
 // Layout & core auth components (static import to keep container framing immediate)
 import AdminLayout from "./components/admin-view/layout";
 import ShoppingLayout from "./components/shopping-view/layout";
 import CheckAuth from "./components/common/check-auth";
-import { checkAuth } from "./store/auth-slice";
+import useAuthStore from "./store/useAuthStore";
 
 // UI Components
 import { Skeleton } from "@/components/ui/skeleton";
@@ -88,14 +87,15 @@ const PUBLIC_INSTANT_PATHS = [
 ];
 
 function App() {
-  const { user, isAuthenticated, isLoading, isInitialized } = useSelector(
-    (state) => state.auth
-  );
-  const dispatch = useDispatch();
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
+  const checkAuth = useAuthStore((state) => state.checkAuth);
 
   useEffect(() => {
-    dispatch(checkAuth());
-  }, [dispatch]);
+    checkAuth();
+  }, [checkAuth]);
 
   const pathname = window.location.pathname;
   const isPublicRoute = PUBLIC_INSTANT_PATHS.some((p) => pathname.startsWith(p));

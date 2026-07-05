@@ -15,27 +15,30 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import useShopWishlistStore from "@/store/useShopWishlistStore";
+import useShopCartStore from "@/store/useShopCartStore";
+import useAuthStore from "@/store/useAuthStore";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
-import { fetchWishlistItems } from "@/store/shop/wishlist-slice";
-import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/components/ui/use-toast";
 import { HeartCrack } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 function ShoppingWishlist() {
-  const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
-  const { wishlistItems, isLoading } = useSelector((state) => state.shopWishlist);
-  const { cartItems } = useSelector((state) => state.shopCart);
+  const user = useAuthStore((state) => state.user);
+  const wishlistItems = useShopWishlistStore((state) => state.wishlistItems);
+  const isLoading = useShopWishlistStore((state) => state.isLoading);
+  const fetchWishlistItems = useShopWishlistStore((state) => state.fetchWishlistItems);
+  const cartItems = useShopCartStore((state) => state.cartItems);
+  const addToCart = useShopCartStore((state) => state.addToCart);
+  const fetchCartItems = useShopCartStore((state) => state.fetchCartItems);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user?.id) {
-      dispatch(fetchWishlistItems(user.id));
+      fetchWishlistItems(user.id);
     }
-  }, [dispatch, user]);
+  }, [fetchWishlistItems, user]);
 
   function handleGetProductDetails(getCurrentProductId) {
     navigate(`/shop/product/${getCurrentProductId}`);
@@ -58,15 +61,13 @@ function ShoppingWishlist() {
         }
       }
     }
-    dispatch(
-      addToCart({
-        userId: user?.id,
-        productId: getCurrentProductId,
-        quantity: 1,
-      })
-    ).then((data) => {
+    addToCart({
+      userId: user?.id,
+      productId: getCurrentProductId,
+      quantity: 1,
+    }).then((data) => {
       if (data?.payload?.success) {
-        dispatch(fetchCartItems(user?.id));
+        fetchCartItems(user?.id);
         toast({
           title: "Product is added to cart",
         });

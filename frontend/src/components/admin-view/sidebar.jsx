@@ -25,11 +25,10 @@ import {
 } from "lucide-react";
 import { Fragment, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import useAdminMessagesStore from "@/store/useAdminMessagesStore";
+import useAuthStore from "@/store/useAuthStore";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import BrandLogo from "@/components/common/BrandLogo";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchUnreadCount } from "@/store/admin/messages-slice";
-import { logoutUser } from "@/store/auth-slice";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 const adminSidebarMenuItems = [
@@ -74,7 +73,7 @@ const adminSidebarMenuItems = [
 function MenuItems({ setOpen }) {
   const navigate     = useNavigate();
   const location     = useLocation();
-  const { unreadCount } = useSelector((s) => s.adminMessages);
+  const unreadCount = useAdminMessagesStore((s) => s.unreadCount);
 
   return (
     <nav className="mt-8 flex-col flex gap-1 px-4" aria-label="Admin navigation">
@@ -126,16 +125,17 @@ function MenuItems({ setOpen }) {
 
 function AdminSideBar({ open, setOpen }) {
   const navigate  = useNavigate();
-  const dispatch  = useDispatch();
-  const { user }  = useSelector((state) => state.auth);
+  const user = useAuthStore((s) => s.user);
+  const logoutUser = useAuthStore((s) => s.logoutUser);
+  const fetchUnreadCount = useAdminMessagesStore((s) => s.fetchUnreadCount);
 
   // Fetch unread count on mount so sidebar badge stays accurate
   useEffect(() => {
-    dispatch(fetchUnreadCount());
-  }, [dispatch]);
+    fetchUnreadCount();
+  }, [fetchUnreadCount]);
 
   function handleLogout() {
-    dispatch(logoutUser());
+    logoutUser();
   }
 
   const UserProfileBlock = (

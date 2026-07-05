@@ -36,15 +36,8 @@ import {
   tagsByCategory,
   filterOptions,
 } from "@/config";
-import {
-  addNewProduct,
-  deleteProduct,
-  editProduct,
-  fetchAllProducts,
-  fetchLowStockProducts,
-} from "@/store/admin/products-slice";
+import useAdminProductsStore from "@/store/useAdminProductsStore";
 import { Fragment, useEffect, useRef, useState, useMemo } from "react";
-import { useDispatch, useSelector }               from "react-redux";
 import {
   AlertTriangle,
   Plus,
@@ -118,16 +111,23 @@ function AdminProducts() {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [filterCategory, setFilterCategory]     = useState("all");
 
-  const { productList, lowStockProducts, isLoading } = useSelector((s) => s.adminProducts);
-  const dispatch  = useDispatch();
+  const productList = useAdminProductsStore((s) => s.productList);
+  const lowStockProducts = useAdminProductsStore((s) => s.lowStockProducts);
+  const isLoading = useAdminProductsStore((s) => s.isLoading);
+  const fetchAllProducts = useAdminProductsStore((s) => s.fetchAllProducts);
+  const fetchLowStockProducts = useAdminProductsStore((s) => s.fetchLowStockProducts);
+  const addNewProduct = useAdminProductsStore((s) => s.addNewProduct);
+  const editProduct = useAdminProductsStore((s) => s.editProduct);
+  const deleteProduct = useAdminProductsStore((s) => s.deleteProduct);
+
   const { toast } = useToast();
   const dialogRef = useRef(null);
   const overlayRef = useRef(null);
 
   useEffect(() => {
-    dispatch(fetchAllProducts());
-    dispatch(fetchLowStockProducts());
-  }, [dispatch]);
+    fetchAllProducts();
+    fetchLowStockProducts();
+  }, [fetchAllProducts, fetchLowStockProducts]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -137,8 +137,8 @@ function AdminProducts() {
   }, [searchTerm]);
 
   function refreshAll() {
-    dispatch(fetchAllProducts());
-    dispatch(fetchLowStockProducts());
+    fetchAllProducts();
+    fetchLowStockProducts();
   }
 
   // ── Dialog keyboard / scroll lock ────────────────────────────────────────
@@ -295,7 +295,7 @@ function AdminProducts() {
     };
 
     if (currentEditedId !== null) {
-      dispatch(editProduct({ id: currentEditedId, formData: payload })).then((data) => {
+      editProduct({ id: currentEditedId, formData: payload }).then((data) => {
         setIsSubmitting(false);
         if (data?.payload?.success) {
           refreshAll();
@@ -304,7 +304,7 @@ function AdminProducts() {
         }
       });
     } else {
-      dispatch(addNewProduct(payload)).then((data) => {
+      addNewProduct(payload).then((data) => {
         setIsSubmitting(false);
         if (data?.payload?.success) {
           refreshAll();
@@ -321,7 +321,7 @@ function AdminProducts() {
 
   function confirmDelete() {
     if (!productToDelete) return;
-    dispatch(deleteProduct(productToDelete)).then((data) => {
+    deleteProduct(productToDelete).then((data) => {
       if (data?.payload?.success) refreshAll();
       setProductToDelete(null);
     });

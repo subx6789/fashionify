@@ -15,12 +15,11 @@
  */
 
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Lock, User, Eye, EyeOff, HousePlug, CheckCircle2, XCircle, ArrowRight } from "lucide-react";
 import { useAuthModal } from "@/context/AuthModalContext";
 import { useToast } from "@/components/ui/use-toast";
-import { loginUser, registerUser, adminLoginUser, verifyRegisterOtp } from "@/store/auth-slice";
+import useAuthStore from "@/store/useAuthStore";
 import { KeyRound } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -79,14 +78,14 @@ function PasswordStrength({ password }) {
 function LoginForm({ onSwitchToRegister, onClose }) {
   const [formData, setFormData]       = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
-  const dispatch                      = useDispatch();
   const { toast }                     = useToast();
-  const { isLoading }                 = useSelector((state) => state.auth);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const loginUser = useAuthStore((state) => state.loginUser);
   const { switchMode }                = useAuthModal();
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const result = await dispatch(loginUser(formData));
+    const result = await loginUser(formData);
     if (result?.payload?.success) {
       toast({ title: result.payload.message || "Welcome back!" });
       onClose();
@@ -186,9 +185,10 @@ function RegisterForm({ onSwitchToLogin, onClose }) {
   const [otp, setOtp]                           = useState("");
   const [showPassword, setShowPassword]         = useState(false);
   const [showStrength, setShowStrength]         = useState(false);
-  const dispatch                                = useDispatch();
   const { toast }                               = useToast();
-  const { isLoading }                           = useSelector((state) => state.auth);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const registerUser = useAuthStore((state) => state.registerUser);
+  const verifyRegisterOtp = useAuthStore((state) => state.verifyRegisterOtp);
 
   const allRulesPassed = PASSWORD_RULES.every((r) => r.test(formData.password));
 
@@ -208,7 +208,7 @@ function RegisterForm({ onSwitchToLogin, onClose }) {
       return;
     }
     
-    const result = await dispatch(registerUser(formData));
+    const result = await registerUser(formData);
     if (result?.payload?.success) {
       toast({ title: result.payload.message || "OTP Sent to your email." });
       setStep(2);
@@ -226,7 +226,7 @@ function RegisterForm({ onSwitchToLogin, onClose }) {
       toast({ title: "Please enter a valid 4-digit OTP.", variant: "destructive" });
       return;
     }
-    const result = await dispatch(verifyRegisterOtp({ email: formData.email, otp }));
+    const result = await verifyRegisterOtp({ email: formData.email, otp });
     if (result?.payload?.success) {
       toast({ title: result.payload.message || "Account created successfully! Please sign in." });
       onSwitchToLogin();
@@ -424,13 +424,13 @@ function RegisterForm({ onSwitchToLogin, onClose }) {
 function AdminLoginForm({ onClose }) {
   const [formData, setFormData]       = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
-  const dispatch                      = useDispatch();
   const { toast }                     = useToast();
-  const { isLoading }                 = useSelector((state) => state.auth);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const adminLoginUser = useAuthStore((state) => state.adminLoginUser);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const result = await dispatch(adminLoginUser(formData));
+    const result = await adminLoginUser(formData);
     if (result?.payload?.success) {
       toast({ title: "Admin login successful. Welcome back!" });
       onClose();

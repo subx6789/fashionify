@@ -18,13 +18,8 @@ import { useEffect, useState } from "react";
 import CommonForm from "../common/form";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { addressFormControls } from "@/config";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  addNewAddress,
-  deleteAddress,
-  editaAddress,
-  fetchAllAddresses,
-} from "@/store/shop/address-slice";
+import useShopAddressStore from "@/store/useShopAddressStore";
+import useAuthStore from "@/store/useAuthStore";
 import AddressCard from "./address-card";
 import { useToast } from "../ui/use-toast";
 
@@ -39,9 +34,12 @@ const initialAddressFormData = {
 function Address({ setCurrentSelectedAddress, selectedId }) {
   const [formData, setFormData] = useState(initialAddressFormData);
   const [currentEditedId, setCurrentEditedId] = useState(null);
-  const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
-  const { addressList } = useSelector((state) => state.shopAddress);
+  const user = useAuthStore((state) => state.user);
+  const addressList = useShopAddressStore((state) => state.addressList);
+  const fetchAllAddresses = useShopAddressStore((state) => state.fetchAllAddresses);
+  const addNewAddress = useShopAddressStore((state) => state.addNewAddress);
+  const editaAddress = useShopAddressStore((state) => state.editaAddress);
+  const deleteAddress = useShopAddressStore((state) => state.deleteAddress);
   const { toast } = useToast();
 
   function handleManageAddress(event) {
@@ -58,15 +56,13 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
     }
 
     currentEditedId !== null
-      ? dispatch(
-          editaAddress({
-            userId: user?.id,
-            addressId: currentEditedId,
-            formData,
-          })
-        ).then((data) => {
+      ? editaAddress({
+          userId: user?.id,
+          addressId: currentEditedId,
+          formData,
+        }).then((data) => {
           if (data?.payload?.success) {
-            dispatch(fetchAllAddresses(user?.id));
+            fetchAllAddresses(user?.id);
             setCurrentEditedId(null);
             setFormData(initialAddressFormData);
             toast({
@@ -74,14 +70,12 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
             });
           }
         })
-      : dispatch(
-          addNewAddress({
-            ...formData,
-            userId: user?.id,
-          })
-        ).then((data) => {
+      : addNewAddress({
+          ...formData,
+          userId: user?.id,
+        }).then((data) => {
           if (data?.payload?.success) {
-            dispatch(fetchAllAddresses(user?.id));
+            fetchAllAddresses(user?.id);
             setFormData(initialAddressFormData);
             toast({
               title: "Address added successfully",
@@ -91,11 +85,9 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
   }
 
   function handleDeleteAddress(getCurrentAddress) {
-    dispatch(
-      deleteAddress({ userId: user?.id, addressId: getCurrentAddress.id })
-    ).then((data) => {
+    deleteAddress({ userId: user?.id, addressId: getCurrentAddress?._id }).then((data) => {
       if (data?.payload?.success) {
-        dispatch(fetchAllAddresses(user?.id));
+        fetchAllAddresses(user?.id);
         toast({
           title: "Address deleted successfully",
         });
@@ -122,8 +114,8 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
   }
 
   useEffect(() => {
-    dispatch(fetchAllAddresses(user?.id));
-  }, [dispatch]);
+    fetchAllAddresses(user?.id);
+  }, [fetchAllAddresses, user?.id]);
 
 
 

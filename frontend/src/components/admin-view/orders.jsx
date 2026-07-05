@@ -17,7 +17,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Dialog } from "../ui/dialog";
+import AdminOrderDetailsView from "./order-details";
+
 import { Input } from "../ui/input";
 import {
   Select,
@@ -34,14 +35,9 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import AdminOrderDetailsView from "./order-details";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getAllOrdersForAdmin,
-  getOrderDetailsForAdmin,
-  resetOrderDetails,
-} from "@/store/admin/order-slice";
-import { Badge } from "../ui/badge";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import useAdminOrderStore from "@/store/useAdminOrderStore";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton, SkeletonRepeater } from "../ui/skeleton";
 import ORDER_STATUSES from "@/config/order-status.json";
 
@@ -70,8 +66,12 @@ function AdminOrdersView() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
-  const { orderList, orderDetails, isLoading } = useSelector((state) => state.adminOrder);
-  const dispatch = useDispatch();
+  const orderList = useAdminOrderStore((s) => s.orderList);
+  const orderDetails = useAdminOrderStore((s) => s.orderDetails);
+  const isLoading = useAdminOrderStore((s) => s.isLoading);
+  const getOrderDetailsForAdmin = useAdminOrderStore((s) => s.getOrderDetailsForAdmin);
+  const getAllOrdersForAdmin = useAdminOrderStore((s) => s.getAllOrdersForAdmin);
+  const resetOrderDetails = useAdminOrderStore((s) => s.resetOrderDetails);
 
   // Debounce search term by 400ms
   useEffect(() => {
@@ -109,12 +109,12 @@ function AdminOrdersView() {
   }, [orderList, filterStatus, debouncedSearch]);
 
   function handleFetchOrderDetails(getId) {
-    dispatch(getOrderDetailsForAdmin(getId));
+    getOrderDetailsForAdmin(getId);
   }
 
   useEffect(() => {
-    dispatch(getAllOrdersForAdmin());
-  }, [dispatch]);
+    getAllOrdersForAdmin();
+  }, [getAllOrdersForAdmin]);
 
   useEffect(() => {
     if (orderDetails !== null) setOpenDetailsDialog(true);
@@ -241,7 +241,7 @@ function AdminOrdersView() {
           onOpenChange={(open) => {
             if (!open) {
               setOpenDetailsDialog(false);
-              dispatch(resetOrderDetails());
+              resetOrderDetails();
             }
           }}
         >

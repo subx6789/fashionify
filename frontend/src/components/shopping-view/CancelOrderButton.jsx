@@ -15,8 +15,8 @@
  */
 
 import { useState, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { cancelOrder, getAllOrdersByUserId } from "@/store/shop/order-slice";
+import useShopOrderStore from "@/store/useShopOrderStore";
+import useAuthStore from "@/store/useAuthStore";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, X, AlertTriangle } from "lucide-react";
 
@@ -34,8 +34,9 @@ function CancelOrderButton({ orderId, status, onSuccess }) {
   const [busy, setBusy]       = useState(false);
   const cancelBtnRef          = useRef(null);
 
-  const dispatch              = useDispatch();
-  const { user }              = useSelector((state) => state.auth);
+  const user = useAuthStore((state) => state.user);
+  const cancelOrder = useShopOrderStore((state) => state.cancelOrder);
+  const getAllOrdersByUserId = useShopOrderStore((state) => state.getAllOrdersByUserId);
   const { toast }             = useToast();
 
   // Only show for cancellable statuses
@@ -48,11 +49,11 @@ function CancelOrderButton({ orderId, status, onSuccess }) {
   async function handleConfirm() {
     setBusy(true);
     try {
-      const result = await dispatch(cancelOrder({ orderId, userId: user?.id }));
+      const result = await cancelOrder({ orderId, userId: user?.id });
       if (result?.payload?.success) {
         toast({ title: "Order cancelled successfully." });
         setOpen(false);
-        dispatch(getAllOrdersByUserId(user?.id));
+        getAllOrdersByUserId(user?.id);
         onSuccess?.();
       } else {
         toast({

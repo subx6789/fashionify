@@ -15,8 +15,9 @@
  */
 
 import { Minus, Plus, Trash2 } from "lucide-react";
-import { useDispatch, useSelector }        from "react-redux";
-import { deleteCartItem, updateCartQuantity } from "@/store/shop/cart-slice";
+import useShopCartStore from "@/store/useShopCartStore";
+import useShopProductsStore from "@/store/useShopProductsStore";
+import useAuthStore from "@/store/useAuthStore";
 import { useToast }                         from "../ui/use-toast";
 import { getOptimizedImageUrl } from "@/lib/utils";
 
@@ -30,10 +31,11 @@ import { getOptimizedImageUrl } from "@/lib/utils";
  *   - Acid lime size badge
  */
 function UserCartItemsContent({ cartItem }) {
-  const { user }        = useSelector((state) => state.auth);
-  const { cartItems }   = useSelector((state) => state.shopCart);
-  const { productList } = useSelector((state) => state.shopProducts);
-  const dispatch        = useDispatch();
+  const user = useAuthStore((state) => state.user);
+  const cartItems = useShopCartStore((state) => state.cartItems);
+  const productList = useShopProductsStore((state) => state.productList);
+  const deleteCartItem = useShopCartStore((state) => state.deleteCartItem);
+  const updateCartQuantity = useShopCartStore((state) => state.updateCartQuantity);
   const { toast }       = useToast();
 
   function handleUpdateQuantity(getCartItem, typeOfAction) {
@@ -67,17 +69,15 @@ function UserCartItemsContent({ cartItem }) {
       }
     }
 
-    dispatch(
-      updateCartQuantity({
-        userId:       user?.id,
-        productId:    getCartItem?.product?.id,
-        quantity:
-          typeOfAction === "plus"
-            ? getCartItem?.quantity + 1
-            : getCartItem?.quantity - 1,
-        selectedSize: getCartItem?.selectedSize || null,
-      })
-    ).then((data) => {
+    updateCartQuantity({
+      userId:       user?.id,
+      productId:    getCartItem?.product?.id,
+      quantity:
+        typeOfAction === "plus"
+          ? getCartItem?.quantity + 1
+          : getCartItem?.quantity - 1,
+      selectedSize: getCartItem?.selectedSize || null,
+    }).then((data) => {
       if (data?.payload?.success) {
         toast({ title: "Cart updated" });
       }
@@ -85,13 +85,11 @@ function UserCartItemsContent({ cartItem }) {
   }
 
   function handleCartItemDelete(getCartItem) {
-    dispatch(
-      deleteCartItem({
-        userId:       user?.id,
-        productId:    getCartItem?.product?.id,
-        selectedSize: getCartItem?.selectedSize || null,
-      })
-    ).then((data) => {
+    deleteCartItem({
+      userId:       user?.id,
+      productId:    getCartItem?.product?.id,
+      selectedSize: getCartItem?.selectedSize || null,
+    }).then((data) => {
       if (data?.payload?.success) {
         toast({ title: "Item removed" });
       }

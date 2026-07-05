@@ -91,7 +91,7 @@ public class Product {
     @com.fasterxml.jackson.annotation.JsonProperty("totalStock")
     public Integer getTotalStock() {
         if (sizeVariants == null || sizeVariants.isEmpty()) return 0;
-        return sizeVariants.stream().mapToInt(ProductSizeVariant::getStock).sum();
+        return sizeVariants.stream().mapToInt(v -> v.getStock()).sum();
     }
 
     // Expose the first image as "image" for backward compat with existing frontend tiles

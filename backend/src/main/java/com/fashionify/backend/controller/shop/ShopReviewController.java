@@ -127,7 +127,7 @@ public class ShopReviewController {
 
         // Update product average rating
         List<Review> allReviews = reviewRepository.findByProductId(productId);
-        double avg = allReviews.stream().mapToInt(Review::getReviewValue).average().orElse(0.0);
+        double avg = allReviews.stream().mapToInt(r -> r.getReviewValue()).average().orElse(0.0);
         Product product = productOpt.get();
         product.setAverageReview(avg);
         productRepository.save(product);
@@ -153,7 +153,7 @@ public class ShopReviewController {
         // Fetch top 3 latest reviews. A simple approach is sorting the list, 
         // but for efficiency it should be a custom query. We'll sort in-memory for this scale.
         List<Map<String, Object>> reviewDtos = reviewRepository.findAll().stream()
-                .sorted(Comparator.comparing(Review::getCreatedAt).reversed())
+                .sorted(Comparator.comparing((Review r) -> r.getCreatedAt()).reversed())
                 .limit(3)
                 .map(this::buildReviewDto)
                 .collect(Collectors.toList());

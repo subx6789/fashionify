@@ -39,15 +39,13 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton, SkeletonRepeater } from "@/components/ui/skeleton";
 import { useEffect, useState, useMemo, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchAllFilteredProducts
-} from "@/store/shop/products-slice";
+import useShopProductsStore from "@/store/useShopProductsStore";
+import useShopCartStore from "@/store/useShopCartStore";
+import useCommonFeatureStore from "@/store/useCommonFeatureStore";
+import useAuthStore from "@/store/useAuthStore";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { useNavigate } from "react-router-dom";
-import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/components/ui/use-toast";
-import { getFeatureImages } from "@/store/common-slice";
 import { useAuthModal } from "@/context/AuthModalContext";
 import { getLatestReviews, getCollections } from "@/services/api";
 import { getOptimizedImageUrl } from "@/lib/utils";
@@ -73,11 +71,19 @@ const brandsWithIcon = [
 
 function ShoppingHome() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const { productList, isLoading: isProductLoading } = useSelector(
-    (state) => state.shopProducts
-  );
-  const { featureImageList, isLoading: isFeatureLoading } = useSelector((state) => state.commonFeature);
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const productList = useShopProductsStore((state) => state.productList);
+  const isProductLoading = useShopProductsStore((state) => state.isLoading);
+  const fetchAllFilteredProducts = useShopProductsStore((state) => state.fetchAllFilteredProducts);
+
+  const featureImageList = useCommonFeatureStore((state) => state.featureImageList);
+  const isFeatureLoading = useCommonFeatureStore((state) => state.isLoading);
+  const getFeatureImages = useCommonFeatureStore((state) => state.getFeatureImages);
+
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+  const addToCart = useShopCartStore((state) => state.addToCart);
+  const fetchCartItems = useShopCartStore((state) => state.fetchCartItems);
   const [collections, setCollections] = useState([]);
   const [isCollectionsLoading, setIsCollectionsLoading] = useState(true);
   const [latestReviews, setLatestReviews] = useState([]);
@@ -129,7 +135,6 @@ function ShoppingHome() {
 
   const slides = activeFeatureImages;
 
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { toast } = useToast();
   const collectionsScrollRef = useRef(null);
@@ -162,15 +167,13 @@ function ShoppingHome() {
       return;
     }
 
-    dispatch(
-      addToCart({
-        userId: user?.id,
-        productId: getCurrentProductId,
-        quantity: 1,
-      })
-    ).then((data) => {
+    addToCart({
+      userId: user?.id,
+      productId: getCurrentProductId,
+      quantity: 1,
+    }).then((data) => {
       if (data?.payload?.success) {
-        dispatch(fetchCartItems(user?.id));
+        fetchCartItems(user?.id);
         toast({
           title: "Product is added to cart",
         });
@@ -187,17 +190,15 @@ function ShoppingHome() {
   }, [slides]);
 
   useEffect(() => {
-    dispatch(
-      fetchAllFilteredProducts({
-        filterParams: {},
-        sortParams: "price-lowtohigh",
-      })
-    );
-  }, [dispatch]);
+    fetchAllFilteredProducts({
+      filterParams: {},
+      sortParams: "price-lowtohigh",
+    });
+  }, [fetchAllFilteredProducts]);
 
   useEffect(() => {
-    dispatch(getFeatureImages());
-  }, [dispatch]);
+    getFeatureImages();
+  }, [getFeatureImages]);
 
   return (
     <div className="flex flex-col min-h-screen container mx-auto px-4 pb-12">

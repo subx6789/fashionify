@@ -17,9 +17,9 @@
 import { useEffect } from "react";
 import { CheckCircle, Package, Truck, Home, Download, ClipboardList } from "lucide-react";
 import PropTypes from "prop-types";
-import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { fetchAllFilteredProducts } from "@/store/shop/products-slice";
+import useShopProductsStore from "@/store/useShopProductsStore";
+import useAuthStore from "@/store/useAuthStore";
 import { Badge } from "../ui/badge";
 import { DialogContent, DialogTitle, DialogDescription } from "../ui/dialog";
 import { Separator } from "../ui/separator";
@@ -44,16 +44,16 @@ function getStepIndex(status) {
 }
 
 function ShoppingOrderDetailsView({ orderDetails }) {
-  const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
-  const { productList } = useSelector((state) => state.shopProducts);
+  const productList = useShopProductsStore((state) => state.productList);
+  const fetchAllFilteredProducts = useShopProductsStore((state) => state.fetchAllFilteredProducts);
 
   useEffect(() => {
     if (orderDetails && (!productList || productList.length === 0)) {
-      dispatch(fetchAllFilteredProducts({ filterParams: {}, sortParams: "price-lowtohigh", page: 0, size: 100 }));
+      fetchAllFilteredProducts({ filterParams: {}, sortParams: "price-lowtohigh", page: 0, size: 100 });
     }
-  }, [dispatch, orderDetails, productList]);
+  }, [fetchAllFilteredProducts, orderDetails, productList]);
 
   const invoiceId = `INV-${orderDetails?.id}-${orderDetails?.orderDate ? (Array.isArray(orderDetails.orderDate) ? `${orderDetails.orderDate[0]}${String(orderDetails.orderDate[1]).padStart(2,"0")}${String(orderDetails.orderDate[2]).padStart(2,"0")}` : orderDetails.orderDate.split("T")[0].replace(/-/g, "")) : "N/A"}`;
 
