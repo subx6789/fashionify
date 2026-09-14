@@ -235,7 +235,7 @@ function ShoppingCheckout() {
     const { orderId, razorpayOrderId, amount, currency, keyId } = createResult.payload;
 
     const options = {
-      key: keyId || "rzp_test_TYiFbrYB4xqyyN",
+      key: keyId || import.meta.env.VITE_RAZORPAY_KEY_ID || "",
       amount: amount,
       currency: currency || "INR",
       name: "Fashionify",

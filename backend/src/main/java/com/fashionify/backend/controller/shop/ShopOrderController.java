@@ -81,10 +81,10 @@ public class ShopOrderController {
     @Autowired
     private com.fashionify.backend.service.EmailService emailService;
 
-    @Value("${razorpay.key-id:rzp_test_TYiFbrYB4xqyyN}")
+    @Value("${razorpay.key-id:}")
     private String razorpayKeyId;
 
-    @Value("${razorpay.key-secret:vBI22XmM7zT4zlWW8jl46cHo}")
+    @Value("${razorpay.key-secret:}")
     private String razorpayKeySecret;
 
     /**
