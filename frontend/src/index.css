@@ -180,16 +180,16 @@
     scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
   }
 
-  /* Prevent flex/grid children from overflowing their container */
+  /* Prevent flex/grid children from overflowing their container without breaking position: sticky */
   html {
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   body {
     @apply bg-background text-foreground font-body antialiased;
     @apply selection:bg-primary selection:text-primary-foreground;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-    overflow-x: hidden;
+    overflow-x: clip;
     width: 100%;
   }
 
