@@ -305,17 +305,17 @@ function ShoppingOrderDetailsView({ orderDetails }) {
       <DialogDescription className="sr-only">
         Customer order details view displaying purchase details, order timeline status tracker, and receipts.
       </DialogDescription>
-      <DialogTitle className="text-xl font-bold tracking-tight text-foreground flex items-center justify-between border-b border-border pb-4 mb-2 pt-6 px-6">
+      <DialogTitle className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center justify-between border-b border-border pb-4 mb-2 pt-5 sm:pt-6 px-4 sm:px-6">
         <div className="flex items-center gap-2">
           <ClipboardList className="w-5 h-5 text-primary" />
           <span>Order Details</span>
         </div>
-        <span className="text-sm font-semibold text-muted-foreground bg-muted px-2.5 py-1 rounded-lg border border-border">
+        <span className="text-xs sm:text-sm font-semibold text-muted-foreground bg-muted px-2.5 py-1 rounded-lg border border-border">
           ID: #{orderDetails?.id}
         </span>
       </DialogTitle>
 
-      <div className="grid gap-6 px-6 pb-6">
+      <div className="grid gap-6 px-4 sm:px-6 pb-6">
         
         {/* Visual Stepper */}
         {orderDetails?.orderStatus !== "rejected" && (

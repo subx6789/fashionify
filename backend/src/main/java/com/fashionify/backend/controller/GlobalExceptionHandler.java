@@ -99,6 +99,42 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handle raw database / SQL / DataIntegrity exceptions.
+     * Prevents internal table names, constraint names, or SQL fragments from leaking to clients.
+     * Returns 400 or 500 with generic, user-safe message while logging the full exception server-side.
+     */
+    @ExceptionHandler({
+        org.springframework.dao.DataAccessException.class,
+        java.sql.SQLException.class,
+        org.hibernate.HibernateException.class,
+        jakarta.persistence.PersistenceException.class
+    })
+    public ResponseEntity<?> handleDatabaseExceptions(Exception ex, WebRequest request) {
+        // Log the complete trace and SQL error securely on the server
+        logger.error("Database or persistence exception occurred: ", ex);
+
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("success", false);
+        body.put("message", "A data processing error occurred. Please verify your inputs and try again.");
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handle illegal argument exceptions safely.
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+        logger.warn("Illegal argument error: {}", ex.getMessage());
+
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("success", false);
+        body.put("message", ex.getMessage() != null ? ex.getMessage() : "Invalid request parameters.");
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
      * Catch-all handler for general system exceptions.
      * Returns 500 Internal Server Error.
      */
@@ -107,7 +143,7 @@ public class GlobalExceptionHandler {
         // Log the detailed exception trace internally
         logger.error("Unhandled exception occurred: ", ex);
         
-        // Return a clean, generic message to the client
+        // Return a clean, generic message to the client - NEVER leak stack trace or internal paths
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("success", false);
         body.put("message", "An unexpected error occurred. Please contact system support.");

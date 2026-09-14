@@ -366,17 +366,21 @@ function AdminProducts() {
 
   return (
     <Fragment>
-      {/* ── Header bar ───────────────────────────────────────────────────── */}
-      <div className="mb-5 flex flex-wrap justify-between items-center gap-3">
-        <div className="flex items-center gap-3">
-          <h2 className="text-xl font-black">Products</h2>
+      {/* ── Top bar ──────────────────────────────────────────────────────── */}
+      <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 flex-wrap">
+          <h1 className="font-heading font-black text-2xl sm:text-3xl text-foreground tracking-tight">
+            Products ({filteredProducts.length})
+          </h1>
+
+          {/* Low-stock filter toggle chip */}
           {lowStockCount > 0 && (
             <button
-              onClick={() => setShowLowStockOnly((s) => !s)}
-              className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-lg border transition-all ${
+              onClick={() => setShowLowStockOnly((v) => !v)}
+              className={`flex items-center gap-1.5 text-xs font-black px-3 py-1 rounded-sm border-2 transition-all ${
                 showLowStockOnly
-                  ? "bg-amber-500 text-white border-amber-500"
-                  : "bg-amber-50 text-amber-700 border-amber-300 hover:bg-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-700"
+                  ? "bg-amber-500 text-black border-border shadow-none"
+                  : "bg-background text-foreground border-border hover:bg-amber-100 dark:hover:bg-amber-950"
               }`}
             >
               <AlertTriangle className="w-4 h-4" />
@@ -388,7 +392,7 @@ function AdminProducts() {
         {/* Add New Product button — Neubrutalist */}
         <button
           onClick={() => openDialogFor()}
-          className="neu-btn-primary px-5 py-2.5 text-sm"
+          className="neu-btn-primary px-4 sm:px-5 py-2.5 text-sm w-full sm:w-auto flex items-center justify-center gap-2"
         >
           <Plus className="w-4 h-4" aria-hidden="true" />
           Add New Product
@@ -421,7 +425,7 @@ function AdminProducts() {
       </div>
 
       {/* ── Product grid ─────────────────────────────────────────────────── */}
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {isLoading ? (
           <SkeletonRepeater count={8} className="h-[420px] w-full rounded-sm border-2 border-border" />
         ) : filteredProducts.length > 0
@@ -466,9 +470,9 @@ function AdminProducts() {
             style={{ boxShadow: "8px 8px 0px 0px hsl(var(--neu-black))" }}
           >
             {/* ── Dialog header ───────────────────────────────────────── */}
-            <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b-2 border-border bg-card rounded-t-sm">
+            <div className="sticky top-0 z-10 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b-2 border-border bg-card rounded-t-sm">
               <div>
-                <h2 className="font-heading font-black text-lg tracking-tight">
+                <h2 className="font-heading font-black text-base sm:text-lg tracking-tight">
                   {currentEditedId !== null ? "Edit Product" : "Add New Product"}
                 </h2>
                 <p className="text-xs text-muted-foreground font-bold mt-0.5">
@@ -478,7 +482,7 @@ function AdminProducts() {
               <button
                 onClick={closeDialog}
                 aria-label="Close dialog"
-                className="flex items-center justify-center w-9 h-9 border-2 border-border rounded-sm bg-background transition-all hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 border-2 border-border rounded-sm bg-background transition-all hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}
               >
                 <X className="h-4 w-4" aria-hidden="true" />
@@ -486,7 +490,7 @@ function AdminProducts() {
             </div>
 
             {/* ── Scrollable form body ─────────────────────────────────── */}
-            <div className="p-6 space-y-8 overflow-y-auto max-h-[calc(100vh-12rem)]">
+            <div className="p-4 sm:p-6 space-y-6 sm:space-y-8 overflow-y-auto max-h-[calc(100vh-12rem)]">
 
               {/* ── SECTION 1: Images ───────────────────────────────── */}
               <section aria-label="Product images">
@@ -794,11 +798,11 @@ function AdminProducts() {
             </div>
 
             {/* ── Dialog footer: submit ─────────────────────────────────── */}
-            <div className="sticky bottom-0 px-6 py-4 border-t-2 border-border bg-card rounded-b-sm flex items-center gap-3">
+            <div className="sticky bottom-0 px-4 sm:px-6 py-3 sm:py-4 border-t-2 border-border bg-card rounded-b-sm flex items-center gap-3">
               <button
                 type="button"
                 onClick={closeDialog}
-                className="neu-btn-outline px-5 py-2.5 text-sm flex-shrink-0"
+                className="neu-btn-outline px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm flex-shrink-0"
               >
                 Cancel
               </button>

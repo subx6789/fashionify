@@ -99,65 +99,68 @@ function ShoppingOrders() {
           <ShoppingOrderDetailsView orderDetails={orderDetails} />
         </Dialog>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Order ID</TableHead>
-              <TableHead>Order Date</TableHead>
-              <TableHead>Order Status</TableHead>
-              <TableHead>Order Price</TableHead>
-              <TableHead><span className="sr-only">Actions</span></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedOrders && sortedOrders.length > 0
-              ? sortedOrders.map((orderItem) => (
-                  <TableRow key={orderItem?.id}>
-                    <TableCell>{orderItem?.id}</TableCell>
-                    <TableCell>{formatDate(orderItem?.orderDate)}</TableCell>
-                    <TableCell>
-                      <Badge
-                        className={`py-1 px-3 ${
-                          orderItem?.orderStatus === "confirmed"
-                            ? "bg-green-500 text-white"
-                            : orderItem?.orderStatus === "rejected"
-                            ? "bg-red-600 text-white"
-                            : orderItem?.orderStatus === "delivered"
-                            ? "bg-primary text-primary-foreground"
-                            : orderItem?.orderStatus === "CANCELLED"
-                            ? "bg-gray-300 text-gray-800"
-                            : "bg-black text-white"
-                        }`}
-                      >
-                        {orderItem?.orderStatus}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>₹{orderItem?.totalAmount}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => handleFetchOrderDetails(orderItem?.id)}
+        <div className="w-full overflow-x-auto">
+          <Table className="min-w-[600px]">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">Order ID</TableHead>
+                <TableHead>Order Date</TableHead>
+                <TableHead>Order Status</TableHead>
+                <TableHead>Order Price</TableHead>
+                <TableHead><span className="sr-only">Actions</span></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedOrders && sortedOrders.length > 0
+                ? sortedOrders.map((orderItem) => (
+                    <TableRow key={orderItem?.id}>
+                      <TableCell className="font-semibold">{orderItem?.id}</TableCell>
+                      <TableCell className="whitespace-nowrap">{formatDate(orderItem?.orderDate)}</TableCell>
+                      <TableCell>
+                        <Badge
+                          className={`py-1 px-3 ${
+                            orderItem?.orderStatus === "confirmed"
+                              ? "bg-green-500 text-white"
+                              : orderItem?.orderStatus === "rejected"
+                              ? "bg-red-600 text-white"
+                              : orderItem?.orderStatus === "delivered"
+                              ? "bg-primary text-primary-foreground"
+                              : orderItem?.orderStatus === "CANCELLED"
+                              ? "bg-gray-300 text-gray-800"
+                              : "bg-black text-white"
+                          }`}
                         >
-                          View Details
-                        </Button>
-                        <CancelOrderButton
-                          orderId={orderItem?.id}
-                          status={orderItem?.orderStatus}
-                        />
-                      </div>
+                          {orderItem?.orderStatus}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-bold whitespace-nowrap">₹{orderItem?.totalAmount}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            className="whitespace-nowrap text-xs"
+                            onClick={() => handleFetchOrderDetails(orderItem?.id)}
+                          >
+                            View Details
+                          </Button>
+                          <CancelOrderButton
+                            orderId={orderItem?.id}
+                            status={orderItem?.orderStatus}
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                      No orders yet.
                     </TableCell>
                   </TableRow>
-                ))
-              : (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                    No orders yet.
-                  </TableCell>
-                </TableRow>
-              )}
-          </TableBody>
-        </Table>
+                )}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );

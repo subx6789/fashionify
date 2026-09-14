@@ -251,7 +251,7 @@ function AdminDashboard() {
     <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-4xl font-extrabold text-foreground">Analytics Dashboard</h1>
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground">Analytics Dashboard</h1>
         <p className="text-muted-foreground text-lg">Real-time insights from your store.</p>
       </div>
 
@@ -286,7 +286,7 @@ function AdminDashboard() {
           Custom range
         </button>
         {showCustomPicker && (
-          <div className="flex items-center gap-2 mt-1 sm:mt-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-1 sm:mt-0">
             <input
               type="date"
               value={customRange.start}
@@ -311,7 +311,7 @@ function AdminDashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {analyticsLoading ? (
           <SkeletonRepeater count={6} className="h-28 w-full rounded-xl" />
         ) : (

@@ -72,14 +72,14 @@ function ShoppingAbout() {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-16 max-w-6xl space-y-24">
+    <div className="container mx-auto px-4 py-8 sm:py-16 max-w-6xl space-y-12 sm:space-y-24">
       {/* Hero Section */}
-      <div className="text-center space-y-6 max-w-4xl mx-auto">
+      <div className="text-center space-y-4 sm:space-y-6 max-w-4xl mx-auto">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-5xl md:text-6xl font-extrabold dark:text-gradient tracking-tight"
+          className="text-3xl sm:text-5xl md:text-6xl font-extrabold dark:text-gradient tracking-tight"
         >
           Our Story
         </motion.h1>
@@ -99,7 +99,7 @@ function ShoppingAbout() {
       </div>
 
       {/* Feature Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center bg-muted/20 p-8 md:p-12 rounded-3xl border border-border">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 items-center bg-muted/20 p-4 sm:p-8 md:p-12 rounded-3xl border border-border">
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -150,7 +150,7 @@ function ShoppingAbout() {
             >
               <Card className="card-gradient card-gradient-hover border-t-2 border-primary-border overflow-hidden h-full">
                 <CardContent className="flex flex-col items-center text-center p-6 space-y-3 h-full">
-                  <div className="p-3 rounded-full bg-gradient-brand text-primary-foreground text-primary-foreground shadow-md shadow-primary/20">
+                  <div className="p-3 rounded-full bg-gradient-brand text-primary-foreground shadow-md shadow-primary/20">
                     <feature.icon className="w-6 h-6" />
                   </div>
                   <h3 className="font-bold text-lg">{feature.title}</h3>

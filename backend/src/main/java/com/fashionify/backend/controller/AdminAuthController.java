@@ -52,12 +52,41 @@ public class AdminAuthController {
     @Autowired
     JwtUtils jwtUtils;
 
+    @Autowired
+    private com.fashionify.backend.security.RateLimitFilter rateLimitFilter;
+
     @PostMapping("/login")
     public ResponseEntity<?> adminLogin(@Valid @RequestBody LoginRequest loginRequest,
                                         HttpServletResponse response) {
+        String email = loginRequest.getEmail().trim().toLowerCase();
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+        // Check account exponential backoff lockout
+        long lockoutSeconds = rateLimitFilter.getAccountLockoutSeconds(email);
+        if (lockoutSeconds > 0) {
+            return ResponseEntity.status(429)
+                    .header("Retry-After", String.valueOf(lockoutSeconds))
+                    .body(Map.of(
+                            "success", false,
+                            "message", "Admin account temporarily locked due to consecutive failed attempts. Please retry in " + lockoutSeconds + " seconds.",
+                            "retryAfterSeconds", lockoutSeconds
+                    ));
+        }
+
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, loginRequest.getPassword()));
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            long backoff = rateLimitFilter.recordAuthFailureAndGetBackoff(email);
+            String errorMsg = backoff > 0
+                    ? "Too many failed admin attempts. Account locked for " + backoff + " seconds."
+                    : "Invalid email or password.";
+            return ResponseEntity.status(backoff > 0 ? 429 : 401)
+                    .body(Map.of("success", false, "message", errorMsg));
+        }
+
+        // On successful authentication, reset backoff
+        rateLimitFilter.recordAuthSuccess(email);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String role = userDetails.getAuthorities().iterator().next().getAuthority()

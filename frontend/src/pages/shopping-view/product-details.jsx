@@ -306,11 +306,11 @@ function ShoppingProductDetails() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-12 lg:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 lg:items-start">
+      <div className="container mx-auto px-4 py-6 sm:py-10 lg:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 lg:gap-16 lg:items-start">
 
-          {/* ── Left Side: Gallery & Reviews List ─────────────────── */}
-          <div className="flex flex-col gap-12">
+          {/* ── Left Side: Gallery & Reviews List ───────────────── */}
+          <div className="flex flex-col gap-6 sm:gap-10 lg:gap-12">
             
             {/* ── Image Gallery ─────────────────────────────────────── */}
             <div className="flex flex-col lg:flex-row gap-4 lg:items-start">
@@ -455,7 +455,7 @@ function ShoppingProductDetails() {
           {/* ── Right Side: Product Details & Form ─────────────────── */}
           <div className="flex flex-col space-y-6">
             <div className="space-y-4">
-              <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
                 {productDetails?.title}
               </h1>
 

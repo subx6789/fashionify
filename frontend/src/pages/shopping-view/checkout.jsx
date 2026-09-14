@@ -312,16 +312,16 @@ function ShoppingCheckout() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Hero image */}
-      <div className="relative h-[200px] md:h-[280px] w-full overflow-hidden">
+      <div className="relative h-[140px] sm:h-[200px] md:h-[280px] w-full overflow-hidden">
         <img src={img} className="h-full w-full object-cover object-center" alt="Checkout" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center">
-          <h1 className="text-3xl font-extrabold text-white drop-shadow-lg">Checkout</h1>
-          <p className="text-white/80 text-sm mt-1">{itemCount} item{itemCount !== 1 ? "s" : ""} in cart</p>
+        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 text-center w-full px-4">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white drop-shadow-lg">Checkout</h1>
+          <p className="text-white/80 text-xs sm:text-sm mt-1">{itemCount} item{itemCount !== 1 ? "s" : ""} in cart</p>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 md:px-6 py-8">
+      <div className="container mx-auto px-4 md:px-6 py-6 sm:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Address Selection */}
           <div>

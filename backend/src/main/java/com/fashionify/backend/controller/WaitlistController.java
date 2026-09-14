@@ -32,33 +32,30 @@ public class WaitlistController {
     private WaitlistRepository waitlistRepository;
 
     @PostMapping
-    public ResponseEntity<?> joinWaitlist(@RequestBody Waitlist request) {
-        try {
-            if (waitlistRepository.existsByEmailAndProductIdAndSizeAndIsNotifiedFalse(
-                    request.getEmail(), request.getProductId(), request.getSize())) {
-                return ResponseEntity.badRequest().body(Map.of(
-                        "success", false,
-                        "message", "You are already on the waitlist for this item."
-                ));
-            }
-            
-            Waitlist waitlist = new Waitlist();
-            waitlist.setEmail(request.getEmail());
-            waitlist.setProductId(request.getProductId());
-            waitlist.setSize(request.getSize());
-            
-            Waitlist saved = waitlistRepository.save(waitlist);
-            
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "message", "Successfully joined the waitlist! We will notify you when it's back in stock.",
-                    "data", saved
-            ));
-        } catch (Exception e) {
+    public ResponseEntity<?> joinWaitlist(@jakarta.validation.Valid @RequestBody com.fashionify.backend.dto.WaitlistRequest request) {
+        String email = request.getEmail().trim().toLowerCase();
+        Long productId = request.getProductId();
+        String size = request.getSize().trim();
+
+        if (waitlistRepository.existsByEmailAndProductIdAndSizeAndIsNotifiedFalse(
+                email, productId, size)) {
             return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
-                    "message", e.getMessage()
+                    "message", "You are already on the waitlist for this item."
             ));
         }
+        
+        Waitlist waitlist = new Waitlist();
+        waitlist.setEmail(email);
+        waitlist.setProductId(productId);
+        waitlist.setSize(size);
+        
+        Waitlist saved = waitlistRepository.save(waitlist);
+        
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Successfully joined the waitlist! We will notify you when it's back in stock.",
+                "data", saved
+        ));
     }
 }

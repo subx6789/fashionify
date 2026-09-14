@@ -85,14 +85,14 @@ function ShoppingContact() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-16 max-w-6xl space-y-12">
+    <div className="container mx-auto px-4 py-8 sm:py-12 lg:py-16 max-w-6xl space-y-8 sm:space-y-12">
       {/* Header */}
       <div className="text-center space-y-4 max-w-2xl mx-auto">
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-5xl font-extrabold tracking-tight"
+          className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight"
         >
           Get in Touch
         </motion.h1>
@@ -145,7 +145,7 @@ function ShoppingContact() {
             transition={{ duration: 0.5 }}
           >
             <div
-              className="border-2 border-border bg-card rounded-sm p-8"
+              className="border-2 border-border bg-card rounded-sm p-4 sm:p-8"
               style={{ boxShadow: "4px 4px 0px 0px hsl(var(--neu-black))" }}
             >
               {/* Form header */}

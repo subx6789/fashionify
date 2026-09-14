@@ -201,9 +201,9 @@ function ShoppingHome() {
   }, [getFeatureImages]);
 
   return (
-    <div className="flex flex-col min-h-screen container mx-auto px-4 pb-12">
-      <div className="w-full mt-8 mb-12">
-        <div className="neu-card relative w-full h-[380px] md:h-[500px] lg:h-[550px] max-h-[600px] overflow-hidden bg-zinc-100 dark:bg-zinc-900 group">
+    <div className="flex flex-col min-h-screen w-full max-w-screen-2xl mx-auto px-3 sm:px-4 lg:px-6 pb-8 sm:pb-12">
+      <div className="w-full mt-4 sm:mt-6 md:mt-8 mb-8 sm:mb-12">
+        <div className="neu-card relative w-full h-[260px] sm:h-[380px] md:h-[500px] lg:h-[550px] max-h-[600px] overflow-hidden bg-zinc-100 dark:bg-zinc-900 group">
           {isFeatureLoading ? (
             <Skeleton className="w-full h-full rounded-sm" />
           ) : (
@@ -256,9 +256,9 @@ function ShoppingHome() {
 
       {/* Shop by Collections Section */}
       {(isCollectionsLoading || collections.length > 0) && (
-        <section className="py-16 mb-12 bg-muted/20 rounded-lg">
-          <div className="w-full px-4 md:px-8">
-            <h2 className="text-4xl font-extrabold text-center mb-4 uppercase tracking-tight dark:text-primary">
+        <section className="py-8 sm:py-12 lg:py-16 mb-8 sm:mb-12 bg-muted/20 rounded-lg">
+          <div className="w-full px-3 sm:px-4 md:px-8">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-center mb-3 sm:mb-4 uppercase tracking-tight dark:text-primary">
               Shop by Collections
             </h2>
             <div className="relative group/carousel">
@@ -333,12 +333,12 @@ function ShoppingHome() {
         </section>
       )}
 
-      <section className="py-16 mb-12 bg-muted/30 rounded-lg">
-        <div className="w-full px-4 md:px-8">
-          <h2 className="text-4xl font-extrabold text-center mb-12 dark:text-gradient">
+      <section className="py-8 sm:py-16 mb-8 sm:mb-12 bg-muted/30 rounded-lg">
+        <div className="w-full px-3 sm:px-4 md:px-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-center mb-6 sm:mb-12 dark:text-gradient">
             Shop by Category
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-6">
             {categoriesWithIcon.map((categoryItem, index) => (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -353,11 +353,11 @@ function ShoppingHome() {
                   }
                   className="cursor-pointer card-gradient card-gradient-hover group overflow-hidden border-t-2 border-primary-border"
                 >
-                  <CardContent className="flex flex-col items-center justify-center p-8">
-                    <div className="w-16 h-16 mb-4 rounded-full bg-white dark:bg-white text-black flex items-center justify-center border-2 border-black shadow-[2px_2px_0px_0px_hsl(var(--neu-black))] transition-transform group-hover:scale-110 p-3">
-                      <categoryItem.icon className="w-8 h-8" />
+                  <CardContent className="flex flex-col items-center justify-center p-4 sm:p-8">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 mb-2 sm:mb-4 rounded-full bg-white dark:bg-white text-black flex items-center justify-center border-2 border-black shadow-[2px_2px_0px_0px_hsl(var(--neu-black))] transition-transform group-hover:scale-110 p-2 sm:p-3">
+                      <categoryItem.icon className="w-6 h-6 sm:w-8 sm:h-8" />
                     </div>
-                    <span className="font-bold text-lg group-hover:text-primary transition-colors">{categoryItem.label}</span>
+                    <span className="font-bold text-sm sm:text-lg group-hover:text-primary transition-colors">{categoryItem.label}</span>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -366,10 +366,10 @@ function ShoppingHome() {
         </div>
       </section>
 
-      <section className="py-16 mb-12 bg-muted/30 rounded-lg">
-        <div className="w-full px-4 md:px-8">
-          <h2 className="text-4xl font-extrabold text-center mb-12 dark:text-gradient">Shop by Iconic Brands</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+      <section className="py-8 sm:py-16 mb-8 sm:mb-12 bg-muted/30 rounded-lg">
+        <div className="w-full px-3 sm:px-4 md:px-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-center mb-6 sm:mb-10 dark:text-gradient">Shop by Iconic Brands</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-6">
             {brandsWithIcon.map((brandItem, index) => (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -382,11 +382,11 @@ function ShoppingHome() {
                   onClick={() => handleNavigateToListingPage(brandItem, "brand")}
                   className="cursor-pointer card-gradient card-gradient-hover group overflow-hidden border-t-2 border-primary-border"
                 >
-                  <CardContent className="flex flex-col items-center justify-center p-8">
-                    <div className="w-16 h-16 mb-4 rounded-full bg-white dark:bg-white text-black flex items-center justify-center border-2 border-black shadow-[2px_2px_0px_0px_hsl(var(--neu-black))] transition-transform group-hover:scale-110 p-3">
+                  <CardContent className="flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 mb-2 sm:mb-4 rounded-full bg-white dark:bg-white text-black flex items-center justify-center border-2 border-black shadow-[2px_2px_0px_0px_hsl(var(--neu-black))] transition-transform group-hover:scale-110 p-2 sm:p-3">
                       <brandItem.icon className="w-full h-full object-contain" />
                     </div>
-                    <span className="font-bold text-lg group-hover:text-primary transition-colors">{brandItem.label}</span>
+                    <span className="font-bold text-sm sm:text-base lg:text-lg group-hover:text-primary transition-colors">{brandItem.label}</span>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -395,12 +395,12 @@ function ShoppingHome() {
         </div>
       </section>
 
-      <section className="py-16 mb-12 bg-muted/20 rounded-lg">
-        <div className="w-full px-4 md:px-8">
-          <h2 className="text-4xl font-extrabold text-center mb-12 dark:text-gradient">
+      <section className="py-8 sm:py-12 lg:py-16 mb-8 sm:mb-12 bg-muted/20 rounded-lg">
+        <div className="w-full px-3 sm:px-4 md:px-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-center mb-6 sm:mb-10 dark:text-gradient">
             Featured Products
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
             {isProductLoading ? (
               <SkeletonRepeater count={8} className="h-[400px] w-full rounded-xl" />
             ) : productList && productList.length > 0 ? productList.slice(0, 8).map((productItem) => (
@@ -421,10 +421,10 @@ function ShoppingHome() {
 
       {/* Customer Reviews Section */}
       {(isReviewsLoading || (latestReviews && latestReviews.length > 0)) && (
-        <section className="py-16 mb-12 bg-muted/40 relative overflow-hidden rounded-lg">
-          <div className="w-full px-4 md:px-8">
-            <h2 className="text-4xl font-extrabold text-center mb-16 dark:text-gradient">What Our Customers Say</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <section className="py-8 sm:py-12 lg:py-16 mb-8 sm:mb-12 bg-muted/40 relative overflow-hidden rounded-lg">
+          <div className="w-full px-3 sm:px-4 md:px-8">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-center mb-8 sm:mb-12 dark:text-gradient">What Our Customers Say</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
               {isReviewsLoading ? (
                 <SkeletonRepeater count={3} className="h-64 w-full rounded-xl" />
               ) : latestReviews.map((review, i) => (
@@ -435,7 +435,7 @@ function ShoppingHome() {
                   transition={{ delay: i * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <Card className="card-gradient card-gradient-hover p-8 text-center space-y-4 border-t-2 border-primary-border h-full flex flex-col justify-between">
+                  <Card className="card-gradient card-gradient-hover p-4 sm:p-6 lg:p-8 text-center space-y-4 border-t-2 border-primary-border h-full flex flex-col justify-between">
                     <div>
                       <div className="flex justify-center space-x-1 mb-4">
                         {[...Array(5)].map((_, idx) => (
