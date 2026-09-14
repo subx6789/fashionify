@@ -160,7 +160,57 @@ function AdminOrdersView() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto border-2 border-border rounded-sm" style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}>
+        {/* Mobile View: Cards */}
+        <div className="block sm:hidden space-y-3">
+          {isLoading ? (
+            <SkeletonRepeater count={4} className="h-36 w-full rounded-sm border-2 border-border" />
+          ) : filteredOrders && filteredOrders.length > 0 ? (
+            filteredOrders.map((orderItem) => (
+              <div
+                key={orderItem?.id}
+                className="p-3.5 border-2 border-border bg-card rounded-sm space-y-2.5 shadow-[2px_2px_0px_0px_hsl(var(--neu-black))]"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-mono font-black text-sm">#{orderItem?.id}</span>
+                  <Badge
+                    className={`py-0.5 px-2 border-2 border-border font-black text-[10px] uppercase tracking-wider ${STATUS_STYLES[orderItem?.orderStatus] || "bg-slate-300 text-slate-900"}`}
+                  >
+                    {orderItem?.orderStatus?.replace(/_/g, " ")}
+                  </Badge>
+                </div>
+
+                <div className="text-xs">
+                  <span className="font-black text-foreground block">
+                    {orderItem?.user?.userName || "—"}
+                  </span>
+                  <span className="text-muted-foreground font-medium">
+                    {orderItem?.user?.email || ""}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-border">
+                  <span className="font-bold text-muted-foreground">{formatDate(orderItem?.orderDate)}</span>
+                  <span className="font-black text-foreground text-sm">₹{orderItem?.totalAmount}</span>
+                </div>
+
+                <Button
+                  size="sm"
+                  onClick={() => handleFetchOrderDetails(orderItem?.id)}
+                  className="neu-btn-primary w-full py-1.5 h-8 text-xs font-bold"
+                >
+                  View Details
+                </Button>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 text-muted-foreground text-sm">
+              No orders found.
+            </div>
+          )}
+        </div>
+
+        {/* Tablet & Desktop View: Table */}
+        <div className="hidden sm:block overflow-x-auto border-2 border-border rounded-sm" style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}>
           <Table>
             <TableHeader>
               <TableRow>

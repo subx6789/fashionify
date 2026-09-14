@@ -99,7 +99,62 @@ function ShoppingOrders() {
           <ShoppingOrderDetailsView orderDetails={orderDetails} />
         </Dialog>
 
-        <div className="w-full overflow-x-auto">
+        {/* Mobile View: Cards */}
+        <div className="block sm:hidden space-y-3">
+          {sortedOrders && sortedOrders.length > 0 ? (
+            sortedOrders.map((orderItem) => (
+              <div
+                key={orderItem?.id}
+                className="p-3.5 border-2 border-border bg-card rounded-md space-y-2.5 shadow-[2px_2px_0px_0px_hsl(var(--neu-black))]"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-mono font-black text-sm">Order #{orderItem?.id}</span>
+                  <Badge
+                    className={`py-0.5 px-2 text-[10px] uppercase font-black ${
+                      orderItem?.orderStatus === "confirmed"
+                        ? "bg-green-500 text-white"
+                        : orderItem?.orderStatus === "rejected"
+                        ? "bg-red-600 text-white"
+                        : orderItem?.orderStatus === "delivered"
+                        ? "bg-primary text-primary-foreground"
+                        : orderItem?.orderStatus === "CANCELLED"
+                        ? "bg-gray-300 text-gray-800"
+                        : "bg-black text-white"
+                    }`}
+                  >
+                    {orderItem?.orderStatus}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{formatDate(orderItem?.orderDate)}</span>
+                  <span className="font-bold text-foreground text-sm">₹{orderItem?.totalAmount}</span>
+                </div>
+
+                <div className="flex items-center gap-2 pt-1 border-t border-border">
+                  <Button
+                    size="sm"
+                    className="flex-1 text-xs py-1.5 h-8 font-bold"
+                    onClick={() => handleFetchOrderDetails(orderItem?.id)}
+                  >
+                    View Details
+                  </Button>
+                  <CancelOrderButton
+                    orderId={orderItem?.id}
+                    status={orderItem?.orderStatus}
+                  />
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center text-muted-foreground py-8 text-sm">
+              No orders yet.
+            </div>
+          )}
+        </div>
+
+        {/* Tablet & Desktop View: Table */}
+        <div className="hidden sm:block w-full overflow-x-auto">
           <Table className="min-w-[600px]">
             <TableHeader>
               <TableRow>

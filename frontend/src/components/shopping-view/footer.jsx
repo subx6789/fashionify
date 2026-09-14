@@ -167,9 +167,9 @@ function ShoppingFooter() {
       <div className="h-1 w-full bg-primary" />
 
       <div className="container mx-auto px-4 py-8 sm:py-12">
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 sm:gap-8">
           {/* Brand — spans 2 cols on tablet */}
-          <div className="space-y-4 col-span-2 sm:col-span-2 md:col-span-1 lg:col-span-1">
+          <div className="space-y-4 col-span-1 sm:col-span-2 md:col-span-1 lg:col-span-1">
             <div className="group">
               <BrandLogo showText={true} textClassName="text-xl" />
             </div>

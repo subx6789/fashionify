@@ -214,9 +214,13 @@ function HeaderRightContent() {
       </button>
 
       {/* Profile Icon / Dropdown */}
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
-          <button className="flex flex-col items-center justify-center cursor-pointer group p-1.5 rounded-sm outline-none bg-transparent border-0 hover:bg-muted/50 transition-colors" aria-label="User profile menu">
+          <button
+            type="button"
+            className="flex flex-col items-center justify-center cursor-pointer group p-1.5 rounded-sm outline-none bg-transparent border-0 hover:bg-muted/50 transition-colors shrink-0"
+            aria-label="User profile menu"
+          >
             {isAuthenticated ? (
               <Avatar className="h-7 w-7 border-2 border-border hover:border-primary transition-colors">
                 <AvatarImage
@@ -238,7 +242,11 @@ function HeaderRightContent() {
         <DropdownMenuContent
           side="bottom"
           align="end"
-          className="w-64 mt-2 border-2 border-border shadow-none p-2 rounded-sm bg-card z-50"
+          sideOffset={8}
+          avoidCollisions={true}
+          collisionPadding={16}
+          onCloseAutoFocus={(e) => e.preventDefault()}
+          className="w-64 max-w-[calc(100vw-32px)] border-2 border-border shadow-none p-2 rounded-sm bg-card z-50"
           style={{ boxShadow: "4px 4px 0px 0px hsl(var(--neu-black))" }}
         >
           {isAuthenticated ? (

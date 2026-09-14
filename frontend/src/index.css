@@ -183,6 +183,7 @@
   /* Prevent flex/grid children from overflowing their container without breaking position: sticky */
   html {
     overflow-x: clip;
+    overflow-y: visible;
   }
 
   body {
@@ -190,6 +191,7 @@
     @apply selection:bg-primary selection:text-primary-foreground;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     overflow-x: clip;
+    overflow-y: visible;
     width: 100%;
   }
 

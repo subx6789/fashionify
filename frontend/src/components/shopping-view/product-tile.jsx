@@ -79,7 +79,7 @@ function ShoppingProductTile({ product, handleGetProductDetails }) {
           src={coverImage}
           alt={product?.title}
           onError={(e) => { e.target.src = "https://placehold.co/600x600/png?text=No+Image"; }}
-          className="w-full h-[280px] object-contain p-3 bg-muted/10 transition-transform duration-200 group-hover:scale-[1.02]"
+          className="w-full h-44 sm:h-56 md:h-64 lg:h-[280px] object-contain p-2 sm:p-3 bg-muted/10 transition-transform duration-200 group-hover:scale-[1.02]"
         />
 
         {/* Stock badges */}
@@ -137,35 +137,35 @@ function ShoppingProductTile({ product, handleGetProductDetails }) {
       </div>
 
       {/* Content — grows to fill card */}
-      <div className="p-4 flex-1 flex flex-col border-t-2 border-border">
+      <div className="p-2.5 sm:p-4 flex-1 flex flex-col border-t-2 border-border">
         <h2
-          className="text-sm font-black mb-2 line-clamp-2 leading-snug min-h-[2.5rem] tracking-tight"
+          className="text-xs sm:text-sm font-black mb-1.5 sm:mb-2 line-clamp-2 leading-snug min-h-[2rem] sm:min-h-[2.5rem] tracking-tight"
           title={product?.title}
         >
           {product?.title}
         </h2>
 
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">
+        <div className="flex justify-between items-center mb-1.5 sm:mb-2">
+          <span className="text-[10px] sm:text-xs text-muted-foreground font-bold uppercase tracking-wider truncate max-w-[48%]">
             {categoryOptionsMap[product?.category]}
           </span>
-          <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">
+          <span className="text-[10px] sm:text-xs text-muted-foreground font-bold uppercase tracking-wider truncate max-w-[48%] text-right">
             {brandOptionsMap[product?.brand]}
           </span>
         </div>
 
         {/* Price */}
-        <div className="flex items-center gap-3 mb-2">
-          <span className={`text-lg font-black ${product?.salePrice > 0 ? "line-through text-muted-foreground text-sm" : "text-foreground"}`}>
+        <div className="flex items-center gap-2 sm:gap-3 mb-2">
+          <span className={`text-sm sm:text-lg font-black ${product?.salePrice > 0 ? "line-through text-muted-foreground text-xs sm:text-sm" : "text-foreground"}`}>
             ₹{product?.price}
           </span>
           {product?.salePrice > 0 && (
-            <span className="text-lg font-black text-primary">₹{product?.salePrice}</span>
+            <span className="text-sm sm:text-lg font-black text-primary">₹{product?.salePrice}</span>
           )}
         </div>
 
         {/* Size pills */}
-        <div className="flex flex-wrap gap-1 mt-auto min-h-[22px]">
+        <div className="flex flex-wrap gap-1 mt-auto min-h-[20px] sm:min-h-[22px]">
           {product?.sizeVariants?.slice(0, 4).map((v) => (
             <span
               key={v.size}
