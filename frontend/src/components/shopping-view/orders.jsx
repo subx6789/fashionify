@@ -14,7 +14,7 @@
  * ============================================================================
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Dialog } from "../ui/dialog";
@@ -32,6 +32,17 @@ import useAuthStore from "@/store/useAuthStore";
 import { Badge } from "../ui/badge";
 import CancelOrderButton from "./CancelOrderButton";
 
+function formatDate(orderDate) {
+  if (!orderDate) return "N/A";
+  if (Array.isArray(orderDate)) {
+    return `${orderDate[0]}-${String(orderDate[1]).padStart(2, "0")}-${String(orderDate[2]).padStart(2, "0")}`;
+  }
+  if (typeof orderDate === "string") {
+    return orderDate.split("T")[0];
+  }
+  return String(orderDate);
+}
+
 function ShoppingOrders() {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const user = useAuthStore((state) => state.user);
@@ -40,6 +51,23 @@ function ShoppingOrders() {
   const getOrderDetails = useShopOrderStore((state) => state.getOrderDetails);
   const getAllOrdersByUserId = useShopOrderStore((state) => state.getAllOrdersByUserId);
   const resetOrderDetails = useShopOrderStore((state) => state.resetOrderDetails);
+
+  // Sort orders with the most recently purchased first
+  const sortedOrders = useMemo(() => {
+    if (!orderList || orderList.length === 0) return [];
+    return [...orderList].sort((a, b) => {
+      const getTime = (d) => {
+        if (!d) return 0;
+        if (Array.isArray(d)) {
+          return new Date(d[0], (d[1] || 1) - 1, d[2] || 1, d[3] || 0, d[4] || 0, d[5] || 0).getTime();
+        }
+        return new Date(d).getTime() || 0;
+      };
+      const timeDiff = getTime(b.orderDate) - getTime(a.orderDate);
+      if (timeDiff !== 0 && !isNaN(timeDiff)) return timeDiff;
+      return (b.id || 0) - (a.id || 0);
+    });
+  }, [orderList]);
 
   function handleFetchOrderDetails(getId) {
     getOrderDetails(getId);
@@ -82,11 +110,11 @@ function ShoppingOrders() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orderList && orderList.length > 0
-              ? orderList.map((orderItem) => (
+            {sortedOrders && sortedOrders.length > 0
+              ? sortedOrders.map((orderItem) => (
                   <TableRow key={orderItem?.id}>
                     <TableCell>{orderItem?.id}</TableCell>
-                    <TableCell>{orderItem?.orderDate?.split("T")?.[0] ?? "N/A"}</TableCell>
+                    <TableCell>{formatDate(orderItem?.orderDate)}</TableCell>
                     <TableCell>
                       <Badge
                         className={`py-1 px-3 ${

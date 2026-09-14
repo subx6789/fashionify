@@ -43,6 +43,14 @@ function getStepIndex(status) {
   return 0;
 }
 
+function formatPaymentMethod(method) {
+  if (!method) return "N/A";
+  const m = method.toLowerCase();
+  if (m === "razorpay") return "Razorpay (Online)";
+  if (m === "cod" || m === "simulated_cod") return "Cash on Delivery";
+  return method.replace("simulated_", "").toUpperCase();
+}
+
 function ShoppingOrderDetailsView({ orderDetails }) {
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
@@ -246,7 +254,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
 
       doc.setFont("helvetica", "normal");
       doc.setTextColor(...lightTextColor);
-      doc.text(`Method: ${orderDetails?.paymentMethod?.toUpperCase().replace("SIMULATED_", "") || "N/A"}`, 15, 185);
+      doc.text(`Method: ${formatPaymentMethod(orderDetails?.paymentMethod).toUpperCase()}`, 15, 185);
       doc.text(`Status: ${orderDetails?.paymentStatus?.toUpperCase().replace("SIMULATED_", "") || "N/A"}`, 15, 191);
 
       // Footer Branding / Note
@@ -374,7 +382,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
           </div>
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Payment Method</span>
-            <p className="text-xs font-semibold text-foreground capitalize">{orderDetails?.paymentMethod?.replace('simulated_', '')}</p>
+            <p className="text-xs font-semibold text-foreground">{formatPaymentMethod(orderDetails?.paymentMethod)}</p>
           </div>
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Payment Status</span>

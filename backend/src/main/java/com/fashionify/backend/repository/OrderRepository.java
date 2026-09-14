@@ -28,6 +28,13 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByUserId(Long userId);
+
+    @Query("SELECT o FROM Order o WHERE o.user.id = :userId ORDER BY o.orderDate DESC, o.id DESC")
+    List<Order> findByUserIdOrderByOrderDateDesc(@Param("userId") Long userId);
+
+    @Query("SELECT o FROM Order o ORDER BY o.orderDate DESC, o.id DESC")
+    List<Order> findAllOrdersRecentFirst();
+
     void deleteByUserId(Long userId);
 
     @Query("""

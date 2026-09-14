@@ -90,7 +90,9 @@ function AdminOrderDetailsView({ orderDetails }) {
 
   function formatPaymentMethod(method) {
     if (!method) return "N/A";
-    if (method === "simulated_cod") return "Cash on Delivery";
+    const m = method.toLowerCase();
+    if (m === "razorpay") return "Razorpay (Online)";
+    if (m === "cod" || m === "simulated_cod") return "Cash on Delivery";
     return method.toUpperCase();
   }
 

@@ -84,8 +84,19 @@ function AdminOrdersView() {
 
     let filtered = [...orderList];
 
-    // Sort newest first
-    filtered.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+    // Sort newest first (handles Array dates from Jackson, ISO string, and ID fallback)
+    filtered.sort((a, b) => {
+      const getTime = (d) => {
+        if (!d) return 0;
+        if (Array.isArray(d)) {
+          return new Date(d[0], (d[1] || 1) - 1, d[2] || 1, d[3] || 0, d[4] || 0, d[5] || 0).getTime();
+        }
+        return new Date(d).getTime() || 0;
+      };
+      const timeDiff = getTime(b.orderDate) - getTime(a.orderDate);
+      if (timeDiff !== 0 && !isNaN(timeDiff)) return timeDiff;
+      return (b.id || 0) - (a.id || 0);
+    });
 
     // Filter by status
     if (filterStatus !== "all") {

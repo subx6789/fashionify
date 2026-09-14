@@ -55,6 +55,24 @@ const useShopOrderStore = create(
       }
     },
 
+    verifyPayment: async (paymentData) => {
+      set((state) => { state.isLoading = true; });
+      try {
+        const response = await api.post("/api/shop/order/verify-payment", paymentData);
+        set((state) => {
+          state.isLoading = false;
+          state.orderId = null;
+        });
+        sessionStorage.removeItem("currentOrderId");
+        return { payload: response.data };
+      } catch (error) {
+        set((state) => {
+          state.isLoading = false;
+        });
+        return { payload: error.response?.data || { message: "An error occurred" } };
+      }
+    },
+
     getAllOrdersByUserId: async (userId) => {
       set((state) => { state.isLoading = true; });
       try {

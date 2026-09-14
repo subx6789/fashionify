@@ -43,7 +43,7 @@ public class AdminOrderController {
 
     @GetMapping("/get")
     public ResponseEntity<?> getAllOrdersForAdmin() {
-        List<Order> orders = orderRepository.findAll();
+        List<Order> orders = orderRepository.findAllOrdersRecentFirst();
         return ResponseEntity.ok(Map.of("success", true, "data", orders));
     }
 

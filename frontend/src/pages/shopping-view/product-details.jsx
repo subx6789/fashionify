@@ -14,7 +14,7 @@
  * ============================================================================
  */
 
-import { StarIcon, ChevronRight, ChevronLeft, Flame, AlertTriangle, Ruler, Share2, BadgeCheck, Tag, Heart } from "lucide-react";
+import { StarIcon, ChevronRight, ChevronLeft, Flame, AlertTriangle, Ruler, Share2, BadgeCheck, Tag, Heart, CreditCard, Banknote, ShieldCheck } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -668,6 +668,36 @@ function ShoppingProductDetails() {
                   <Share2 className="h-4 w-4" />
                   Share
                 </Button>
+              </div>
+
+              {/* ── Payment Methods & Assurances ─────────────────────── */}
+              <div className="p-4 rounded-xl border border-border bg-card/60 space-y-3 shadow-sm">
+                <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <span>Available Payment Methods</span>
+                  <span className="text-primary font-bold flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5" /> 100% Secure
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-muted/30 border border-border/80">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-none">
+                      <CreditCard className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-foreground">Razorpay Online</p>
+                      <p className="text-[11px] text-muted-foreground">UPI, Cards, NetBanking</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-muted/30 border border-border/80">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center flex-none">
+                      <Banknote className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-foreground">Cash on Delivery</p>
+                      <p className="text-[11px] text-muted-foreground">Pay when order arrives</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
