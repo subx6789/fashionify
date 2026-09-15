@@ -84,18 +84,25 @@ public class AdminProductController {
     @Autowired
     private TagMigrationService tagMigrationService;
 
+    @Autowired
+    private com.fashionify.backend.util.FileUploadValidator fileUploadValidator;
+
     // ── Image Upload ─────────────────────────────────────────────────────────
     @PostMapping("/upload-image")
     public ResponseEntity<?> handleImageUpload(@RequestParam("my_file") MultipartFile file) {
         try {
+            fileUploadValidator.validateImage(file);
             String url = cloudinaryService.uploadImage(file, "products");
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("result", Map.of("url", url));
             return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", e.getMessage()));
         } catch (IOException e) {
             return ResponseEntity.internalServerError()
-                    .body(Map.of("success", false, "message", "Error uploading image"));
+                    .body(Map.of("success", false, "message", "Error uploading image to isolated storage"));
         }
     }
 

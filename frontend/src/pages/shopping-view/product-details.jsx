@@ -14,8 +14,8 @@
  * ============================================================================
  */
 
-import { StarIcon, ChevronRight, ChevronLeft, Flame, AlertTriangle, Ruler, Share2, BadgeCheck, Tag, Heart } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { StarIcon, ChevronRight, ChevronLeft, Flame, AlertTriangle, Ruler, Share2, BadgeCheck, Tag, Heart, CreditCard, Banknote, ShieldCheck } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
@@ -306,11 +306,11 @@ function ShoppingProductDetails() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-12 lg:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 lg:items-start">
+      <div className="container mx-auto px-4 py-6 sm:py-10 lg:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 lg:gap-16 lg:items-start">
 
-          {/* ── Left Side: Gallery & Reviews List ─────────────────── */}
-          <div className="flex flex-col gap-12">
+          {/* ── Left Side: Gallery ──────────────────────────────── */}
+          <div className="flex flex-col gap-6 sm:gap-10 lg:gap-12 lg:sticky lg:top-24">
             
             {/* ── Image Gallery ─────────────────────────────────────── */}
             <div className="flex flex-col lg:flex-row gap-4 lg:items-start">
@@ -386,88 +386,26 @@ function ShoppingProductDetails() {
               )}
             </div>
           </div>
-            
-          {/* ── Customer Reviews List ──────────────────────────────── */}
-          <div className="space-y-6 pt-4 lg:pt-10">
-              <h2 className="text-2xl font-bold flex items-center gap-2 mb-6 text-foreground">
-                Customer Reviews
-                <span className="text-muted-foreground text-sm font-medium bg-muted px-2.5 py-0.5 rounded-full border border-border">
-                  {reviews?.length || 0}
-                </span>
-              </h2>
-
-              {reviews && reviews.length > 0 ? (
-                <div className="space-y-6 max-h-[800px] overflow-y-auto pr-2 scrollbar-thin pb-4">
-                  {reviews.map((reviewItem, idx) => (
-                    <div key={idx} className="bg-card border border-border rounded-xl p-6 flex gap-4 shadow-sm">
-                      <Avatar className="w-10 h-10 border border-border rounded-full flex-none">
-                        <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
-                          {reviewItem?.userName[0].toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center justify-between flex-wrap gap-2">
-                          <h3 className="font-semibold text-foreground text-sm">{reviewItem?.userName}</h3>
-                          {reviewItem?.verifiedPurchase && (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] bg-green-500/10 text-green-700 dark:text-green-400 font-semibold border border-green-500/20">
-                              <BadgeCheck className="w-3.5 h-3.5" />
-                              Verified Purchase
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <div className="flex items-center gap-1.5">
-                            <StarRatingComponent rating={reviewItem?.reviewValue} />
-                            <span className="text-xs font-medium text-muted-foreground ml-1">
-                              {reviewItem?.reviewValue} / 5 </span>
-                          </div>
-                          {reviewItem?.fitFeedback && (
-                            <span className="text-[11px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border">
-                              Fit: {reviewItem.fitFeedback}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-muted-foreground text-sm leading-relaxed pt-1">
-                          &ldquo;{reviewItem.reviewMessage}&rdquo;
-                        </p>
-                        {reviewItem?.imageUrl && (
-                          <div className="mt-3 max-w-[120px] rounded-lg overflow-hidden border border-border shadow-sm">
-                            <img src={getOptimizedImageUrl(reviewItem.imageUrl, 300)} alt="Customer photo" className="w-full h-auto object-cover hover:scale-105 transition-transform" />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-8 text-center flex flex-col items-center justify-center min-h-[200px] bg-muted/20 border border-dashed border-border rounded-xl">
-                  <div className="w-12 h-12 bg-muted/50 rounded-full mb-3 flex items-center justify-center">
-                    <StarIcon className="w-6 h-6 text-muted-foreground" />
-                  </div>
-                  <p className="text-foreground font-semibold text-base mb-1">No reviews yet</p>
-                  <p className="text-sm text-muted-foreground">Be the first to share your experience!</p>
-                </div>
-              )}
-            </div>
-
-          </div>
+        </div>
 
           {/* ── Right Side: Product Details & Form ─────────────────── */}
           <div className="flex flex-col space-y-6">
             <div className="space-y-4">
-              <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
                 {productDetails?.title}
               </h1>
 
               {/* Rating */}
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1 bg-muted/50 px-3 py-1 rounded-full border border-border">
-                  <StarRatingComponent rating={averageReview} />
-                  <span className="text-sm font-bold text-foreground ml-1">
+              <div className="flex items-center flex-wrap gap-2.5 sm:gap-3">
+                <div className="flex items-center gap-1 bg-muted/50 px-2.5 sm:px-3 py-1 rounded-full border border-border shrink-0">
+                  <div className="flex items-center gap-0.5">
+                    <StarRatingComponent rating={averageReview} size="sm" />
+                  </div>
+                  <span className="text-xs sm:text-sm font-bold text-foreground ml-1">
                     {averageReview.toFixed(1)}
                   </span>
                 </div>
-                <span className="text-muted-foreground text-sm font-medium hover:underline cursor-pointer">
+                <span className="text-muted-foreground text-xs sm:text-sm font-medium hover:underline cursor-pointer">
                   {reviews?.length || 0} Reviews
                 </span>
               </div>
@@ -669,12 +607,115 @@ function ShoppingProductDetails() {
                   Share
                 </Button>
               </div>
+
+              {/* ── Payment Methods & Assurances ─────────────────────── */}
+              <div className="p-4 rounded-xl border border-border bg-card/60 space-y-3 shadow-sm">
+                <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <span>Available Payment Methods</span>
+                  <span className="text-primary font-bold flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5" /> 100% Secure
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-muted/30 border border-border/80">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-none">
+                      <CreditCard className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-foreground">Razorpay Online</p>
+                      <p className="text-[11px] text-muted-foreground">UPI, Cards, NetBanking</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-muted/30 border border-border/80">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center flex-none">
+                      <Banknote className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-foreground">Cash on Delivery</p>
+                      <p className="text-[11px] text-muted-foreground">Pay when order arrives</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Full Reviews & Rating Section (Below Product Grid) ────── */}
+        <div className="mt-12 sm:mt-16 pt-8 sm:pt-12 border-t-2 border-border">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+            
+            {/* Left/Main Column: Reviews List */}
+            <div className="lg:col-span-7 xl:col-span-8 space-y-6">
+              <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-foreground">
+                Customer Reviews
+                <span className="text-muted-foreground text-xs sm:text-sm font-medium bg-muted px-2.5 py-0.5 rounded-full border border-border">
+                  {reviews?.length || 0}
+                </span>
+              </h2>
+
+              {reviews && reviews.length > 0 ? (
+                <div className="space-y-4">
+                  {reviews.map((reviewItem, idx) => (
+                    <div key={idx} className="bg-card border border-border rounded-xl p-4 sm:p-6 flex gap-3 sm:gap-4 shadow-sm">
+                      <Avatar className="w-10 h-10 border border-border rounded-full flex-none overflow-hidden">
+                        <AvatarImage
+                          src={`https://api.dicebear.com/9.x/micah/svg?seed=${reviewItem?.userAvatar || reviewItem?.userName || "Fashion"}&backgroundColor=transparent`}
+                          alt={reviewItem?.userName}
+                          className="w-full h-full object-cover"
+                        />
+                        <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
+                          {reviewItem?.userName ? reviewItem.userName[0].toUpperCase() : "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <h3 className="font-semibold text-foreground text-sm">{reviewItem?.userName}</h3>
+                          {reviewItem?.verifiedPurchase && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] bg-green-500/10 text-green-700 dark:text-green-400 font-semibold border border-green-500/20">
+                              <BadgeCheck className="w-3.5 h-3.5" />
+                              Verified Purchase
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <div className="flex items-center gap-1.5">
+                            <StarRatingComponent rating={reviewItem?.reviewValue} />
+                            <span className="text-xs font-medium text-muted-foreground ml-1">
+                              {reviewItem?.reviewValue} / 5
+                            </span>
+                          </div>
+                          {reviewItem?.fitFeedback && (
+                            <span className="text-[11px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border">
+                              Fit: {reviewItem.fitFeedback}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-muted-foreground text-sm leading-relaxed pt-1">
+                          &ldquo;{reviewItem.reviewMessage}&rdquo;
+                        </p>
+                        {reviewItem?.imageUrl && (
+                          <div className="mt-3 max-w-[120px] rounded-lg overflow-hidden border border-border shadow-sm">
+                            <img src={getOptimizedImageUrl(reviewItem.imageUrl, 300)} alt="Customer photo" className="w-full h-auto object-cover hover:scale-105 transition-transform" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-8 text-center flex flex-col items-center justify-center min-h-[160px] bg-muted/20 border border-dashed border-border rounded-xl">
+                  <div className="w-10 h-10 bg-muted/50 rounded-full mb-2.5 flex items-center justify-center">
+                    <StarIcon className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <p className="text-foreground font-semibold text-base mb-1">No reviews yet</p>
+                  <p className="text-sm text-muted-foreground">Be the first to share your experience!</p>
+                </div>
+              )}
             </div>
 
-            <Separator />
-
-            {/* ── Write a Review Form ──────────────────────────────── */}
-            <div className="pt-6">
+            {/* Right Column: Write a Review Form or Status */}
+            <div className="lg:col-span-5 xl:col-span-4">
               {isAuthenticated ? (
                 eligibility.isChecking ? (
                   <div className="p-6 animate-pulse bg-muted/30 border border-border rounded-xl">

@@ -36,28 +36,13 @@ public class ContactController {
     private MessageRepository messageRepository;
 
     @PostMapping
-    public ResponseEntity<?> submitContactForm(@RequestBody Map<String, String> payload) {
-        String name    = payload.getOrDefault("name", "").trim();
-        String email   = payload.getOrDefault("email", "").trim();
-        String subject = payload.getOrDefault("subject", "").trim();
-        String body    = payload.getOrDefault("message", "").trim();
-
-        // Basic server-side validation
-        if (name.isEmpty() || email.isEmpty() || subject.isEmpty() || body.isEmpty()) {
-            return ResponseEntity.badRequest().body(
-                Map.of("success", false, "message", "All fields are required."));
-        }
-        if (!email.contains("@")) {
-            return ResponseEntity.badRequest().body(
-                Map.of("success", false, "message", "Invalid email address."));
-        }
-
+    public ResponseEntity<?> submitContactForm(@jakarta.validation.Valid @RequestBody com.fashionify.backend.dto.ContactRequest payload) {
         Message saved = messageRepository.save(
             Message.builder()
-                .name(name)
-                .email(email)
-                .subject(subject)
-                .message(body)
+                .name(payload.getName().trim())
+                .email(payload.getEmail().trim().toLowerCase())
+                .subject(payload.getSubject().trim())
+                .message(payload.getMessage().trim())
                 .build()
         );
 

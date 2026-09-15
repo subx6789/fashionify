@@ -36,15 +36,8 @@ public class NewsletterController {
     private EmailService emailService;
 
     @PostMapping("/subscribe")
-    public ResponseEntity<?> subscribe(@RequestBody Map<String, String> payload) {
-        String email = payload.get("email");
-
-        if (email == null || email.trim().isEmpty() || !email.contains("@")) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", "Invalid email address"));
-        }
-
-        email = email.trim().toLowerCase();
+    public ResponseEntity<?> subscribe(@jakarta.validation.Valid @RequestBody com.fashionify.backend.dto.NewsletterRequest payload) {
+        String email = payload.getEmail().trim().toLowerCase();
 
         if (newsletterRepository.existsByEmail(email)) {
             // Already subscribed

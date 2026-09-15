@@ -90,7 +90,9 @@ function AdminOrderDetailsView({ orderDetails }) {
 
   function formatPaymentMethod(method) {
     if (!method) return "N/A";
-    if (method === "simulated_cod") return "Cash on Delivery";
+    const m = method.toLowerCase();
+    if (m === "razorpay") return "Razorpay (Online)";
+    if (m === "cod" || m === "simulated_cod") return "Cash on Delivery";
     return method.toUpperCase();
   }
 
@@ -102,7 +104,7 @@ function AdminOrderDetailsView({ orderDetails }) {
   }
 
   return (
-    <DialogContent className="sm:max-w-[650px] max-h-[85vh] overflow-y-auto rounded-2xl border border-border bg-background shadow-2xl p-6">
+    <DialogContent className="sm:max-w-[650px] max-h-[85vh] overflow-y-auto rounded-2xl border border-border bg-background shadow-2xl p-4 sm:p-6">
       <DialogDescription className="sr-only">
         Admin view of order details including items, pricing, shipping address, and status update options.
       </DialogDescription>

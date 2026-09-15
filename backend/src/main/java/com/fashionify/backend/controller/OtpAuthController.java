@@ -16,8 +16,11 @@
 
 package com.fashionify.backend.controller;
 
+import com.fashionify.backend.dto.InitiateSignupRequest;
+import com.fashionify.backend.dto.VerifyOtpRequest;
 import com.fashionify.backend.entity.User;
 import com.fashionify.backend.service.OtpService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,22 +44,16 @@ public class OtpAuthController {
     // ── Step 1: Initiate signup ───────────────────────────────────────────────
 
     /**
-     * Body: { "email": "...", "userName": "...", "password": "..." }
-     * Returns 200 on success, 409 if email/username taken, 400 on missing fields.
+     * Body: InitiateSignupRequest with strict validation annotations.
+     * Returns 200 on success, 409 if email/username taken, 400 on invalid fields.
      */
     @PostMapping("/initiate")
-    public ResponseEntity<?> initiateSignup(@RequestBody Map<String, String> body) {
-        String email       = body.get("email");
-        String userName    = body.get("userName");
-        String password    = body.get("password");
-        String dateOfBirth = body.get("dateOfBirth");
-        String gender      = body.get("gender");
-
-        if (email == null || userName == null || password == null || dateOfBirth == null ||
-            email.isBlank() || userName.isBlank() || password.isBlank() || dateOfBirth.isBlank()) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", "Email, Username, Password, and Date of Birth are required."));
-        }
+    public ResponseEntity<?> initiateSignup(@Valid @RequestBody InitiateSignupRequest body) {
+        String email       = body.getEmail();
+        String userName    = body.getUserName();
+        String password    = body.getPassword();
+        String dateOfBirth = body.getDateOfBirth();
+        String gender      = body.getGender();
 
         try {
             otpService.initiateSignup(email.trim().toLowerCase(), userName.trim(), password, dateOfBirth.trim(), gender != null ? gender.trim() : "");
@@ -84,18 +81,13 @@ public class OtpAuthController {
     // ── Step 2: Verify OTP and register ──────────────────────────────────────
 
     /**
-     * Body: { "email": "...", "otp": "123456" }
+     * Body: VerifyOtpRequest with strict email and OTP format checks.
      * Returns 201 on success, 400 on invalid/expired OTP, 409 on race condition.
      */
     @PostMapping("/verify")
-    public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> body) {
-        String email = body.get("email");
-        String otp   = body.get("otp");
-
-        if (email == null || otp == null || email.isBlank() || otp.isBlank()) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", "email and otp are required."));
-        }
+    public ResponseEntity<?> verifyOtp(@Valid @RequestBody VerifyOtpRequest body) {
+        String email = body.getEmail();
+        String otp   = body.getOtp();
 
         try {
             User created = otpService.verifyOtpAndRegister(email.trim().toLowerCase(), otp.trim());

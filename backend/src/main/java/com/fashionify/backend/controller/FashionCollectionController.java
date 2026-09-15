@@ -46,14 +46,21 @@ public class FashionCollectionController {
     @Autowired
     private CloudinaryService cloudinaryService;
 
+    @Autowired
+    private com.fashionify.backend.util.FileUploadValidator fileUploadValidator;
+
     @PostMapping("/upload-image")
     public ResponseEntity<?> handleImageUpload(@RequestParam("my_file") MultipartFile file) {
         try {
+            fileUploadValidator.validateImage(file);
             String url = cloudinaryService.uploadImage(file, "collections");
             return ResponseEntity.ok(Map.of("success", true, "result", Map.of("url", url)));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", e.getMessage()));
         } catch (IOException e) {
             return ResponseEntity.internalServerError()
-                    .body(Map.of("success", false, "message", "Error uploading image"));
+                    .body(Map.of("success", false, "message", "Error uploading image to isolated storage"));
         }
     }
 

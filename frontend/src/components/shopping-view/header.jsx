@@ -14,9 +14,8 @@
  * ============================================================================
  */
 
-import { HousePlug, LogOut, Menu, ShoppingCart, UserCog, ShieldCheck, Heart, Search, User, Sun, Moon, X } from "lucide-react";
+import { LogOut, Menu, ShoppingCart, UserCog, ShieldCheck, Heart, Search, User, Sun, Moon, X } from "lucide-react";
 import {
-  Link,
   useLocation,
   useNavigate,
   useSearchParams,
@@ -46,11 +45,11 @@ import BrandLogo from "@/components/common/BrandLogo";
 
 function SearchBar({ isMobile }) {
   const [keyword, setKeyword] = useState("");
-  const [searchParams]        = useSearchParams();
-  const navigate              = useNavigate();
-  const location              = useLocation();
-  const debounceRef           = useRef(null);
-  const resetSearchResults    = useShopSearchStore((state) => state.resetSearchResults);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const debounceRef = useRef(null);
+  const resetSearchResults = useShopSearchStore((state) => state.resetSearchResults);
 
   useEffect(() => {
     if (location.pathname === "/shop/search") {
@@ -107,19 +106,19 @@ function SearchBar({ isMobile }) {
   );
 }
 
-function MenuItems() {
-  const navigate       = useNavigate();
-  const location       = useLocation();
+function MenuItems({ onItemClick }) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [, setSearchParams] = useSearchParams();
 
   function handleNavigate(getCurrentMenuItem) {
     sessionStorage.removeItem("filters");
     const currentFilter =
       getCurrentMenuItem.id !== "home" &&
-      getCurrentMenuItem.id !== "products" &&
-      getCurrentMenuItem.id !== "search" &&
-      getCurrentMenuItem.id !== "about" &&
-      getCurrentMenuItem.id !== "contact"
+        getCurrentMenuItem.id !== "products" &&
+        getCurrentMenuItem.id !== "search" &&
+        getCurrentMenuItem.id !== "about" &&
+        getCurrentMenuItem.id !== "contact"
         ? { category: [getCurrentMenuItem.id] }
         : null;
 
@@ -127,23 +126,24 @@ function MenuItems() {
     location.pathname.includes("listing") && currentFilter !== null
       ? setSearchParams(new URLSearchParams(`?category=${getCurrentMenuItem.id}`))
       : navigate(getCurrentMenuItem.path);
+
+    if (onItemClick) onItemClick();
   }
 
   return (
     <nav className="flex flex-col lg:flex-row gap-6 lg:items-center h-full">
       {shoppingViewHeaderMenuItems.map((menuItem) => {
-        const isActive = location.pathname === menuItem.path || 
+        const isActive = location.pathname === menuItem.path ||
           (menuItem.id !== 'home' && menuItem.id !== 'products' && menuItem.id !== 'search' && menuItem.id !== 'contact' && location.pathname.includes('listing') && new URLSearchParams(location.search).get('category') === menuItem.id);
-        
+
         return (
           <button
             key={menuItem.id}
             onClick={() => handleNavigate(menuItem)}
-            className={`text-[13px] font-bold tracking-widest lg:uppercase relative flex items-center justify-center px-4 py-2 transition-all duration-200 border-2 rounded-sm ${
-              isActive 
+            className={`text-[13px] font-bold tracking-widest lg:uppercase relative flex items-center justify-center px-4 py-2 transition-all duration-200 border-2 rounded-sm ${isActive
                 ? "bg-primary text-primary-foreground border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:border-white dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
                 : "text-foreground bg-transparent border-transparent hover:bg-primary hover:text-primary-foreground hover:border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:hover:border-white dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]"
-            }`}
+              }`}
           >
             {menuItem.label}
             {menuItem.badge && (
@@ -192,12 +192,15 @@ function HeaderRightContent() {
     navigate("/shop/wishlist");
   }
 
+  const wishlistCount = wishlistItems?.length || 0;
+  const cartCount = cartItems?.items?.length || 0;
+
   return (
-    <div className="flex lg:items-center flex-row gap-4 lg:gap-5">
-      {/* Theme Toggle */}
+    <div className="flex items-center flex-row gap-1 sm:gap-3 lg:gap-5">
+      {/* Theme Toggle - Desktop only (Mobile has it inside the slide-out menu) */}
       <button
         onClick={() => setTheme(isDark ? "light" : "dark")}
-        className="flex flex-col items-center justify-center cursor-pointer group pt-1"
+        className="hidden md:flex flex-col items-center justify-center cursor-pointer group p-1.5 rounded-sm hover:bg-muted/50 transition-colors"
         aria-label="Toggle theme"
       >
         {isDark ? (
@@ -210,12 +213,16 @@ function HeaderRightContent() {
         </span>
       </button>
 
-      {/* Profile Dropdown */}
-      <DropdownMenu>
+      {/* Profile Icon / Dropdown */}
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
-          <button className="flex flex-col items-center justify-center cursor-pointer group pt-1 outline-none bg-transparent border-0 p-0" aria-label="User profile menu">
+          <button
+            type="button"
+            className="flex flex-col items-center justify-center cursor-pointer group p-1.5 rounded-sm outline-none bg-transparent border-0 hover:bg-muted/50 transition-colors shrink-0"
+            aria-label="User profile menu"
+          >
             {isAuthenticated ? (
-              <Avatar className="h-6 w-6 border-2 border-border hover:border-primary transition-colors">
+              <Avatar className="h-7 w-7 border-2 border-border hover:border-primary transition-colors">
                 <AvatarImage
                   src={`https://api.dicebear.com/9.x/micah/svg?seed=${user?.avatar || user?.userName || "Fashion"}&backgroundColor=transparent`}
                   alt="User Avatar"
@@ -235,7 +242,11 @@ function HeaderRightContent() {
         <DropdownMenuContent
           side="bottom"
           align="end"
-          className="w-64 mt-4 border-2 border-border shadow-none p-2 rounded-sm"
+          sideOffset={8}
+          avoidCollisions={true}
+          collisionPadding={16}
+          onCloseAutoFocus={(e) => e.preventDefault()}
+          className="w-64 max-w-[calc(100vw-32px)] border-2 border-border shadow-none p-2 rounded-sm bg-card z-50"
           style={{ boxShadow: "4px 4px 0px 0px hsl(var(--neu-black))" }}
         >
           {isAuthenticated ? (
@@ -286,17 +297,17 @@ function HeaderRightContent() {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Wishlist */}
+      {/* Wishlist Button */}
       <button
         onClick={handleWishlistClick}
-        className="flex flex-col items-center justify-center cursor-pointer group relative pt-1 bg-transparent border-0 p-0 outline-none"
+        className="flex flex-col items-center justify-center cursor-pointer group relative p-1.5 rounded-sm bg-transparent border-0 outline-none hover:bg-muted/50 transition-colors"
         aria-label="Wishlist"
       >
-        <div className="relative">
-          <Heart className="h-5 w-5 text-foreground/80 group-hover:text-primary-dark transition-colors" />
-          {isAuthenticated && (
-            <span className="absolute -top-1.5 -right-2 flex h-[15px] w-[15px] items-center justify-center rounded-none bg-primary text-[9px] font-black text-primary-foreground border border-border">
-              {wishlistItems?.length || 0}
+        <div className="relative flex items-center justify-center">
+          <Heart className="h-5 w-5 text-foreground/80 group-hover:text-primary transition-colors" />
+          {isAuthenticated && wishlistCount > 0 && (
+            <span className="absolute -top-1.5 -right-2 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-primary text-[9px] font-black text-primary-foreground border border-background shadow-sm">
+              {wishlistCount}
             </span>
           )}
         </div>
@@ -305,24 +316,26 @@ function HeaderRightContent() {
         </span>
       </button>
 
-      {/* Cart — now opens a centered Neubrutalist dialog, not a slide-over */}
+      {/* Cart Button */}
       <button
         onClick={() => setOpenCartSheet(true)}
-        className="flex flex-col items-center justify-center cursor-pointer group relative pt-1 outline-none bg-transparent border-0 p-0"
+        className="flex flex-col items-center justify-center cursor-pointer group relative p-1.5 rounded-sm outline-none bg-transparent border-0 hover:bg-muted/50 transition-colors"
         aria-label="Open cart"
       >
-        <div className="relative">
+        <div className="relative flex items-center justify-center">
           <ShoppingCart className="h-5 w-5 text-foreground/80 group-hover:text-primary transition-colors" />
-          <span className="absolute -top-1.5 -right-2 flex h-[15px] w-[15px] items-center justify-center rounded-none bg-primary text-[9px] font-black text-primary-foreground border border-border">
-            {cartItems?.items?.length || 0}
-          </span>
+          {cartCount > 0 && (
+            <span className="absolute -top-1.5 -right-2 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-primary text-[9px] font-black text-primary-foreground border border-background shadow-sm">
+              {cartCount}
+            </span>
+          )}
         </div>
         <span className="text-[10px] font-bold mt-0.5 text-foreground/70 group-hover:text-primary transition-colors hidden lg:block">
           Cart
         </span>
       </button>
 
-      {/* Cart Dialog (portal rendered, outside the button tree) */}
+      {/* Cart Dialog */}
       <CartDialog
         open={openCartSheet}
         onClose={() => setOpenCartSheet(false)}
@@ -337,58 +350,81 @@ function HeaderRightContent() {
 }
 
 function ShoppingHeader() {
+  const [openMobileMenu, setOpenMobileMenu] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === "dark";
+
   return (
     <header className="sticky top-0 z-40 w-full border-b-2 border-border bg-background">
       {/* Neubrutalism top accent stripe */}
       <div className="h-1 w-full bg-primary" />
       <div className="flex flex-col w-full">
         {/* Main Header Row */}
-        <div className="container mx-auto px-4 flex h-[68px] md:h-[76px] items-center justify-between w-full">
+        <div className="container mx-auto px-3 sm:px-4 flex h-[58px] sm:h-[68px] md:h-[76px] items-center justify-between w-full">
           {/* Logo */}
-          <div className="shrink-0 group lg:mr-10">
-            <BrandLogo textClassName="text-2xl hidden sm:block" />
+          <div className="shrink-0 group flex items-center lg:mr-10">
+            <BrandLogo className="w-7 h-7 sm:w-8 sm:h-8 shrink-0" textClassName="text-lg sm:text-2xl tracking-tight" />
           </div>
 
-          {/* Navigation */}
+          {/* Navigation (Desktop) */}
           <div className="hidden lg:flex h-full items-center justify-start flex-none">
             <MenuItems />
           </div>
 
-          {/* Desktop Search */}
-          <div className="flex-1 flex justify-center px-4 md:px-8">
-            <div className="w-full max-w-xl hidden lg:block">
+          {/* Desktop Search - only present in layout on lg+ screens */}
+          <div className="hidden lg:flex flex-1 justify-center px-4 md:px-8">
+            <div className="w-full max-w-xl">
               <SearchBar isMobile={false} />
             </div>
           </div>
 
-          <div className="flex items-center gap-4 lg:gap-5">
+          {/* Right Action Icons & Mobile Drawer */}
+          <div className="flex items-center shrink-0 gap-1 sm:gap-2.5 lg:gap-5">
             <HeaderRightContent />
 
-            {/* Mobile Menu */}
-            <Sheet>
+            {/* Mobile Menu Sheet */}
+            <Sheet open={openMobileMenu} onOpenChange={setOpenMobileMenu}>
               <SheetTrigger asChild>
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="icon"
-                  className="lg:hidden border-2 border-border rounded-sm"
+                  className="lg:hidden shrink-0 h-8 w-8 sm:h-9 sm:w-9 border-2 border-border rounded-sm hover:bg-muted ml-0.5"
                   style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}
                 >
-                  <Menu className="h-5 w-5" />
+                  <Menu className="h-4 w-4" />
                   <span className="sr-only">Toggle menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[280px] border-l-2 border-border" aria-describedby={undefined}>
-                <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
-                <div className="flex flex-col gap-6 mt-8 h-full">
-                  <MenuItems />
+              <SheetContent side="right" className="w-[300px] border-l-2 border-border p-0 flex flex-col justify-between" aria-describedby={undefined}>
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                <div>
+                  <div className="p-5 border-b-2 border-border flex items-center justify-between">
+                    <BrandLogo textClassName="text-xl" />
+                  </div>
+                  <div className="p-4">
+                    <p className="text-[11px] font-black uppercase text-muted-foreground tracking-wider mb-3 px-2">Navigation</p>
+                    <MenuItems onItemClick={() => setOpenMobileMenu(false)} />
+                  </div>
+                </div>
+
+                {/* Mobile Bottom Bar: Theme switch */}
+                <div className="p-4 border-t-2 border-border bg-muted/20 flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground">Appearance</span>
+                  <button
+                    onClick={() => setTheme(isDark ? "light" : "dark")}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-sm border-2 border-border bg-background text-xs font-bold shadow-[2px_2px_0px_0px_hsl(var(--neu-black))]"
+                  >
+                    {isDark ? <Sun className="h-4 w-4 text-[hsl(var(--neu-yellow))]" /> : <Moon className="h-4 w-4 text-primary" />}
+                    <span>{isDark ? "Light Mode" : "Dark Mode"}</span>
+                  </button>
                 </div>
               </SheetContent>
             </Sheet>
           </div>
         </div>
 
-        {/* Mobile Search */}
-        <div className="container mx-auto px-4 pb-3 lg:hidden w-full">
+        {/* Mobile Search Bar */}
+        <div className="container mx-auto px-3 pb-2.5 pt-0.5 lg:hidden w-full">
           <SearchBar isMobile={true} />
         </div>
       </div>

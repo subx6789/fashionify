@@ -28,15 +28,15 @@ function CollapsibleSection({ title, icon, isOpen, onClick, children }) {
     <div className="border border-primary/20 rounded-2xl bg-card overflow-hidden shadow-sm">
       <button 
         onClick={onClick} 
-        className="w-full flex items-center justify-between p-6 bg-muted/20 hover:bg-muted/40 transition-colors"
+        className="w-full flex items-center justify-between p-4 sm:p-6 bg-muted/20 hover:bg-muted/40 transition-colors"
       >
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-primary/10 text-primary">
             {icon}
           </div>
-          <h3 className="text-xl font-bold tracking-tight">{title}</h3>
+          <h3 className="text-lg sm:text-xl font-bold tracking-tight text-left">{title}</h3>
         </div>
-        {isOpen ? <ChevronUp className="w-6 h-6 text-muted-foreground" /> : <ChevronDown className="w-6 h-6 text-muted-foreground" />}
+        {isOpen ? <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground flex-shrink-0" /> : <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground flex-shrink-0" />}
       </button>
       <AnimatePresence>
         {isOpen && (
@@ -46,7 +46,7 @@ function CollapsibleSection({ title, icon, isOpen, onClick, children }) {
             exit={{ height: 0, opacity: 0 }}
             className="border-t border-primary/10"
           >
-            <div className="p-6">
+            <div className="p-3 sm:p-6">
               {children}
             </div>
           </motion.div>
@@ -61,21 +61,21 @@ function ShoppingAccount() {
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/20">
-      <div className="relative h-[350px] w-full overflow-hidden">
+      <div className="relative h-[250px] sm:h-[320px] md:h-[350px] w-full overflow-hidden">
         <img
           src={accImg}
           className="h-full w-full object-cover object-center"
           alt="Account Banner"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gradient mb-2 tracking-tight">My Account</h1>
-          <p className="text-muted-foreground font-medium">Manage your profile, orders, and addresses.</p>
+        <div className="absolute bottom-8 sm:bottom-10 left-1/2 -translate-x-1/2 text-center w-full px-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gradient mb-2 tracking-tight">My Account</h1>
+          <p className="text-muted-foreground text-sm sm:text-base font-medium">Manage your profile, orders, and addresses.</p>
         </div>
       </div>
       
-      <div className="container mx-auto px-4 lg:px-8 py-8 -mt-6 relative z-10 max-w-6xl">
-        <div className="flex flex-col rounded-3xl border border-primary/10 bg-background/95 backdrop-blur-3xl p-6 md:p-10 shadow-2xl shadow-primary/5 space-y-8">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-8 -mt-6 relative z-10 max-w-6xl">
+        <div className="flex flex-col rounded-3xl border border-primary/10 bg-background/95 backdrop-blur-3xl p-3.5 sm:p-6 md:p-10 shadow-2xl shadow-primary/5 space-y-6 sm:space-y-8">
           
           <div className="space-y-8 animate-in fade-in-50 slide-in-from-bottom-4 duration-500">
             <UserProfile />

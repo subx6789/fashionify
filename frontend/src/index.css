@@ -171,16 +171,28 @@
 
 /* ── Base resets & typography ──────────────────────────────────────────── */
 @layer base {
-  * {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
     @apply border-border;
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+  }
+
+  /* Prevent flex/grid children from overflowing their container without breaking position: sticky */
+  html {
+    overflow-x: clip;
+    overflow-y: visible;
   }
 
   body {
     @apply bg-background text-foreground font-body antialiased;
     @apply selection:bg-primary selection:text-primary-foreground;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    overflow-x: clip;
+    overflow-y: visible;
+    width: 100%;
   }
 
   h1,
@@ -380,5 +392,37 @@
 
   .bg-gradient-premium {
     @apply bg-primary text-primary-foreground font-bold;
+  }
+
+  /* Hide scrollbar while keeping scroll functionality */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Scrollbar thin variant */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  /* Dark mode text gradient for headings */
+  .dark .dark\:text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-brand);
+  }
+
+  /* Ensure images never overflow their containers */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Prevent any element from causing horizontal overflow */
+  .overflow-safe {
+    max-width: 100%;
+    overflow-x: hidden;
   }
 }

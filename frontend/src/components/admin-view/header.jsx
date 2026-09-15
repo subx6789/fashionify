@@ -25,12 +25,12 @@ function AdminHeader({ setOpen }) {
   const isDark = theme === "dark";
 
   return (
-    <header className="flex items-center justify-between px-6 py-4 bg-card border-b border-border sticky top-0 z-40">
-      <Button variant="outline" size="icon" onClick={() => setOpen(true)} className="lg:hidden sm:flex">
+    <header className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 bg-card border-b border-border sticky top-0 z-40">
+      <Button variant="outline" size="icon" onClick={() => setOpen(true)} className="lg:hidden">
         <AlignJustify className="h-5 w-5" />
         <span className="sr-only">Toggle Menu</span>
       </Button>
-      <div className="flex flex-1 justify-end gap-4 items-center">
+      <div className="flex flex-1 justify-end gap-2 sm:gap-4 items-center">
         {/* Theme toggle — wired to ThemeProvider, persists to localStorage */}
         <Button
           variant="outline"
@@ -46,7 +46,7 @@ function AdminHeader({ setOpen }) {
           className="gap-2 font-medium"
         >
           <Store className="h-4 w-4" />
-          View Store
+          <span className="hidden sm:inline">View Store</span>
         </Button>
       </div>
     </header>

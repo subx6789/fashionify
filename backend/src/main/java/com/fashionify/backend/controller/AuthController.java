@@ -90,11 +90,40 @@ public class AuthController {
 
     // Legacy /register endpoint removed to enforce OTP signup flow
 
+    @Autowired
+    private com.fashionify.backend.security.RateLimitFilter rateLimitFilter;
+
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+        String email = loginRequest.getEmail().trim().toLowerCase();
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+        // Check account exponential backoff lockout
+        long lockoutSeconds = rateLimitFilter.getAccountLockoutSeconds(email);
+        if (lockoutSeconds > 0) {
+            return ResponseEntity.status(429)
+                    .header("Retry-After", String.valueOf(lockoutSeconds))
+                    .body(Map.of(
+                            "success", false,
+                            "message", "Account temporarily locked due to consecutive failed login attempts. Please retry in " + lockoutSeconds + " seconds.",
+                            "retryAfterSeconds", lockoutSeconds
+                    ));
+        }
+
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, loginRequest.getPassword()));
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            long backoff = rateLimitFilter.recordAuthFailureAndGetBackoff(email);
+            String errorMsg = backoff > 0
+                    ? "Too many failed attempts. Account locked for " + backoff + " seconds."
+                    : "Invalid email or password.";
+            return ResponseEntity.status(backoff > 0 ? 429 : 401)
+                    .body(Map.of("success", false, "message", errorMsg));
+        }
+
+        // On successful authentication, reset exponential backoff for this account
+        rateLimitFilter.recordAuthSuccess(email);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         String role = userDetails.getAuthorities().iterator().next().getAuthority()
@@ -227,11 +256,8 @@ public class AuthController {
 
     @PostMapping("/forgot-password/initiate")
     @Transactional
-    public ResponseEntity<?> initiateForgotPassword(@RequestBody Map<String, String> payload) {
-        String email = payload.get("email");
-        if (email == null || email.isBlank()) {
-            return ResponseEntity.badRequest().body(new MessageResponse(false, "Email is required."));
-        }
+    public ResponseEntity<?> initiateForgotPassword(@Valid @RequestBody com.fashionify.backend.dto.ForgotPasswordInitiateRequest payload) {
+        String email = payload.getEmail();
 
         String targetEmail = email.trim().toLowerCase();
         if (!userRepository.existsByEmail(targetEmail)) {
@@ -270,16 +296,11 @@ public class AuthController {
 
     @PostMapping("/forgot-password/reset")
     @Transactional
-    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> payload) {
-        String email = payload.get("email");
-        String otp = payload.get("otp");
-        String newPassword = payload.get("newPassword");
-        String confirmPassword = payload.get("confirmPassword");
-
-        if (email == null || otp == null || newPassword == null || confirmPassword == null ||
-            email.isBlank() || otp.isBlank() || newPassword.isBlank() || confirmPassword.isBlank()) {
-            return ResponseEntity.badRequest().body(new MessageResponse(false, "All fields are required."));
-        }
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody com.fashionify.backend.dto.ResetPasswordRequest payload) {
+        String email = payload.getEmail();
+        String otp = payload.getOtp();
+        String newPassword = payload.getNewPassword();
+        String confirmPassword = payload.getConfirmPassword();
 
         String targetEmail = email.trim().toLowerCase();
         

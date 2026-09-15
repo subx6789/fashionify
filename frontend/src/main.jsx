@@ -27,7 +27,7 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 
 createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
+  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
     <ThemeProvider defaultTheme="dark" storageKey="fashionify-theme">
       <AuthModalProvider>
         <App />

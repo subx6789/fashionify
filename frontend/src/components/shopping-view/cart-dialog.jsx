@@ -119,17 +119,17 @@ function CartDialog({ open, onClose, cartItems }) {
         }}
       >
         {/* ── Header ───────────────────────────────────────────────────── */}
-        <div className="flex items-center justify-between px-6 py-4 border-b-2 border-border flex-shrink-0">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b-2 border-border flex-shrink-0">
           <div className="flex items-center gap-3">
             {/* Acid-lime icon block — Neubrutalism accent */}
             <div
-              className="flex items-center justify-center w-9 h-9 bg-primary border-2 border-border rounded-sm"
+              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 bg-primary border-2 border-border rounded-sm flex-shrink-0"
               style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}
             >
               <ShoppingBag className="h-4 w-4 text-primary-foreground" aria-hidden="true" />
             </div>
             <div>
-              <h2 className="font-heading font-black text-lg leading-none tracking-tight">
+              <h2 className="font-heading font-black text-base sm:text-lg leading-none tracking-tight">
                 Your Cart
               </h2>
               <p className="text-xs text-muted-foreground font-bold mt-0.5">
@@ -143,7 +143,7 @@ function CartDialog({ open, onClose, cartItems }) {
           <button
             onClick={onClose}
             aria-label="Close cart"
-            className="flex items-center justify-center w-9 h-9 border-2 border-border rounded-sm bg-background transition-all hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 border-2 border-border rounded-sm bg-background transition-all hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex-shrink-0"
             style={{ boxShadow: "2px 2px 0px 0px hsl(var(--neu-black))" }}
           >
             <X className="h-4 w-4" aria-hidden="true" />
@@ -153,7 +153,7 @@ function CartDialog({ open, onClose, cartItems }) {
         {/* ── Cart Items — scrollable ───────────────────────────────────── */}
         <div className="flex-1 overflow-y-auto">
           {cartItems && cartItems.length > 0 ? (
-            <div className="px-6 py-4 space-y-0 divide-y-2 divide-border">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 space-y-0 divide-y-2 divide-border">
               {cartItems.map((item, index) => (
                 <div key={item.productId || index} className="py-4 first:pt-0 last:pb-0">
                   <UserCartItemsContent cartItem={item} />
@@ -186,7 +186,7 @@ function CartDialog({ open, onClose, cartItems }) {
         {/* ── Footer: totals + checkout ────────────────────────────────── */}
         {cartItems && cartItems.length > 0 && (
           <div
-            className="flex-shrink-0 px-6 py-4 border-t-2 border-border bg-background space-y-3"
+            className="flex-shrink-0 px-4 sm:px-6 py-3.5 sm:py-4 border-t-2 border-border bg-background space-y-3"
           >
             {/* Subtotal row */}
             <div className="flex justify-between items-center">

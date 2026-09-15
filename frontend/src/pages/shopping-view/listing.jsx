@@ -26,10 +26,11 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
 import { sortOptions } from "@/config";
 
-import { ArrowUpDownIcon } from "lucide-react";
+import { ArrowUpDownIcon, SlidersHorizontal } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import useShopCartStore from "@/store/useShopCartStore";
 import useShopProductsStore from "@/store/useShopProductsStore";
@@ -67,6 +68,7 @@ function ShoppingListing() {
   const [filters, setFilters] = useState({});
   const [sort, setSort] = useState(null);
   const [page, setPage] = useState(0);
+  const [openFilterSheet, setOpenFilterSheet] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -164,7 +166,7 @@ function ShoppingListing() {
       const createQueryString = createSearchParamsHelper(filters);
       setSearchParams(new URLSearchParams(createQueryString));
     }
-  }, [filters]);
+  }, [filters, setSearchParams]);
 
   useEffect(() => {
     if (filters !== null && sort !== null) {
@@ -172,47 +174,85 @@ function ShoppingListing() {
     }
   }, [fetchAllFilteredProducts, sort, filters, page]);
 
+  // Count active filters for the badge
+  const activeFiltersCount = Object.keys(filters).reduce((acc, key) => {
+    if (Array.isArray(filters[key])) return acc + filters[key].length;
+    if (filters[key]) return acc + 1;
+    return acc;
+  }, 0);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6 p-4 md:p-6"
+      className="grid grid-cols-1 md:grid-cols-[220px_1fr] lg:grid-cols-[240px_1fr] gap-4 md:gap-6 p-3 sm:p-4 md:p-6"
     >
-      <ProductFilter filters={filters} handleFilter={handleFilter} />
+      {/* Desktop Sidebar Filter */}
+      <div className="hidden md:block">
+        <ProductFilter filters={filters} handleFilter={handleFilter} />
+      </div>
 
       <div className="bg-background w-full rounded-lg shadow-sm">
         {/* Header */}
-        <div className="p-4 border-b flex items-center justify-between">
+        <div className="p-3 sm:p-4 border-b flex items-center justify-between gap-2 flex-wrap">
           <div>
-            <h2 className="text-lg font-extrabold">All Products</h2>
+            <h2 className="text-base sm:text-lg font-extrabold">All Products</h2>
             {!isLoading && (
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
                 {totalProducts} products · Page {currentPage + 1} of {totalPages || 1}
               </p>
             )}
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="flex items-center gap-1">
-                <ArrowUpDownIcon className="h-4 w-4" />
-                <span>Sort by</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[200px]">
-              <DropdownMenuRadioGroup value={sort} onValueChange={handleSort}>
-                {sortOptions.map((sortItem) => (
-                  <DropdownMenuRadioItem value={sortItem.id} key={sortItem.id}>
-                    {sortItem.label}
-                  </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          
+          <div className="flex items-center gap-2">
+            {/* Mobile Filter Drawer Trigger */}
+            <div className="md:hidden">
+              <Sheet open={openFilterSheet} onOpenChange={setOpenFilterSheet}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center gap-1.5 text-xs font-bold">
+                    <SlidersHorizontal className="h-3.5 w-3.5" />
+                    <span>Filters</span>
+                    {activeFiltersCount > 0 && (
+                      <span className="ml-1 px-1.5 py-0.2 bg-primary text-primary-foreground text-[10px] rounded-full font-black">
+                        {activeFiltersCount}
+                      </span>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[85vw] sm:max-w-sm p-0 overflow-y-auto">
+                  <SheetHeader className="p-4 border-b">
+                    <SheetTitle className="text-base font-extrabold text-left">Filter Products</SheetTitle>
+                  </SheetHeader>
+                  <div className="p-2">
+                    <ProductFilter filters={filters} handleFilter={handleFilter} />
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center gap-1 text-xs font-bold">
+                  <ArrowUpDownIcon className="h-3.5 w-3.5" />
+                  <span>Sort by</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[200px]">
+                <DropdownMenuRadioGroup value={sort} onValueChange={handleSort}>
+                  {sortOptions.map((sortItem) => (
+                    <DropdownMenuRadioItem value={sortItem.id} key={sortItem.id}>
+                      {sortItem.label}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 p-3 sm:p-4">
           {isLoading
             ? Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)
             : productList && productList.length > 0
@@ -234,7 +274,7 @@ function ShoppingListing() {
 
         {/* Pagination */}
         {!isLoading && (
-          <div className="px-4 pb-6">
+          <div className="px-3 sm:px-4 pb-6">
             <PaginationBar
               currentPage={currentPage}
               totalPages={totalPages}
